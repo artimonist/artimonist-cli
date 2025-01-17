@@ -1,6 +1,6 @@
 [package]
 name = "artimonist-cli"
-version = "0.1.0"
+version = "0.2.0"
 description = "A tool for generating mnemonics based on diagrams."
 authors = ["Artimonist <artimonist@gmail.com>"]
 homepage = "https://artimonist.org/"
@@ -14,3 +14,4 @@ edition = "2021"
 [dependencies]
 artimonist = "0.3.5"
 clap = { version = "^4.5.26", features = ["derive", "unicode"] }
+unicode-width = "0.2.0"

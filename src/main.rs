@@ -1,5 +1,7 @@
+mod diagram;
 use artimonist::{Diagram, Error, SimpleDiagram, Xpriv, BIP85};
 use clap::{Parser, ValueEnum};
+use diagram::TDiagram;
 
 #[derive(Parser)]
 struct Cli {
@@ -58,6 +60,7 @@ fn main() -> Result<(), Error> {
         .collect();
 
     println!("");
+    println!("{}", TDiagram(diagram));
     results.into_iter().enumerate().for_each(|(i, v)| {
         println!("{i}: {v}");
     });

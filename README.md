@@ -17,11 +17,30 @@ Options:
   -h, --help             Print help
 ```
 
+Let's draw a diagram like the one below, and generate multi target by it.
+```
+┌─────┬─────┬─────┬─────┬─────┬─────┬─────┐
+│  【 │     │     │     │     │     │     │
+├─────┼─────┼─────┼─────┼─────┼─────┼─────┤
+│     │  1  │     │     │     │     │     │
+├─────┼─────┼─────┼─────┼─────┼─────┼─────┤
+│     │     │  $  │     │     │     │     │
+├─────┼─────┼─────┼─────┼─────┼─────┼─────┤
+│     │     │     │  ≈  │     │     │     │
+├─────┼─────┼─────┼─────┼─────┼─────┼─────┤
+│     │     │     │     │  ⅞  │     │     │
+├─────┼─────┼─────┼─────┼─────┼─────┼─────┤
+│     │     │     │     │     │  £  │     │
+├─────┼─────┼─────┼─────┼─────┼─────┼─────┤
+│     │     │     │     │     │     │  】 │
+└─────┴─────┴─────┴─────┴─────┴─────┴─────┘
+```
+_(Some terminal fonts display different characters width, using standard font maybe display correctly.)_
+
 ### mnemonic
 **`> artimonist-cli 【1$≈⅞£】 (0,0) (1,1) (2,2) (3,3) (4,4) (5,5) (6,6)`**
 ```
 0: melody stove spell vessel gold cricket public ensure family seek piano mechanic trap truck roast bind alley donor runway miracle entry crop act vocal
-
 ```
 
 ### wif
@@ -39,6 +58,7 @@ Options:
 ```
 0: xprv9s21ZrQH143K26RCtmAMZxtw7UJ9EzVwVtftmszx9y1LC4PktDeFNAXFT7Qwdpy1vQHkV5fiRxUbX8NznqvkKJQaU5Nj74hzERT8mdcmPw5
 ```
+
 ### pwd
 **`> artimonist-cli -t pwd -c 10 【1$≈⅞£】 (0,0) (1,1) (2,2) (3,3) (4,4) (5,5) (6,6)`**
 ```
