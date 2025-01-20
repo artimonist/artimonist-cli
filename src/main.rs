@@ -1,4 +1,5 @@
 mod diagram;
+
 use artimonist::{Diagram, Error, SimpleDiagram, Xpriv, BIP85};
 use clap::{Parser, ValueEnum};
 use diagram::TDiagram;
@@ -69,32 +70,14 @@ fn main() -> Result<(), Error> {
 }
 
 fn generate(master: &Xpriv, t: Target, i: u32) -> Option<String> {
-    use artimonist::bitcoin::{
-        secp256k1::Secp256k1, Address, CompressedPublicKey, NetworkKind, PrivateKey,
-    };
-    macro_rules! p2shwpkh {
-        ($x: expr) => {
-            Address::p2shwpkh(
-                &CompressedPublicKey::from_private_key(
-                    &Secp256k1::default(),
-                    &PrivateKey::from_wif(&$x).unwrap(),
-                )
-                .unwrap(),
-                NetworkKind::Main,
-            )
-        };
-    }
-
-    let bip85_wif = |i| match master.bip85_wif(i) {
-        Ok(wif) => format!("( {}, {wif} )", p2shwpkh!(wif)),
-        _ => "".to_owned(),
-    };
-
     match t {
         Target::Mnemonic => master.bip85_mnemonic(Default::default(), 24, i),
         Target::Xpriv => master.bip85_xpriv(i),
-        Target::Wif => Ok(bip85_wif(i)),
+        Target::Wif => master
+            .bip85_wif(i)
+            .map(|v| v.extra_address())
+            .map(|(addr, pk)| format!("( {addr}, {pk} )")),
         Target::Pwd => master.bip85_pwd(Default::default(), 20, i),
     }
-    .map_or(None, |v| Some(v))
+    .map_or(None, Some)
 }

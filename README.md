@@ -40,36 +40,36 @@ _(Some terminal fonts display different characters width, using standard font ma
 ### mnemonic
 **`> artimonist-cli 【1$≈⅞£】 (0,0) (1,1) (2,2) (3,3) (4,4) (5,5) (6,6)`**
 ```
-0: melody stove spell vessel gold cricket public ensure family seek piano mechanic trap truck roast bind alley donor runway miracle entry crop act vocal
+0: face shoot relax patch verify six lion proud income copy strategy primary person sign hint mango bargain soldier lobster change follow vehicle material harvest
 ```
 
 ### wif
 **`> artimonist-cli --target wif --count 5 【1$≈⅞£】 (0,0) (1,1) (2,2) (3,3) (4,4) (5,5) (6,6)`**
 ```
-0: ( 38FPFdaGWejCRawvsCbSiuj8AgAJGJ1vNz, KzWLnHF5ESw43o6Uy4ZCixVT8LEA4cQnF3m47FQp6WwBn3QzmbsZ )
-1: ( 3QRD7qGyF2QAXrRiRuCr6H2D4DEXLRicco, KxpzGv35MPYLFammP7hqGgGCc81g6Gx5cYfLRapPURmSS9oEPJxT )
-2: ( 32EUNg5vHukrVkE2PA2hMawfeoeXeoJXGj, L4evBDU2brn915UXnoiisDPjET8xkCuwTo4Ef5C6ki3RPT3vrWzM )
-3: ( 35vpqRzaJ83G2DpRBSrWaaN3ELWfNB3BCZ, L1uXQySss2vSkJf6BvqLwjFemwqgKawtKToW922paWrcrV95Vs6P )
-4: ( 328Z2MBojc2f4bFo9RvxLJQizP4SbcWLic, L4YQmGr4582nGVirJBd5ktu1KnAN12VzBfx2V22HQgWNUXEDvctJ )
+0: ( 3Cp9s5u2e2Y4mWEDQKnjn7XidkFqwCAR16, Kxnp8CMBWth5yBZHURj4qiHoQZbiu2vsppbFMGAWv6c3hajtmMor )
+1: ( 3MDfN9tXdozXKRiGbDpgWujk6haJXXVXSS, KzUjZbdPGN8UqJTE9UXzpQugKWRMZwRqE3vCqhwJJs1dJ3qXSz3z )
+2: ( 35mY6LGhApUhgqd5xw3FR4ngZhjGvZjHMq, L4KcnHRnJFdRjHDuLHoGjQ1Lf82Fs2WUanGtRuZsYQChKXN9cs1t )
+3: ( 3EgqQwGyeYBtZTdbaposrRuszsaPju3oBK, KxLnnzRK3hdfJ7kfkE6kHsyLEMMoWLypchyJw92dFRG6z6fvNqL5 )
+4: ( 3QhuuovyzenmJfyjL257AgDK2n7CG3DJSi, KygF68fiRUuk8W2c7nf3iA5Mxzi4rdijz49MKAp1aZ2nkLHkWJ3J )
 ``` 
 
 ### xpriv
 **`> artimonist-cli --target xpriv --salt artimonist 【1$≈⅞£】 (0,0) (1,1) (2,2) (3,3) (4,4) (5,5) (6,6)`**
 ```
-0: xprv9s21ZrQH143K26RCtmAMZxtw7UJ9EzVwVtftmszx9y1LC4PktDeFNAXFT7Qwdpy1vQHkV5fiRxUbX8NznqvkKJQaU5Nj74hzERT8mdcmPw5
+0: xprv9s21ZrQH143K2NbNten7yUnUKHWKgmqC51sNJYJMhrvyxXcxD6bDk8W33ZGw3nBezrVVLsfaoFC2SuBRCkgX1Hpyn4er6XCGf1L9uTWmpH9
 ```
 
 ### pwd
 **`> artimonist-cli -t pwd -c 10 【1$≈⅞£】 (0,0) (1,1) (2,2) (3,3) (4,4) (5,5) (6,6)`**
 ```
-0: FtbFj#LWmrsK@n$UhpK1
-1: tkyS%EG5nf%h1Y5U*g75
-2: YTv1oFxX4#Nys75LqDhb
-3: 3Kq37Cso%1Fcn$8$D7EJ
-4: r%nJ4817&Q8L9N*AbbLk
-5: wNTDNhzZ&NuM5@9bEP6F
-6: &PUcYESkHQ%TimRTJW&8
-7: %61pCvURZgqTAePA7HDi
-8: Yu%k4b2VjL8GMBFHknvS
-9: H6K&BeU34b2ycsZK2cbe
+0: sLVP2EgoUWu#8khAuN4F
+1: yo%r9stqLShHW8EXbS1A
+2: 7xT5kfHDyqrGQkrV9kku
+3: aBj1kp7Wus&eyZh3Y%g5
+4: pBnRfSRt9FM*rmhmvBkg
+5: j@fEyGzSGF5o#38%H#86
+6: 1@oYSzj5DR7cvXHavHHX
+7: $vfj#S3WjQ4vkn4iPrXf
+8: f7mKae76xBMMdKNN3Yt7
+9: zVJMgcxXEUZDwYvayXb*
 ```
