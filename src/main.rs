@@ -33,7 +33,7 @@ enum Target {
 
 fn parse_indices(s: &str) -> Result<(u8, u8), String> {
     if let Some((row, col)) = s
-        .trim_matches(&['(', ')'])
+        .trim_matches(['(', ')'])
         .split_once(',')
         .map(|(a, b)| (a.as_bytes()[0] - b'0', b.as_bytes()[0] - b'0'))
         .filter(|&(a, b)| a < 7 && b < 7)
@@ -46,7 +46,7 @@ fn parse_indices(s: &str) -> Result<(u8, u8), String> {
 fn main() -> Result<(), Error> {
     let args = Cli::parse();
 
-    let chars = args.content.chars().map(|v| Some(v)).collect();
+    let chars = args.content.chars().map(Some).collect();
     let indices: Vec<(usize, usize)> = args
         .indices
         .into_iter()
@@ -60,7 +60,7 @@ fn main() -> Result<(), Error> {
         .map(|i| generate(&master, args.target, i).unwrap_or_default())
         .collect();
 
-    println!("");
+    println!();
     println!("{}", TDiagram(diagram));
     results.into_iter().enumerate().for_each(|(i, v)| {
         println!("{i}: {v}");
@@ -79,5 +79,5 @@ fn generate(master: &Xpriv, t: Target, i: u32) -> Option<String> {
             .map(|(addr, pk)| format!("( {addr}, {pk} )")),
         Target::Pwd => master.bip85_pwd(Default::default(), 20, i),
     }
-    .map_or(None, Some)
+    .ok()
 }

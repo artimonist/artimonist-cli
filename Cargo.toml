@@ -6,6 +6,7 @@ authors = ["Artimonist <artimonist@gmail.com>"]
 homepage = "https://artimonist.org/"
 repository = "https://github.com/artimonist/artimonist-cli/"
 
+license = "MIT"
 keywords = ["bitcoin", "mnemonic"]
 categories = ["cryptography"]
 rust-version = "1.84.0"
