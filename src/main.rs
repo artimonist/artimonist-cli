@@ -1,6 +1,6 @@
 mod diagram;
 
-use artimonist::{Diagram, Error, SimpleDiagram, Xpriv, BIP85};
+use artimonist::{Error, GenericDiagram, SimpleDiagram, Xpriv, BIP85};
 use clap::{Parser, ValueEnum};
 use diagram::TDiagram;
 
@@ -46,7 +46,7 @@ fn parse_indices(s: &str) -> Result<(u8, u8), String> {
 fn main() -> Result<(), Error> {
     let args = Cli::parse();
 
-    let chars = args.content.chars().map(Some).collect();
+    let chars: Vec<char> = args.content.chars().collect();
     let indices: Vec<(usize, usize)> = args
         .indices
         .into_iter()
@@ -54,8 +54,8 @@ fn main() -> Result<(), Error> {
         .collect();
     let salt = args.salt.unwrap_or_default();
 
-    let diagram = SimpleDiagram::from_items(chars, &indices)?;
-    let master = diagram.to_master(salt.as_bytes())?;
+    let diagram = SimpleDiagram::from_values(&chars, &indices);
+    let master = diagram.bip32_master(salt.as_bytes())?;
     let results: Vec<String> = (0..args.count as u32)
         .map(|i| generate(&master, args.target, i).unwrap_or_default())
         .collect();

@@ -1,4 +1,4 @@
-use artimonist::{Diagram, SimpleDiagram};
+use artimonist::SimpleDiagram;
 use unicode_width::UnicodeWidthChar;
 
 /// get unicode middle string
@@ -28,10 +28,11 @@ impl std::fmt::Display for TDiagram {
             }};
         }
         let content_line = |row| {
+            let r: &[Option<char>; 7] = &self.0[row];
             (0..7)
-                .map(|col| match self.0.get(row, col) {
-                    Some(&Some(ch)) => unicode_middle(ch, CW),
-                    _ => format!("{:CW$}", ""),
+                .map(|col| match r[col] {
+                    Some(ch) => unicode_middle(ch, CW),
+                    None => format!("{:CW$}", ""),
                 })
                 .collect::<Vec<String>>()
                 .join("│")

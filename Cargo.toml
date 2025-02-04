@@ -1,6 +1,6 @@
 [package]
 name = "artimonist-cli"
-version = "0.3.0"
+version = "0.5.0"
 description = "A tool for generating mnemonics based on diagrams."
 authors = ["Artimonist <artimonist@gmail.com>"]
 homepage = "https://artimonist.org/"
@@ -12,7 +12,11 @@ categories = ["cryptography"]
 rust-version = "1.84.0"
 edition = "2021"
 
+[[bin]]
+name = "artimonist"
+path = "src/main.rs"
+
 [dependencies]
-artimonist = "0.6.0"
-clap = { version = "^4.5.26", features = ["derive", "unicode"] }
+artimonist = "0.7.1"
+clap = { version = "^4.5.28", features = ["derive", "unicode"] }
 unicode-width = "0.2.0"
