@@ -3,8 +3,10 @@ use artimonist::{ComplexDiagram, Error, GenericDiagram, SimpleDiagram, Xpriv, BI
 use clap::{Parser, Subcommand, ValueEnum};
 use matrix::{FmtTable, Matrix, ToMatrix};
 
+/// Artimonist - A tool for generating mnemonics based on diagrams.   
+/// Web version: https://www.artimonist.org
 #[derive(Parser)]
-#[command(about, long_about = None)]
+#[command(version)]
 struct Cli {
     #[command(subcommand)]
     command: Commands,
@@ -29,8 +31,8 @@ enum Commands {
         /// Salt
         #[arg(short, long)]
         salt: Option<String>,
-        // /// Encrypt private key
-        // #[arg(short, long)]
+        // /// Encrypt private key of wif
+        // #[arg(short, long, required="wif")]
         // encrypt: Option<String>,
     },
     /// Use complex diagram of 7 * 7 strings
@@ -40,7 +42,7 @@ enum Commands {
         target: Target,
 
         /// Start serial number
-        #[arg(short, long, default_value_t = 1)]
+        #[arg(short, long, default_value_t = 0)]
         serial: u16,
 
         /// Amount to generate
@@ -50,22 +52,24 @@ enum Commands {
         /// Salt
         #[arg(short, long)]
         salt: Option<String>,
-        // /// Encrypt private key
-        // #[arg(short, long)]
+        // /// Encrypt private key of wif
+        // #[arg(short, long, required="wif")]
         // encrypt: Option<String>,
     },
     // /// Encrypt private key by bip38
-    // Encrypt { key: String },
+    // Encrypt { key: String, password: String },
     // /// Decrypt private key by bip38
-    // Decrypt { key: String },
+    // Decrypt { key: String, password: String },
 }
 
 #[derive(ValueEnum, Clone, Copy, Default, Debug)]
 enum Target {
     #[default]
     Mnemonic,
+    #[value(alias = "wif")]
     Wallet,
     Xpriv,
+    #[value(alias = "pwd")]
     Password,
 }
 
@@ -128,8 +132,7 @@ fn input_simple() -> Matrix<7, 7, char> {
     // parse
     lns.into_iter()
         .map(|s| {
-            s.trim()
-                .split(" ")
+            s.split_whitespace()
                 .map(|v| v.trim_matches('\"').chars().next())
                 .collect()
         })
@@ -152,10 +155,9 @@ fn input_complex() -> Matrix<7, 7, String> {
     // parse
     lns.into_iter()
         .map(|s| {
-            s.trim()
-                .split_whitespace()
+            s.split_whitespace()
                 .map(|v| match v.trim_matches('\"') {
-                    s if s.is_empty() => None,
+                    "" => None,
                     s => Some(s.to_owned()),
                 })
                 .collect()
@@ -177,7 +179,7 @@ fn generate(master: &Xpriv, target: Target, serial: u32, amount: u32) -> Vec<Str
                     .map(|(addr, pk)| format!("{addr}, {pk}")),
                 Target::Password => master.bip85_pwd(Default::default(), 20, i),
             }
-            .map_or(None, |s| Some(s))
+            .ok()
         })
         .collect()
 }
