@@ -158,7 +158,7 @@ fn input_complex() -> Matrix<7, 7, String> {
             s.split_whitespace()
                 .map(|v| match v.trim_matches('\"') {
                     "" => None,
-                    s => Some(s.to_owned()),
+                    s => Some(s.chars().take(20).collect()),
                 })
                 .collect()
         })
