@@ -1,7 +1,10 @@
-mod matrix;
-use artimonist::{ComplexDiagram, Error, GenericDiagram, SimpleDiagram, Xpriv, BIP85};
+use artimonist::{ComplexDiagram, Encryptor, Error, SimpleDiagram};
 use clap::{Parser, Subcommand, ValueEnum};
-use matrix::{FmtTable, Matrix, ToMatrix};
+
+mod input;
+mod output;
+use input::Input;
+use output::Output;
 
 /// Artimonist - A tool for generating mnemonics based on diagrams.   
 /// Web version: https://www.artimonist.org
@@ -12,182 +15,101 @@ struct Cli {
     command: Commands,
 }
 
+#[derive(Parser)]
+struct DiagramCommand {
+    /// Target
+    #[arg(short, long, default_value = "mnemonic")]
+    target: Target,
+
+    /// Start index
+    #[arg(short, long, default_value_t = 0)]
+    index: u16,
+
+    /// Amount to generate
+    #[arg(short = 'm', long, default_value_t = 1)]
+    amount: u16,
+
+    /// Salt
+    #[arg(short, long)]
+    salt: Option<String>,
+
+    /// Encrypt private key of: --target wallet
+    #[arg(short, long)]
+    encrypt: bool,
+
+    #[arg(skip)]
+    encrypt_key: String,
+    /*
+       /// Input diagram from text file
+       #[arg(short, long)]
+       file: Option<String>,
+
+       /// Output result to text file
+       #[arg(short, long)]
+       output: Option<String>,
+    */
+}
+
 #[derive(Subcommand)]
 enum Commands {
     /// Use simple diagram of 7 * 7 chars
-    Simple {
-        /// Target
-        #[arg(short, long, default_value = "mnemonic")]
-        target: Target,
-
-        /// Start serial number
-        #[arg(short, long, default_value_t = 0)]
-        serial: u16,
-
-        /// Amount to generate
-        #[arg(short = 'm', long, default_value_t = 1)]
-        amount: u16,
-
-        /// Salt
-        #[arg(short, long)]
-        salt: Option<String>,
-        // /// Encrypt private key of wif
-        // #[arg(short, long, required="wif")]
-        // encrypt: Option<String>,
-    },
+    Simple(DiagramCommand),
     /// Use complex diagram of 7 * 7 strings
-    Complex {
-        /// Target
-        #[arg(short, long, default_value = "mnemonic")]
-        target: Target,
-
-        /// Start serial number
-        #[arg(short, long, default_value_t = 0)]
-        serial: u16,
-
-        /// Amount to generate
-        #[arg(short = 'm', long, default_value_t = 1)]
-        amount: u16,
-
-        /// Salt
-        #[arg(short, long)]
-        salt: Option<String>,
-        // /// Encrypt private key of wif
-        // #[arg(short, long, required="wif")]
-        // encrypt: Option<String>,
-    },
-    // /// Encrypt private key by bip38
-    // Encrypt { key: String, password: String },
-    // /// Decrypt private key by bip38
-    // Decrypt { key: String, password: String },
+    Complex(DiagramCommand),
+    /// Encrypt private key by bip38
+    Encrypt { key: String },
+    /// Decrypt private key by bip38
+    Decrypt { key: String },
 }
 
 #[derive(ValueEnum, Clone, Copy, Default, Debug)]
 enum Target {
     #[default]
     Mnemonic,
-    #[value(alias = "wif")]
+    #[value(alias("wif"))]
     Wallet,
     Xpriv,
-    #[value(alias = "pwd")]
+    #[value(alias("pwd"))]
     Password,
 }
 
 fn main() -> Result<(), Error> {
     let args = Cli::parse();
     match args.command {
-        Commands::Simple {
-            target,
-            serial,
-            amount,
-            salt,
-        } => {
-            let mx = input_simple();
-            println!();
-            println!("Simple diagram: ");
-            println!("{}", mx.fmt_table());
-            let master = SimpleDiagram(mx).bip32_master(salt.unwrap_or_default().as_bytes())?;
-            println!();
-            println!("{:?} results: ", target);
-            generate(&master, target, serial as u32, amount as u32)
-                .iter()
-                .enumerate()
-                .for_each(|(i, s)| println!("{}: {s}", i + serial as usize));
+        Commands::Simple(mut cmd) => {
+            let mx = Input::simple_matrix();
+            if cmd.encrypt && matches!(cmd.target, Target::Wallet) {
+                cmd.encrypt_key = Input::password();
+            }
+            let diagram = SimpleDiagram(mx);
+            diagram.output(&cmd)?;
         }
-        Commands::Complex {
-            target,
-            serial,
-            amount,
-            salt,
-        } => {
-            let mx = input_complex();
-            println!();
-            println!("Complex diagram: ");
-            println!("{}", mx.fmt_table());
-            let master = ComplexDiagram(mx).bip32_master(salt.unwrap_or_default().as_bytes())?;
-            println!();
-            println!("{:?} results: ", target);
-            generate(&master, target, serial as u32, amount as u32)
-                .iter()
-                .enumerate()
-                .for_each(|(i, s)| println!("{}: {s}", i + serial as usize));
-        } // Commands::Encrypt { key } => {}
-          // Commands::Decrypt { key } => {}
+        Commands::Complex(mut cmd) => {
+            let mx = Input::complex_matrix();
+            if cmd.encrypt && matches!(cmd.target, Target::Wallet) {
+                cmd.encrypt_key = Input::password();
+            }
+            let diagram = ComplexDiagram(mx);
+            diagram.output(&cmd)?;
+        }
+        Commands::Encrypt { key } => {
+            let pwd = Input::password();
+            let result = Encryptor::encrypt_wif(&key, &pwd).expect("encrypt error");
+            println!("Encrypted private key: {result}");
+        }
+        Commands::Decrypt { key } => {
+            let pwd = Input::password();
+            let result = Encryptor::decrypt_wif(&key, &pwd).expect("decrypt error");
+            println!("Decrypted private key: {result}");
+        }
     }
     Ok(())
-}
-
-/// Input simple diagram
-fn input_simple() -> Matrix<7, 7, char> {
-    // input
-    let lns: Vec<String> = (1..=7)
-        .map(|i| {
-            inquire::Text::new(&format!("row ({i})"))
-                .with_initial_value(&"\"\" ".repeat(7))
-                .with_help_message("Fill characters in quotes.")
-                .prompt()
-                .unwrap()
-        })
-        .collect();
-    // parse
-    lns.into_iter()
-        .map(|s| {
-            s.split_whitespace()
-                .map(|v| v.trim_matches('\"').chars().next())
-                .collect()
-        })
-        .collect::<Vec<Vec<_>>>()
-        .to_matrix::<7, 7>()
-}
-
-/// Input complex diagram
-fn input_complex() -> Matrix<7, 7, String> {
-    // input
-    let lns: Vec<String> = (1..=7)
-        .map(|i| {
-            inquire::Text::new(&format!("row ({i})"))
-                .with_initial_value(&"\"\"  ".repeat(7))
-                .with_help_message("Fill characters in quotes.")
-                .prompt()
-                .unwrap()
-        })
-        .collect();
-    // parse
-    lns.into_iter()
-        .map(|s| {
-            s.split_whitespace()
-                .map(|v| match v.trim_matches('\"') {
-                    "" => None,
-                    s => Some(s.chars().take(20).collect()),
-                })
-                .collect()
-        })
-        .collect::<Vec<Vec<_>>>()
-        .to_matrix::<7, 7>()
-}
-
-/// Generate target results
-fn generate(master: &Xpriv, target: Target, serial: u32, amount: u32) -> Vec<String> {
-    (serial..serial + amount)
-        .filter_map(|i| {
-            match target {
-                Target::Mnemonic => master.bip85_mnemonic(Default::default(), 24, i),
-                Target::Xpriv => master.bip85_xpriv(i),
-                Target::Wallet => master
-                    .bip85_wif(i)
-                    .map(|v| v.extra_address())
-                    .map(|(addr, pk)| format!("{addr}, {pk}")),
-                Target::Password => master.bip85_pwd(Default::default(), 20, i),
-            }
-            .ok()
-        })
-        .collect()
 }
 
 #[cfg(test)]
 mod diagram_test {
     use super::*;
-    use artimonist::GenericDiagram;
+    use artimonist::{GenericDiagram, Wif, BIP85};
 
     #[test]
     fn test_simple() {
@@ -227,7 +149,7 @@ mod diagram_test {
         let mnemonic = master.bip85_mnemonic(Default::default(), 24, 0).unwrap();
         assert_eq!(mnemonic, MNEMONIC);
         WIFS.into_iter().enumerate().for_each(|(i, s)| {
-            let (addr, pk) = master.bip85_wif(i as u32).unwrap().extra_address();
+            let Wif { addr, pk } = master.bip85_wif(i as u32).unwrap();
             assert_eq!(format!("{addr}, {pk}"), s);
         });
         let salt_master = diagram.bip32_master("artimonist".as_bytes()).unwrap();
