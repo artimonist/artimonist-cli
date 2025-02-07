@@ -1,5 +1,5 @@
 use artimonist::{ComplexDiagram, Encryptor, Error, SimpleDiagram};
-use clap::{Parser, Subcommand, ValueEnum};
+use clap::{Args, Parser, Subcommand, ValueEnum};
 
 mod input;
 mod output;
@@ -39,15 +39,36 @@ struct DiagramCommand {
 
     #[arg(skip)]
     encrypt_key: String,
-    /*
-       /// Input diagram from text file
-       #[arg(short, long)]
-       file: Option<String>,
 
-       /// Output result to text file
-       #[arg(short, long)]
-       output: Option<String>,
-    */
+    /// Input diagram from text file
+    #[arg(short, long)]
+    file: Option<String>,
+
+    /// Output result to text file
+    #[arg(short, long)]
+    output: Option<String>,
+}
+
+#[derive(Parser)]
+struct EncryptCommand {
+    #[command(flatten)]
+    input: EncryInput,
+    /// Output file
+    #[arg(short, long)]
+    output: Option<String>,
+    /// Append to output file
+    #[arg(short, long, requires = "output")]
+    append: bool,
+}
+
+#[derive(Args)]
+#[group(required = true, multiple = false)]
+struct EncryInput {
+    /// Private key (Wif)
+    key: Option<String>,
+    /// Input file
+    #[arg(short, long)]
+    file: Option<String>,
 }
 
 #[derive(Subcommand)]
@@ -57,9 +78,9 @@ enum Commands {
     /// Use complex diagram of 7 * 7 strings
     Complex(DiagramCommand),
     /// Encrypt private key by bip38
-    Encrypt { key: String },
+    Encrypt(EncryptCommand),
     /// Decrypt private key by bip38
-    Decrypt { key: String },
+    Decrypt(EncryptCommand),
 }
 
 #[derive(ValueEnum, Clone, Copy, Default, Debug)]
@@ -92,14 +113,20 @@ fn main() -> Result<(), Error> {
             let diagram = ComplexDiagram(mx);
             diagram.output(&cmd)?;
         }
-        Commands::Encrypt { key } => {
+        Commands::Encrypt(cmd) => {
             let pwd = Input::password();
-            let result = Encryptor::encrypt_wif(&key, &pwd).expect("encrypt error");
+            let result = match cmd.input.key {
+                Some(key) => Encryptor::encrypt_wif(&key, &pwd).expect("encrypt error"),
+                None => "todo()!".to_string(),
+            };
             println!("Encrypted private key: {result}");
         }
-        Commands::Decrypt { key } => {
+        Commands::Decrypt(cmd) => {
             let pwd = Input::password();
-            let result = Encryptor::decrypt_wif(&key, &pwd).expect("decrypt error");
+            let result = match cmd.input.key {
+                Some(key) => Encryptor::decrypt_wif(&key, &pwd).expect("encrypt error"),
+                None => "todo()!".to_string(),
+            };
             println!("Decrypted private key: {result}");
         }
     }
