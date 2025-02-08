@@ -1,4 +1,4 @@
-use artimonist::{ComplexDiagram, Encryptor, SimpleDiagram};
+use artimonist::Encryptor;
 use clap::{Args, Parser, Subcommand, ValueEnum};
 
 mod input;
@@ -16,7 +16,7 @@ struct Cli {
 }
 
 #[derive(Parser)]
-struct DiagramCommand {
+pub struct DiagramCommand {
     /// Target
     #[arg(short, long, default_value = "mnemonic")]
     target: Target,
@@ -105,8 +105,7 @@ fn main() -> Result<(), CommandError> {
             if cmd.encrypt && matches!(cmd.target, Target::Wallet) {
                 cmd.encrypt_key = Input::password();
             }
-            let diagram = SimpleDiagram(mx);
-            diagram.output(&cmd)?;
+            Output::simple(mx, &cmd)?;
         }
         Commands::Complex(mut cmd) => {
             let mx = match &cmd.file {
@@ -116,8 +115,7 @@ fn main() -> Result<(), CommandError> {
             if cmd.encrypt && matches!(cmd.target, Target::Wallet) {
                 cmd.encrypt_key = Input::password();
             }
-            let diagram = ComplexDiagram(mx);
-            diagram.output(&cmd)?;
+            Output::complex(mx, &cmd)?;
         }
         Commands::Encrypt(cmd) => {
             let pwd = Input::password();
@@ -142,10 +140,13 @@ fn main() -> Result<(), CommandError> {
 use thiserror::Error;
 
 #[derive(Error, Debug)]
-enum CommandError {
+pub enum CommandError {
     /// Artimonist error
     #[error("artimonist error")]
     Artimonist(#[from] artimonist::Error),
+    /// Generic error
+    #[error("generic error")]
+    Generic(#[from] artimonist::error::GenericError),
     /// File error
     #[error("file error")]
     File(#[from] std::io::Error),
@@ -156,8 +157,7 @@ enum CommandError {
 
 #[cfg(test)]
 mod diagram_test {
-    use super::*;
-    use artimonist::{GenericDiagram, Wif, BIP85};
+    use artimonist::{GenericDiagram, SimpleDiagram, Wif, BIP85};
 
     #[test]
     fn test_simple() {

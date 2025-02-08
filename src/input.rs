@@ -3,6 +3,7 @@ use inquire::PasswordDisplayMode;
 use std::fmt::Debug;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
+use std::path::Path;
 
 pub trait Formatter<T> {
     fn format(self) -> Option<T>;
@@ -26,9 +27,8 @@ impl Input {
     where
         for<'a> &'a str: Formatter<T>,
     {
-        let file = File::open(path)?;
+        let file = File::open(Path::new(path))?;
         let buffered = BufReader::new(file);
-
         let mvs = buffered
             .lines()
             .take(7)
@@ -36,7 +36,7 @@ impl Input {
                 Ok(ln) => ln
                     .split_whitespace()
                     .take(7)
-                    .map(|s| s.trim_matches('"').format())
+                    .map(|s| s.trim_matches('\"').format())
                     .collect::<Vec<_>>(),
                 _ => vec![],
             })
@@ -56,7 +56,7 @@ impl Input {
                 .with_help_message("Fill characters in quotes.")
                 .prompt()?
                 .split_whitespace()
-                .map(|s| s.trim_end_matches('"').format())
+                .map(|s| s.trim_matches('\"').format())
                 .collect();
             mvs.push(vs);
         }
