@@ -1,56 +1,66 @@
 use artimonist::{Matrix, ToMatrix};
 use inquire::PasswordDisplayMode;
+use std::fmt::Debug;
+use std::fs::File;
+use std::io::{BufRead, BufReader};
+
+pub trait Formatter<T> {
+    fn format(self) -> Option<T>;
+}
+impl Formatter<char> for &str {
+    fn format(self) -> Option<char> {
+        self.chars().next()
+    }
+}
+impl Formatter<String> for &str {
+    fn format(self) -> Option<String> {
+        Some(self.chars().take(20).collect())
+    }
+}
 
 pub struct Input;
 
 impl Input {
-    /// Input simple diagram
-    pub fn simple_matrix() -> Matrix<7, 7, char> {
-        // input
-        let lns: Vec<String> = (1..=7)
-            .map(|i| {
-                inquire::Text::new(&format!("row ({i})"))
-                    .with_initial_value(&"\"\" ".repeat(7))
-                    .with_help_message("Fill characters in quotes.")
-                    .prompt()
-                    .unwrap()
+    /// Input diagram from file
+    pub fn diagram_file<T: Debug>(path: &str) -> Result<Matrix<7, 7, T>, std::io::Error>
+    where
+        for<'a> &'a str: Formatter<T>,
+    {
+        let file = File::open(path)?;
+        let buffered = BufReader::new(file);
+
+        let mvs = buffered
+            .lines()
+            .take(7)
+            .map(|r| match r {
+                Ok(ln) => ln
+                    .split_whitespace()
+                    .take(7)
+                    .map(|s| s.trim_matches('"').format())
+                    .collect::<Vec<_>>(),
+                _ => vec![],
             })
-            .collect();
-        // parse
-        lns.into_iter()
-            .map(|s| {
-                s.split_whitespace()
-                    .map(|v| v.trim_matches('\"').chars().next())
-                    .collect()
-            })
-            .collect::<Vec<Vec<_>>>()
-            .to_matrix::<7, 7>()
+            .collect::<Vec<_>>();
+        Ok(mvs.to_matrix())
     }
 
-    /// Input complex diagram
-    pub fn complex_matrix() -> Matrix<7, 7, String> {
-        // input
-        let lns: Vec<String> = (1..=7)
-            .map(|i| {
-                inquire::Text::new(&format!("row ({i})"))
-                    .with_initial_value(&"\"\"  ".repeat(7))
-                    .with_help_message("Fill characters in quotes.")
-                    .prompt()
-                    .unwrap()
-            })
-            .collect();
-        // parse
-        lns.into_iter()
-            .map(|s| {
-                s.split_whitespace()
-                    .map(|v| match v.trim_matches('\"') {
-                        "" => None,
-                        s => Some(s.chars().take(20).collect()),
-                    })
-                    .collect()
-            })
-            .collect::<Vec<Vec<_>>>()
-            .to_matrix::<7, 7>()
+    /// Input diagram
+    pub fn matrix<T: Debug>() -> Result<Matrix<7, 7, T>, inquire::InquireError>
+    where
+        for<'a> &'a str: Formatter<T>,
+    {
+        let mut mvs: Vec<_> = vec![];
+        for i in 1..=7 {
+            let vs: Vec<_> = inquire::Text::new(&format!("row ({i})"))
+                .with_initial_value(&"\"\"  ".repeat(7))
+                .with_help_message("Fill characters in quotes.")
+                .prompt()?
+                .split_whitespace()
+                .map(|s| s.trim_end_matches('"').format())
+                .collect();
+            mvs.push(vs);
+        }
+        Ok(mvs.to_matrix())
     }
 
     // Input password

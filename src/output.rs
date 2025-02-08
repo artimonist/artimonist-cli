@@ -22,10 +22,7 @@ impl Output for SimpleDiagram {
         };
         let master = self.bip32_master(salt.as_bytes())?;
         (cmd.index..cmd.index + cmd.amount)
-            .filter_map(|i| match generate(&cmd, &master, i as u32) {
-                Some(s) => Some((i, s)),
-                None => None,
-            })
+            .filter_map(|i| generate(cmd, &master, i as u32).map(|s| (i, s)))
             .for_each(|(i, s)| println!("({i}): {s}"));
         Ok(())
     }
@@ -44,10 +41,7 @@ impl Output for ComplexDiagram {
         };
         let master = self.bip32_master(salt.as_bytes())?;
         (cmd.index..cmd.index + cmd.amount)
-            .filter_map(|i| match generate(&cmd, &master, i as u32) {
-                Some(s) => Some((i, s)),
-                None => None,
-            })
+            .filter_map(|i| generate(cmd, &master, i as u32).map(|s| (i, s)))
             .for_each(|(i, s)| println!("{i}: {s}"));
         Ok(())
     }

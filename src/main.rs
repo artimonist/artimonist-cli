@@ -1,4 +1,4 @@
-use artimonist::{ComplexDiagram, Encryptor, Error, SimpleDiagram};
+use artimonist::{ComplexDiagram, Encryptor, SimpleDiagram};
 use clap::{Args, Parser, Subcommand, ValueEnum};
 
 mod input;
@@ -94,11 +94,14 @@ enum Target {
     Password,
 }
 
-fn main() -> Result<(), Error> {
+fn main() -> Result<(), CommandError> {
     let args = Cli::parse();
     match args.command {
         Commands::Simple(mut cmd) => {
-            let mx = Input::simple_matrix();
+            let mx = match &cmd.file {
+                Some(file) => Input::diagram_file::<char>(file)?,
+                None => Input::matrix::<char>()?,
+            };
             if cmd.encrypt && matches!(cmd.target, Target::Wallet) {
                 cmd.encrypt_key = Input::password();
             }
@@ -106,7 +109,10 @@ fn main() -> Result<(), Error> {
             diagram.output(&cmd)?;
         }
         Commands::Complex(mut cmd) => {
-            let mx = Input::complex_matrix();
+            let mx = match &cmd.file {
+                Some(file) => Input::diagram_file::<String>(file)?,
+                None => Input::matrix::<String>()?,
+            };
             if cmd.encrypt && matches!(cmd.target, Target::Wallet) {
                 cmd.encrypt_key = Input::password();
             }
@@ -131,6 +137,21 @@ fn main() -> Result<(), Error> {
         }
     }
     Ok(())
+}
+
+use thiserror::Error;
+
+#[derive(Error, Debug)]
+enum CommandError {
+    /// Artimonist error
+    #[error("artimonist error")]
+    Artimonist(#[from] artimonist::Error),
+    /// File error
+    #[error("file error")]
+    File(#[from] std::io::Error),
+    /// Input error
+    #[error("input error")]
+    Inquire(#[from] inquire::InquireError),
 }
 
 #[cfg(test)]
