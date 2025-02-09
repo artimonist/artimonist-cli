@@ -65,9 +65,10 @@ impl Input {
 
     // Input password
     pub fn password() -> Result<String, InquireError> {
-        inquire::Password::new("Encryption Key: ")
+        inquire::Password::new("Encryption Key (Salt): ")
             .with_display_mode(PasswordDisplayMode::Masked)
             .with_display_toggle_enabled()
+            .with_help_message("Program use encryption key as salt.")
             .with_custom_confirmation_message("Encryption Key (confirm):")
             .with_custom_confirmation_error_message("The keys don't match.")
             .with_formatter(&|_| String::from("Input received"))

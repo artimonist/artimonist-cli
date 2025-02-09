@@ -30,16 +30,9 @@ pub struct DiagramCommand {
     #[arg(short = 'm', long, default_value_t = 1)]
     amount: u16,
 
-    /// Salt
-    #[arg(short, long)]
-    salt: Option<String>,
-
-    /// Encrypt private key of: --target wallet
-    #[arg(short, long)]
-    encrypt: bool,
-
+    /// Password as salt
     #[arg(skip)]
-    encrypt_key: String,
+    password: String,
 
     /// Input diagram from text file
     #[arg(short, long)]
@@ -91,15 +84,13 @@ fn main() -> Result<(), CommandError> {
                 Some(file) => Input::diagram_file::<char>(file)?,
                 None => Input::matrix::<char>()?,
             };
-            if cmd.encrypt && matches!(cmd.target, Target::Wallet) {
-                cmd.encrypt_key = Input::password()?;
-            }
             if let Some(path) = &cmd.output {
                 if std::path::Path::new(path).exists() && !Input::confirm_overwrite("File exists.")?
                 {
                     return Ok(());
                 }
             }
+            cmd.password = Input::password()?;
             Output::simple(&SimpleDiagram(mx), &cmd)?;
         }
         Commands::Complex(mut cmd) => {
@@ -107,15 +98,13 @@ fn main() -> Result<(), CommandError> {
                 Some(file) => Input::diagram_file::<String>(file)?,
                 None => Input::matrix::<String>()?,
             };
-            if cmd.encrypt && matches!(cmd.target, Target::Wallet) {
-                cmd.encrypt_key = Input::password()?;
-            }
             if let Some(path) = &cmd.output {
                 if std::path::Path::new(path).exists() && !Input::confirm_overwrite("File exists.")?
                 {
                     return Ok(());
                 }
             }
+            cmd.password = Input::password()?;
             Output::complex(&ComplexDiagram(mx), &cmd)?;
         }
         Commands::Encrypt(cmd) => {

@@ -12,8 +12,7 @@ pub struct Output<'a>(&'a DiagramCommand);
 
 impl Output<'_> {
     pub fn simple(diagram: &SimpleDiagram, cmd: &DiagramCommand) -> Result<(), CommandError> {
-        let salt = cmd.salt.clone().unwrap_or_default();
-        let master = diagram.bip32_master(salt.as_bytes())?;
+        let master = diagram.bip32_master(cmd.password.as_bytes())?;
         match cmd.output {
             Some(ref path) => Output(cmd).to_file(diagram, &master, path)?,
             None => Output(cmd).to_stdout(diagram, &master)?,
@@ -22,8 +21,7 @@ impl Output<'_> {
     }
 
     pub fn complex(diagram: &ComplexDiagram, cmd: &DiagramCommand) -> Result<(), CommandError> {
-        let salt = cmd.salt.clone().unwrap_or_default();
-        let master = diagram.bip32_master(salt.as_bytes())?;
+        let master = diagram.bip32_master(cmd.password.as_bytes())?;
         match cmd.output {
             Some(ref path) => Output(cmd).to_file(diagram, &master, path)?,
             None => Output(cmd).to_stdout(diagram, &master)?,
@@ -80,9 +78,7 @@ impl Output<'_> {
             Target::Xpriv => master.bip85_xpriv(index),
             Target::Password => master.bip85_pwd(Default::default(), 20, index),
             Target::Wallet => master.bip85_wif(index).map(|Wif { mut pk, addr }| {
-                if cmd.encrypt {
-                    pk = Encryptor::encrypt_wif(&pk, &cmd.encrypt_key).unwrap_or_default();
-                }
+                pk = Encryptor::encrypt_wif(&pk, &cmd.password).unwrap_or_default();
                 format!("{addr}, {pk}")
             }),
         }
