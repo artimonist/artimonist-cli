@@ -1,4 +1,4 @@
-use artimonist::Encryptor;
+use artimonist::{ComplexDiagram, Encryptor, SimpleDiagram};
 use clap::{Args, Parser, Subcommand, ValueEnum};
 
 mod input;
@@ -105,7 +105,7 @@ fn main() -> Result<(), CommandError> {
             if cmd.encrypt && matches!(cmd.target, Target::Wallet) {
                 cmd.encrypt_key = Input::password();
             }
-            Output::simple(mx, &cmd)?;
+            Output::simple(&SimpleDiagram(mx), &cmd)?;
         }
         Commands::Complex(mut cmd) => {
             let mx = match &cmd.file {
@@ -115,7 +115,7 @@ fn main() -> Result<(), CommandError> {
             if cmd.encrypt && matches!(cmd.target, Target::Wallet) {
                 cmd.encrypt_key = Input::password();
             }
-            Output::complex(mx, &cmd)?;
+            Output::complex(&ComplexDiagram(mx), &cmd)?;
         }
         Commands::Encrypt(cmd) => {
             let pwd = Input::password();

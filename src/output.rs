@@ -1,60 +1,40 @@
 use crate::{CommandError, DiagramCommand, Target};
 use artimonist::{ComplexDiagram, Encryptor, GenericDiagram, SimpleDiagram, Wif, Xpriv, BIP85};
 use std::{
-    fs::File,
-    io::{BufWriter, Write},
-    path::Path,
+    fs::OpenOptions,
+    io::{BufWriter, Result as IoResult, Write},
 };
 
 type Matrix<T> = [[Option<T>; 7]; 7];
 
-pub struct Output(BufWriter<Box<dyn Write>>);
+pub struct Output<'a>(&'a DiagramCommand);
 
-impl Output {
-    pub fn simple(mx: Matrix<char>, cmd: &DiagramCommand) -> Result<(), CommandError> {
+impl Output<'_> {
+    pub fn simple(diagram: &SimpleDiagram, cmd: &DiagramCommand) -> Result<(), CommandError> {
         let salt = cmd.salt.clone().unwrap_or_default();
-        let diagram = SimpleDiagram(mx);
         let master = diagram.bip32_master(salt.as_bytes())?;
         match cmd.output {
-            Some(ref path) => {
-                let f = Box::new(File::create(Path::new(path))?) as Box<dyn Write>;
-                Output(BufWriter::new(f))
-                    .matrix_to_file(&diagram)?
-                    .diagram_results(&master, &cmd)?;
-            }
-            None => {
-                let f = Box::new(std::io::stdout()) as Box<dyn Write>;
-                Output(BufWriter::new(f))
-                    .matrix_to_stdout(&diagram)?
-                    .diagram_results(&master, &cmd)?;
-            }
+            Some(ref path) => Output(cmd).to_file(diagram, &master, path)?,
+            None => Output(cmd).to_stdout(diagram, &master)?,
         }
         Ok(())
     }
 
-    pub fn complex(mx: Matrix<String>, cmd: &DiagramCommand) -> Result<(), CommandError> {
-        let diagram = ComplexDiagram(mx);
+    pub fn complex(diagram: &ComplexDiagram, cmd: &DiagramCommand) -> Result<(), CommandError> {
         let salt = cmd.salt.clone().unwrap_or_default();
         let master = diagram.bip32_master(salt.as_bytes())?;
         match cmd.output {
-            Some(ref path) => {
-                let f = Box::new(File::create(Path::new(path))?) as Box<dyn Write>;
-                Output(BufWriter::new(f))
-                    .matrix_to_file(&diagram)?
-                    .diagram_results(&master, &cmd)?;
-            }
-            None => {
-                let f = Box::new(std::io::stdout()) as Box<dyn Write>;
-                Output(BufWriter::new(f))
-                    .matrix_to_stdout(&diagram)?
-                    .diagram_results(&master, &cmd)?;
-            }
+            Some(ref path) => Output(cmd).to_file(diagram, &master, path)?,
+            None => Output(cmd).to_stdout(diagram, &master)?,
         }
         Ok(())
     }
 
-    fn matrix_to_file<T: ToString>(&mut self, mx: &Matrix<T>) -> Result<&mut Self, CommandError> {
-        let f = &mut self.0;
+    fn to_file<T: ToString>(&self, mx: &Matrix<T>, master: &Xpriv, path: &str) -> IoResult<()> {
+        let file = OpenOptions::new().write(true).create_new(true).open(path)?;
+        let mut f = BufWriter::new(file);
+        let cmd = &self.0;
+
         for r in mx.iter() {
             let ln = r
                 .iter()
@@ -67,27 +47,26 @@ impl Output {
             writeln!(f, "{ln}")?;
         }
         writeln!(f, "{}", "=".repeat(30))?;
-        Ok(self)
+        for i in cmd.index..cmd.index + cmd.amount {
+            match Self::generate(cmd, master, i as u32).map(|s| (i, s)) {
+                Some((i, s)) => writeln!(f, "({i}): \t{s}")?,
+                None => continue,
+            }
+        }
+        Ok(())
     }
 
-    fn matrix_to_stdout<T: ToString>(&mut self, mx: &Matrix<T>) -> Result<&mut Self, CommandError> {
-        let f = &mut self.0;
+    fn to_stdout<T: ToString>(&self, mx: &Matrix<T>, master: &Xpriv) -> IoResult<()> {
+        let mut f = BufWriter::new(std::io::stdout());
+        let cmd = &self.0;
+
         writeln!(f)?;
         writeln!(f, "Diagram: ")?;
         writeln!(f, "{}", mx.fmt_table())?;
         writeln!(f)?;
         writeln!(f, "Results: ")?;
-        Ok(self)
-    }
-
-    fn diagram_results(
-        &mut self,
-        master: &Xpriv,
-        cmd: &DiagramCommand,
-    ) -> Result<(), CommandError> {
-        let f = &mut self.0;
         for i in cmd.index..cmd.index + cmd.amount {
-            match Self::generate(cmd, &master, i as u32).map(|s| (i, s)) {
+            match Self::generate(cmd, master, i as u32).map(|s| (i, s)) {
                 Some((i, s)) => writeln!(f, "({i}): {s}")?,
                 None => continue,
             }
