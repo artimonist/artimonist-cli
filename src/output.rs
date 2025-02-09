@@ -1,8 +1,9 @@
 use crate::{CommandError, DiagramCommand, Target};
 use artimonist::{ComplexDiagram, Encryptor, GenericDiagram, SimpleDiagram, Wif, Xpriv, BIP85};
 use std::{
-    fs::OpenOptions,
+    fs::File,
     io::{BufWriter, Result as IoResult, Write},
+    path::Path,
 };
 
 type Matrix<T> = [[Option<T>; 7]; 7];
@@ -31,8 +32,7 @@ impl Output<'_> {
     }
 
     fn to_file<T: ToString>(&self, mx: &Matrix<T>, master: &Xpriv, path: &str) -> IoResult<()> {
-        let file = OpenOptions::new().write(true).create_new(true).open(path)?;
-        let mut f = BufWriter::new(file);
+        let mut f = BufWriter::new(File::create_new(Path::new(path))?);
         let cmd = &self.0;
 
         for r in mx.iter() {

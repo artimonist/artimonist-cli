@@ -1,6 +1,7 @@
 use artimonist::{ComplexDiagram, Encryptor, SimpleDiagram};
-use clap::{Args, Parser, Subcommand, ValueEnum};
+use clap::{Parser, Subcommand, ValueEnum};
 
+mod encrypt;
 mod input;
 mod output;
 use input::Input;
@@ -50,23 +51,11 @@ pub struct DiagramCommand {
 }
 
 #[derive(Parser)]
-struct EncryptCommand {
-    #[command(flatten)]
-    input: EncryInput,
-    /// Output file
-    #[arg(short, long)]
-    output: Option<String>,
-    /// Append to output file
-    #[arg(short, long, requires = "output")]
-    append: bool,
-}
-
-#[derive(Args)]
 #[group(required = true, multiple = false)]
-struct EncryInput {
+struct EncryptCommand {
     /// Private key (Wif)
     key: Option<String>,
-    /// Input file
+    /// Encrypt/Decrypt file
     #[arg(short, long)]
     file: Option<String>,
 }
@@ -103,7 +92,7 @@ fn main() -> Result<(), CommandError> {
                 None => Input::matrix::<char>()?,
             };
             if cmd.encrypt && matches!(cmd.target, Target::Wallet) {
-                cmd.encrypt_key = Input::password();
+                cmd.encrypt_key = Input::password()?;
             }
             Output::simple(&SimpleDiagram(mx), &cmd)?;
         }
@@ -113,25 +102,27 @@ fn main() -> Result<(), CommandError> {
                 None => Input::matrix::<String>()?,
             };
             if cmd.encrypt && matches!(cmd.target, Target::Wallet) {
-                cmd.encrypt_key = Input::password();
+                cmd.encrypt_key = Input::password()?;
             }
             Output::complex(&ComplexDiagram(mx), &cmd)?;
         }
         Commands::Encrypt(cmd) => {
-            let pwd = Input::password();
-            let result = match cmd.input.key {
-                Some(key) => Encryptor::encrypt_wif(&key, &pwd).expect("encrypt error"),
-                None => "todo()!".to_string(),
-            };
-            println!("Encrypted private key: {result}");
+            let pwd = Input::password()?;
+            if let Some(key) = &cmd.key {
+                let result = Encryptor::encrypt_wif(&key, &pwd)?;
+                println!("Encrypted private key: {result}");
+            } else if Input::confirm_overwrite()? {
+                encrypt::Output(cmd).encrypt_file(&pwd)?;
+            }
         }
         Commands::Decrypt(cmd) => {
-            let pwd = Input::password();
-            let result = match cmd.input.key {
-                Some(key) => Encryptor::decrypt_wif(&key, &pwd).expect("encrypt error"),
-                None => "todo()!".to_string(),
-            };
-            println!("Decrypted private key: {result}");
+            let pwd = Input::password()?;
+            if let Some(key) = &cmd.key {
+                let result = Encryptor::decrypt_wif(&key, &pwd)?;
+                println!("Encrypted private key: {result}");
+            } else if Input::confirm_overwrite()? {
+                encrypt::Output(cmd).decrypt_file(&pwd)?;
+            }
         }
     }
     Ok(())
@@ -147,6 +138,9 @@ pub enum CommandError {
     /// Generic error
     #[error("generic error")]
     Generic(#[from] artimonist::error::GenericError),
+    /// Encryptor error
+    #[error("encryptor error")]
+    Encryptor(#[from] artimonist::error::Bip38Error),
     /// File error
     #[error("file error")]
     File(#[from] std::io::Error),

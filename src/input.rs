@@ -1,5 +1,5 @@
 use artimonist::{Matrix, ToMatrix};
-use inquire::PasswordDisplayMode;
+use inquire::{Confirm, InquireError, PasswordDisplayMode};
 use std::fmt::Debug;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
@@ -45,7 +45,7 @@ impl Input {
     }
 
     /// Input diagram
-    pub fn matrix<T: Debug>() -> Result<Matrix<7, 7, T>, inquire::InquireError>
+    pub fn matrix<T: Debug>() -> Result<Matrix<7, 7, T>, InquireError>
     where
         for<'a> &'a str: Formatter<T>,
     {
@@ -64,7 +64,7 @@ impl Input {
     }
 
     // Input password
-    pub fn password() -> String {
+    pub fn password() -> Result<String, InquireError> {
         inquire::Password::new("Encryption Key: ")
             .with_display_mode(PasswordDisplayMode::Masked)
             .with_display_toggle_enabled()
@@ -72,6 +72,12 @@ impl Input {
             .with_custom_confirmation_error_message("The keys don't match.")
             .with_formatter(&|_| String::from("Input received"))
             .prompt()
-            .unwrap()
+    }
+
+    pub fn confirm_overwrite() -> Result<bool, InquireError> {
+        Confirm::new("Confirm overwrite file?")
+            .with_default(false)
+            .with_help_message("This operation will overwrite file.")
+            .prompt()
     }
 }

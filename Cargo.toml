@@ -1,6 +1,6 @@
 [package]
 name = "artimonist-cli"
-version = "0.7.0"
+version = "0.8.0"
 description = "A tool for generating mnemonics based on diagrams."
 authors = ["Artimonist <artimonist@gmail.com>"]
 homepage = "https://artimonist.org/"
