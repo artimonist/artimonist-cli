@@ -74,7 +74,10 @@ impl Input {
             .prompt()
     }
 
-    pub fn confirm_overwrite() -> Result<bool, InquireError> {
+    pub fn confirm_overwrite(msg: &str) -> Result<bool, InquireError> {
+        if !msg.is_empty() {
+            println!("{msg}");
+        }
         Confirm::new("Confirm overwrite file?")
             .with_default(false)
             .with_help_message("This operation will overwrite file.")

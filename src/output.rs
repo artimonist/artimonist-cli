@@ -32,7 +32,7 @@ impl Output<'_> {
     }
 
     fn to_file<T: ToString>(&self, mx: &Matrix<T>, master: &Xpriv, path: &str) -> IoResult<()> {
-        let mut f = BufWriter::new(File::create_new(Path::new(path))?);
+        let mut f = BufWriter::new(File::create(Path::new(path))?);
         let cmd = &self.0;
 
         for r in mx.iter() {
@@ -49,7 +49,7 @@ impl Output<'_> {
         writeln!(f, "{}", "=".repeat(30))?;
         for i in cmd.index..cmd.index + cmd.amount {
             match Self::generate(cmd, master, i as u32).map(|s| (i, s)) {
-                Some((i, s)) => writeln!(f, "({i}): \t{s}")?,
+                Some((i, s)) => writeln!(f, "({i}): {}", s.replace(", ", ",\t"))?,
                 None => continue,
             }
         }

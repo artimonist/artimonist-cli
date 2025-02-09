@@ -94,6 +94,12 @@ fn main() -> Result<(), CommandError> {
             if cmd.encrypt && matches!(cmd.target, Target::Wallet) {
                 cmd.encrypt_key = Input::password()?;
             }
+            if let Some(path) = &cmd.output {
+                if std::path::Path::new(path).exists() && !Input::confirm_overwrite("File exists.")?
+                {
+                    return Ok(());
+                }
+            }
             Output::simple(&SimpleDiagram(mx), &cmd)?;
         }
         Commands::Complex(mut cmd) => {
@@ -104,23 +110,29 @@ fn main() -> Result<(), CommandError> {
             if cmd.encrypt && matches!(cmd.target, Target::Wallet) {
                 cmd.encrypt_key = Input::password()?;
             }
+            if let Some(path) = &cmd.output {
+                if std::path::Path::new(path).exists() && !Input::confirm_overwrite("File exists.")?
+                {
+                    return Ok(());
+                }
+            }
             Output::complex(&ComplexDiagram(mx), &cmd)?;
         }
         Commands::Encrypt(cmd) => {
             let pwd = Input::password()?;
             if let Some(key) = &cmd.key {
-                let result = Encryptor::encrypt_wif(&key, &pwd)?;
+                let result = Encryptor::encrypt_wif(key, &pwd)?;
                 println!("Encrypted private key: {result}");
-            } else if Input::confirm_overwrite()? {
+            } else if Input::confirm_overwrite("")? {
                 encrypt::Output(cmd).encrypt_file(&pwd)?;
             }
         }
         Commands::Decrypt(cmd) => {
             let pwd = Input::password()?;
             if let Some(key) = &cmd.key {
-                let result = Encryptor::decrypt_wif(&key, &pwd)?;
+                let result = Encryptor::decrypt_wif(key, &pwd)?;
                 println!("Encrypted private key: {result}");
-            } else if Input::confirm_overwrite()? {
+            } else if Input::confirm_overwrite("")? {
                 encrypt::Output(cmd).decrypt_file(&pwd)?;
             }
         }

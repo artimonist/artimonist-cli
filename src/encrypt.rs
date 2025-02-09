@@ -16,7 +16,7 @@ impl Output {
 
     #[inline]
     pub fn decrypt_file(&self, pwd: &str) -> Result<(), CommandError> {
-        self.bulk_file(pwd, true)
+        self.bulk_file(pwd, false)
     }
 
     fn bulk_file(&self, pwd: &str, encrypt: bool) -> Result<(), CommandError> {
@@ -28,17 +28,17 @@ impl Output {
             println!("File too large.");
             return Ok(());
         }
-        let vs = BufReader::new(File::open(Path::new(path))?)
-            .lines()
-            .collect::<Vec<_>>();
+        let mut vs = vec![];
+        for ln in BufReader::new(File::open(Path::new(path))?).lines() {
+            let result = match encrypt {
+                true => Encryptor::encrypt_wif(&ln?, pwd)?,
+                false => Encryptor::decrypt_wif(&ln?, pwd)?,
+            };
+            vs.push(result);
+        }
         let mut f = BufWriter::new(File::create(Path::new(path))?);
         for v in vs {
-            let wif = v.unwrap();
-            let result = match encrypt {
-                true => Encryptor::encrypt_wif(&wif, pwd)?,
-                false => Encryptor::decrypt_wif(&wif, pwd)?,
-            };
-            writeln!(f, "{result}")?;
+            writeln!(f, "{v}")?;
         }
         Ok(())
     }
