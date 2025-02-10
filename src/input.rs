@@ -1,3 +1,4 @@
+use super::unicode::UnicodeUtils;
 use artimonist::{Matrix, ToMatrix};
 use inquire::{Confirm, InquireError, PasswordDisplayMode};
 use std::fmt::Debug;
@@ -10,12 +11,12 @@ pub trait Formatter<T> {
 }
 impl Formatter<char> for &str {
     fn format(self) -> Option<char> {
-        self.chars().next()
+        self.unicode_decode().chars().next()
     }
 }
 impl Formatter<String> for &str {
     fn format(self) -> Option<String> {
-        Some(self.chars().take(20).collect())
+        Some(self.unicode_decode().chars().take(20).collect())
     }
 }
 

@@ -4,11 +4,12 @@ use clap::{Parser, Subcommand, ValueEnum};
 mod encrypt;
 mod input;
 mod output;
+mod unicode;
 use input::Input;
 use output::Output;
 
 /// Artimonist - A tool for generating mnemonics based on diagrams.   
-/// Web version: https://www.artimonist.org
+/// Web version: <https://www.artimonist.org>
 #[derive(Parser)]
 #[command(version)]
 struct Cli {
@@ -38,9 +39,13 @@ pub struct DiagramCommand {
     #[arg(short, long)]
     file: Option<String>,
 
-    /// Output result to text file
+    /// Output results to text file
     #[arg(short, long)]
     output: Option<String>,
+
+    /// Output unicode view for non-displayable character
+    #[arg(short, long)]
+    unicode: bool,
 }
 
 #[derive(Parser)]
@@ -84,13 +89,13 @@ fn main() -> Result<(), CommandError> {
                 Some(file) => Input::diagram_file::<char>(file)?,
                 None => Input::matrix::<char>()?,
             };
+            cmd.password = Input::password()?;
             if let Some(path) = &cmd.output {
                 if std::path::Path::new(path).exists() && !Input::confirm_overwrite("File exists.")?
                 {
                     return Ok(());
                 }
             }
-            cmd.password = Input::password()?;
             Output::simple(&SimpleDiagram(mx), &cmd)?;
         }
         Commands::Complex(mut cmd) => {
@@ -98,13 +103,13 @@ fn main() -> Result<(), CommandError> {
                 Some(file) => Input::diagram_file::<String>(file)?,
                 None => Input::matrix::<String>()?,
             };
+            cmd.password = Input::password()?;
             if let Some(path) = &cmd.output {
                 if std::path::Path::new(path).exists() && !Input::confirm_overwrite("File exists.")?
                 {
                     return Ok(());
                 }
             }
-            cmd.password = Input::password()?;
             Output::complex(&ComplexDiagram(mx), &cmd)?;
         }
         Commands::Encrypt(cmd) => {
@@ -120,7 +125,7 @@ fn main() -> Result<(), CommandError> {
             let pwd = Input::password()?;
             if let Some(key) = &cmd.key {
                 let result = Encryptor::decrypt_wif(key, &pwd)?;
-                println!("Encrypted private key: {result}");
+                println!("Decrypted private key: {result}");
             } else if Input::confirm_overwrite("")? {
                 encrypt::Output(cmd).decrypt_file(&pwd)?;
             }

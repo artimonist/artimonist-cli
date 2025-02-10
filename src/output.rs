@@ -1,6 +1,8 @@
+use super::unicode::UnicodeUtils;
 use crate::{CommandError, DiagramCommand, Target};
 use artimonist::{ComplexDiagram, Encryptor, GenericDiagram, SimpleDiagram, Wif, Xpriv, BIP85};
 use std::{
+    fmt::Debug,
     fs::File,
     io::{BufWriter, Result as IoResult, Write},
     path::Path,
@@ -45,6 +47,20 @@ impl Output<'_> {
             writeln!(f, "{ln}")?;
         }
         writeln!(f, "{}", "=".repeat(30))?;
+        if cmd.unicode {
+            for r in mx.iter() {
+                let ln = r
+                    .iter()
+                    .map(|v| match v {
+                        Some(s) => format!("\"{}\"", s.to_string().unicode_encode()),
+                        None => "\"\"".to_owned(),
+                    })
+                    .collect::<Vec<String>>()
+                    .join("  ");
+                writeln!(f, "{ln}")?;
+            }
+            writeln!(f, "{}", "=".repeat(30))?;
+        }
         for i in cmd.index..cmd.index + cmd.amount {
             match Self::generate(cmd, master, i as u32).map(|s| (i, s)) {
                 Some((i, s)) => writeln!(f, "({i}): {}", s.replace(", ", ",\t"))?,
@@ -60,7 +76,10 @@ impl Output<'_> {
 
         writeln!(f)?;
         writeln!(f, "Diagram: ")?;
-        writeln!(f, "{}", mx.fmt_table())?;
+        writeln!(f, "{}", mx.fmt_table(false))?;
+        writeln!(f)?;
+        writeln!(f, "Unicode View: ")?;
+        writeln!(f, "{}", mx.fmt_table(true))?;
         writeln!(f)?;
         writeln!(f, "Results: ")?;
         for i in cmd.index..cmd.index + cmd.amount {
@@ -87,14 +106,20 @@ impl Output<'_> {
 }
 
 pub trait FmtTable<T> {
-    fn fmt_table(&self) -> comfy_table::Table;
+    fn fmt_table(&self, unicode: bool) -> comfy_table::Table;
 }
 
 impl<const H: usize, const W: usize, T: ToString> FmtTable<T> for artimonist::Matrix<H, W, T> {
-    fn fmt_table(&self) -> comfy_table::Table {
+    fn fmt_table(&self, unicode: bool) -> comfy_table::Table {
         let mx = self.iter().map(|r| {
             r.iter().map(|v| match v {
-                Some(x) => x.to_string(),
+                Some(x) => {
+                    if unicode {
+                        x.to_string().unicode_encode()
+                    } else {
+                        x.to_string()
+                    }
+                }
                 None => "".to_owned(),
             })
         });
