@@ -90,7 +90,7 @@ fn main() -> Result<(), CommandError> {
                 Some(file) => Input::diagram_file::<char>(file)?,
                 None => Input::matrix::<char>()?,
             };
-            cmd.password = Input::password()?;
+            cmd.password = Input::password(true)?;
             let diagram = SimpleDiagram(mx);
             let master = diagram.bip32_master(cmd.password.as_bytes())?;
             match &cmd.output {
@@ -107,7 +107,7 @@ fn main() -> Result<(), CommandError> {
                 Some(file) => Input::diagram_file::<String>(file)?,
                 None => Input::matrix::<String>()?,
             };
-            cmd.password = Input::password()?;
+            cmd.password = Input::password(true)?;
             let diagram = ComplexDiagram(mx);
             let master = diagram.bip32_master(cmd.password.as_bytes())?;
             match &cmd.output {
@@ -120,7 +120,7 @@ fn main() -> Result<(), CommandError> {
             }
         }
         Commands::Encrypt(cmd) => {
-            let pwd = Input::password()?;
+            let pwd = Input::password(false)?;
             if let Some(key) = &cmd.key {
                 let result = Encryptor::encrypt_wif(key, &pwd)?;
                 println!("Encrypted private key: {result}");
@@ -129,7 +129,7 @@ fn main() -> Result<(), CommandError> {
             }
         }
         Commands::Decrypt(cmd) => {
-            let pwd = Input::password()?;
+            let pwd = Input::password(false)?;
             if let Some(key) = &cmd.key {
                 let result = Encryptor::decrypt_wif(key, &pwd)?;
                 println!("Decrypted private key: {result}");

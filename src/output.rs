@@ -43,7 +43,7 @@ impl Output<'_> {
             writeln!(f, "{}", "=".repeat(30))?;
         }
         for i in cmd.index..cmd.index + cmd.amount {
-            match Self::generate(cmd, master, i as u32).map(|s| (i, s)) {
+            match self.generate(master, i as u32).map(|s| (i, s)) {
                 Some((i, s)) => writeln!(f, "({i}): {}", s.replace(", ", ",\t"))?,
                 None => continue,
             }
@@ -64,7 +64,7 @@ impl Output<'_> {
         writeln!(f)?;
         writeln!(f, "Results: ")?;
         for i in cmd.index..cmd.index + cmd.amount {
-            match Self::generate(cmd, master, i as u32).map(|s| (i, s)) {
+            match self.generate(master, i as u32).map(|s| (i, s)) {
                 Some((i, s)) => writeln!(f, "({i}): {s}")?,
                 None => continue,
             }
@@ -72,7 +72,8 @@ impl Output<'_> {
         Ok(())
     }
 
-    fn generate(cmd: &DiagramCommand, master: &Xpriv, index: u32) -> Option<String> {
+    fn generate(&self, master: &Xpriv, index: u32) -> Option<String> {
+        let cmd = self.0;
         match cmd.target {
             Target::Mnemonic => master.bip85_mnemonic(Default::default(), 24, index),
             Target::Xpriv => master.bip85_xpriv(index),

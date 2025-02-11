@@ -1,9 +1,10 @@
 use super::unicode::UnicodeUtils;
 use artimonist::{Matrix, ToMatrix};
+use inquire::validator::Validation;
 use inquire::{Confirm, InquireError, PasswordDisplayMode};
 use std::fmt::Debug;
 use std::fs::File;
-use std::io::{BufRead, BufReader};
+use std::io::{BufRead, BufReader, Error as IoError};
 use std::path::Path;
 
 pub trait Formatter<T> {
@@ -24,7 +25,7 @@ pub struct Input;
 
 impl Input {
     /// Input diagram from file
-    pub fn diagram_file<T: Debug>(path: &str) -> Result<Matrix<7, 7, T>, std::io::Error>
+    pub fn diagram_file<T: Debug>(path: &str) -> Result<Matrix<7, 7, T>, IoError>
     where
         for<'a> &'a str: Formatter<T>,
     {
@@ -64,15 +65,25 @@ impl Input {
         Ok(mvs.to_matrix())
     }
 
-    // Input password
-    pub fn password() -> Result<String, InquireError> {
-        inquire::Password::new("Encryption Key (Salt): ")
+    // Input password as salt
+    pub fn password(salt: bool) -> Result<String, InquireError> {
+        let validator = |v: &str| match v.chars().count() {
+            ..5 => Ok(Validation::Invalid(
+                "Encryption key must have at least 5 characters.".into(),
+            )),
+            _ => Ok(Validation::Valid),
+        };
+        inquire::Password::new("Encryption Key: ")
             .with_display_mode(PasswordDisplayMode::Masked)
             .with_display_toggle_enabled()
-            .with_help_message("Program use encryption key as salt.")
             .with_custom_confirmation_message("Encryption Key (confirm):")
             .with_custom_confirmation_error_message("The keys don't match.")
-            .with_formatter(&|_| String::from("Input received"))
+            .with_validator(validator)
+            .with_formatter(&|_| "Input received".into())
+            .with_help_message(match salt {
+                true => "Program use encryption key as salt.",
+                false => "Input encryption key",
+            })
             .prompt()
     }
 
