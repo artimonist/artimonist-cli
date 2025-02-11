@@ -59,9 +59,11 @@ impl Output<'_> {
         writeln!(f, "Diagram: ")?;
         writeln!(f, "{}", mx.fmt_table(false))?;
         writeln!(f)?;
-        writeln!(f, "Unicode View: ")?;
-        writeln!(f, "{}", mx.fmt_table(true))?;
-        writeln!(f)?;
+        if cmd.unicode {
+            writeln!(f, "Unicode View: ")?;
+            writeln!(f, "{}", mx.fmt_table(true))?;
+            writeln!(f)?;
+        }
         writeln!(f, "Results: ")?;
         for i in cmd.index..cmd.index + cmd.amount {
             match self.generate(master, i as u32).map(|s| (i, s)) {
@@ -95,13 +97,10 @@ impl<const H: usize, const W: usize, T: ToString> FmtTable<T> for artimonist::Ma
     fn fmt_table(&self, unicode: bool) -> comfy_table::Table {
         let mx = self.iter().map(|r| {
             r.iter().map(|v| match v {
-                Some(x) => {
-                    if unicode {
-                        x.to_string().unicode_encode()
-                    } else {
-                        x.to_string()
-                    }
-                }
+                Some(x) => match unicode {
+                    true => x.to_string().unicode_encode(),
+                    false => x.to_string(),
+                },
                 None => "".to_owned(),
             })
         });

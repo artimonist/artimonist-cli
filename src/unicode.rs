@@ -31,14 +31,11 @@ impl UnicodeUtils for str {
 
     fn unicode_encode(&self) -> String {
         self.chars()
-            .flat_map(|c| {
-                if !(32..127).contains(&(c as u32)) {
-                    format!("\\u{{{:x}}}", c as u32)
-                        .chars()
-                        .collect::<Vec<char>>()
-                } else {
-                    vec![c]
-                }
+            .flat_map(|c| match c as u32 {
+                32..127 => vec![c], // ascii characters
+                _ => format!("\\u{{{:x}}}", c as u32)
+                    .chars()
+                    .collect::<Vec<char>>(),
             })
             .collect()
     }
