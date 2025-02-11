@@ -1,8 +1,7 @@
 use super::unicode::UnicodeUtils;
-use crate::{CommandError, DiagramCommand, Target};
-use artimonist::{ComplexDiagram, Encryptor, GenericDiagram, SimpleDiagram, Wif, Xpriv, BIP85};
+use crate::{DiagramCommand, Target};
+use artimonist::{Encryptor, Wif, Xpriv, BIP85};
 use std::{
-    fmt::Debug,
     fs::File,
     io::{BufWriter, Result as IoResult, Write},
     path::Path,
@@ -10,28 +9,10 @@ use std::{
 
 type Matrix<T> = [[Option<T>; 7]; 7];
 
-pub struct Output<'a>(&'a DiagramCommand);
+pub struct Output<'a>(pub &'a DiagramCommand);
 
 impl Output<'_> {
-    pub fn simple(diagram: &SimpleDiagram, cmd: &DiagramCommand) -> Result<(), CommandError> {
-        let master = diagram.bip32_master(cmd.password.as_bytes())?;
-        match cmd.output {
-            Some(ref path) => Output(cmd).to_file(diagram, &master, path)?,
-            None => Output(cmd).to_stdout(diagram, &master)?,
-        }
-        Ok(())
-    }
-
-    pub fn complex(diagram: &ComplexDiagram, cmd: &DiagramCommand) -> Result<(), CommandError> {
-        let master = diagram.bip32_master(cmd.password.as_bytes())?;
-        match cmd.output {
-            Some(ref path) => Output(cmd).to_file(diagram, &master, path)?,
-            None => Output(cmd).to_stdout(diagram, &master)?,
-        }
-        Ok(())
-    }
-
-    fn to_file<T: ToString>(&self, mx: &Matrix<T>, master: &Xpriv, path: &str) -> IoResult<()> {
+    pub fn to_file<T: ToString>(&self, mx: &Matrix<T>, master: &Xpriv, path: &str) -> IoResult<()> {
         let mut f = BufWriter::new(File::create(Path::new(path))?);
         let cmd = &self.0;
 
@@ -70,7 +51,7 @@ impl Output<'_> {
         Ok(())
     }
 
-    fn to_stdout<T: ToString>(&self, mx: &Matrix<T>, master: &Xpriv) -> IoResult<()> {
+    pub fn to_stdout<T: ToString>(&self, mx: &Matrix<T>, master: &Xpriv) -> IoResult<()> {
         let mut f = BufWriter::new(std::io::stdout());
         let cmd = &self.0;
 

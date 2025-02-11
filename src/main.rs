@@ -1,5 +1,6 @@
-use artimonist::{ComplexDiagram, Encryptor, SimpleDiagram};
+use artimonist::{ComplexDiagram, Encryptor, GenericDiagram, SimpleDiagram};
 use clap::{Parser, Subcommand, ValueEnum};
+use std::fs;
 
 mod encrypt;
 mod input;
@@ -18,7 +19,7 @@ struct Cli {
 }
 
 #[derive(Parser)]
-pub struct DiagramCommand {
+struct DiagramCommand {
     /// Target
     #[arg(short, long, default_value = "mnemonic")]
     target: Target,
@@ -90,13 +91,16 @@ fn main() -> Result<(), CommandError> {
                 None => Input::matrix::<char>()?,
             };
             cmd.password = Input::password()?;
-            if let Some(path) = &cmd.output {
-                if std::path::Path::new(path).exists() && !Input::confirm_overwrite("File exists.")?
-                {
-                    return Ok(());
+            let diagram = SimpleDiagram(mx);
+            let master = diagram.bip32_master(cmd.password.as_bytes())?;
+            match &cmd.output {
+                Some(path) => {
+                    if !fs::exists(path)? || Input::confirm_overwrite("File exists.")? {
+                        Output(&cmd).to_file(&diagram, &master, path)?
+                    }
                 }
+                None => Output(&cmd).to_stdout(&diagram, &master)?,
             }
-            Output::simple(&SimpleDiagram(mx), &cmd)?;
         }
         Commands::Complex(mut cmd) => {
             let mx = match &cmd.file {
@@ -104,13 +108,16 @@ fn main() -> Result<(), CommandError> {
                 None => Input::matrix::<String>()?,
             };
             cmd.password = Input::password()?;
-            if let Some(path) = &cmd.output {
-                if std::path::Path::new(path).exists() && !Input::confirm_overwrite("File exists.")?
-                {
-                    return Ok(());
+            let diagram = ComplexDiagram(mx);
+            let master = diagram.bip32_master(cmd.password.as_bytes())?;
+            match &cmd.output {
+                Some(path) => {
+                    if !fs::exists(path)? || Input::confirm_overwrite("File exists.")? {
+                        Output(&cmd).to_file(&diagram, &master, path)?
+                    }
                 }
+                None => Output(&cmd).to_stdout(&diagram, &master)?,
             }
-            Output::complex(&ComplexDiagram(mx), &cmd)?;
         }
         Commands::Encrypt(cmd) => {
             let pwd = Input::password()?;
