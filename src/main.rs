@@ -9,10 +9,16 @@ mod unicode;
 use input::Input;
 use output::Output;
 
+const ABOUT_LONG: &str = "
+Artimonist
+A tool for generating mnemonics based on diagrams.
+
+Project location: <https://github.com/artimonist/artimonist-cli>
+Web version: <https://www.artimonist.org>";
+
 /// Artimonist - A tool for generating mnemonics based on diagrams.   
-/// Web version: <https://www.artimonist.org>
 #[derive(Parser)]
-#[command(version)]
+#[command(version, long_about=ABOUT_LONG)]
 struct Cli {
     #[command(subcommand)]
     command: Commands,
