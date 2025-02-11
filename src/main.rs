@@ -1,23 +1,31 @@
-use artimonist::{ComplexDiagram, Encryptor, SimpleDiagram};
+use artimonist::{ComplexDiagram, Encryptor, GenericDiagram, SimpleDiagram};
 use clap::{Parser, Subcommand, ValueEnum};
+use std::fs;
 
 mod encrypt;
 mod input;
 mod output;
+mod unicode;
 use input::Input;
 use output::Output;
 
+const ABOUT_LONG: &str = "
+Artimonist
+A tool for generating mnemonics based on diagrams.
+
+Project location: <https://github.com/artimonist/artimonist-cli>
+Web version: <https://www.artimonist.org>";
+
 /// Artimonist - A tool for generating mnemonics based on diagrams.   
-/// Web version: https://www.artimonist.org
 #[derive(Parser)]
-#[command(version)]
+#[command(version, long_about=ABOUT_LONG)]
 struct Cli {
     #[command(subcommand)]
     command: Commands,
 }
 
 #[derive(Parser)]
-pub struct DiagramCommand {
+struct DiagramCommand {
     /// Target
     #[arg(short, long, default_value = "mnemonic")]
     target: Target,
@@ -30,24 +38,21 @@ pub struct DiagramCommand {
     #[arg(short = 'm', long, default_value_t = 1)]
     amount: u16,
 
-    /// Salt
-    #[arg(short, long)]
-    salt: Option<String>,
-
-    /// Encrypt private key of: --target wallet
-    #[arg(short, long)]
-    encrypt: bool,
-
+    /// Password as salt
     #[arg(skip)]
-    encrypt_key: String,
+    password: String,
 
     /// Input diagram from text file
     #[arg(short, long)]
     file: Option<String>,
 
-    /// Output result to text file
+    /// Output results to text file
     #[arg(short, long)]
     output: Option<String>,
+
+    /// Output unicode view for non-displayable character
+    #[arg(short, long)]
+    unicode: bool,
 }
 
 #[derive(Parser)]
@@ -91,35 +96,37 @@ fn main() -> Result<(), CommandError> {
                 Some(file) => Input::diagram_file::<char>(file)?,
                 None => Input::matrix::<char>()?,
             };
-            if cmd.encrypt && matches!(cmd.target, Target::Wallet) {
-                cmd.encrypt_key = Input::password()?;
-            }
-            if let Some(path) = &cmd.output {
-                if std::path::Path::new(path).exists() && !Input::confirm_overwrite("File exists.")?
-                {
-                    return Ok(());
+            cmd.password = Input::password(true)?;
+            let diagram = SimpleDiagram(mx);
+            let master = diagram.bip32_master(cmd.password.as_bytes())?;
+            match &cmd.output {
+                Some(path) => {
+                    if !fs::exists(path)? || Input::confirm_overwrite("File exists.")? {
+                        Output(&cmd).to_file(&diagram, &master, path)?
+                    }
                 }
+                None => Output(&cmd).to_stdout(&diagram, &master)?,
             }
-            Output::simple(&SimpleDiagram(mx), &cmd)?;
         }
         Commands::Complex(mut cmd) => {
             let mx = match &cmd.file {
                 Some(file) => Input::diagram_file::<String>(file)?,
                 None => Input::matrix::<String>()?,
             };
-            if cmd.encrypt && matches!(cmd.target, Target::Wallet) {
-                cmd.encrypt_key = Input::password()?;
-            }
-            if let Some(path) = &cmd.output {
-                if std::path::Path::new(path).exists() && !Input::confirm_overwrite("File exists.")?
-                {
-                    return Ok(());
+            cmd.password = Input::password(true)?;
+            let diagram = ComplexDiagram(mx);
+            let master = diagram.bip32_master(cmd.password.as_bytes())?;
+            match &cmd.output {
+                Some(path) => {
+                    if !fs::exists(path)? || Input::confirm_overwrite("File exists.")? {
+                        Output(&cmd).to_file(&diagram, &master, path)?
+                    }
                 }
+                None => Output(&cmd).to_stdout(&diagram, &master)?,
             }
-            Output::complex(&ComplexDiagram(mx), &cmd)?;
         }
         Commands::Encrypt(cmd) => {
-            let pwd = Input::password()?;
+            let pwd = Input::password(false)?;
             if let Some(key) = &cmd.key {
                 let result = Encryptor::encrypt_wif(key, &pwd)?;
                 println!("Encrypted private key: {result}");
@@ -128,10 +135,10 @@ fn main() -> Result<(), CommandError> {
             }
         }
         Commands::Decrypt(cmd) => {
-            let pwd = Input::password()?;
+            let pwd = Input::password(false)?;
             if let Some(key) = &cmd.key {
                 let result = Encryptor::decrypt_wif(key, &pwd)?;
-                println!("Encrypted private key: {result}");
+                println!("Decrypted private key: {result}");
             } else if Input::confirm_overwrite("")? {
                 encrypt::Output(cmd).decrypt_file(&pwd)?;
             }
