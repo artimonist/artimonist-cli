@@ -1,7 +1,6 @@
 use args::{DeriveCommand, DiagramCommand, EncryptCommand};
 use artimonist::{ComplexDiagram, Encryptor, GenericDiagram, SimpleDiagram};
 use clap::{Parser, Subcommand};
-use std::fs;
 
 mod args;
 mod encrypt;
@@ -43,8 +42,18 @@ enum Commands {
 
 fn main() -> Result<(), CommandError> {
     let args = Cli::parse();
+    macro_rules! confirm_overwrite {
+        ($output: expr) => {
+            if let Some(path) = $output {
+                if std::fs::exists(path)? && !Input::confirm_overwrite("File exists.")? {
+                    return Ok(());
+                }
+            }
+        };
+    }
     match args.command {
         Commands::Simple(mut cmd) => {
+            confirm_overwrite!(&cmd.output);
             let mx = match &cmd.file {
                 Some(file) => Input::diagram_file::<char>(file)?,
                 None => Input::matrix::<char>()?,
@@ -55,15 +64,13 @@ fn main() -> Result<(), CommandError> {
             }
             let diagram = SimpleDiagram(mx);
             let master = diagram.bip32_master(cmd.password.as_bytes())?;
-            if let Some(path) = &cmd.output {
-                if !fs::exists(path)? || Input::confirm_overwrite("File exists.")? {
-                    Output(&cmd).to_file(&diagram, &master, path)?
-                }
-            } else {
-                Output(&cmd).to_stdout(&diagram, &master)?;
+            match &cmd.output {
+                Some(path) => Output(&cmd).to_file(&diagram, &master, path)?,
+                None => Output(&cmd).to_stdout(&diagram, &master)?,
             }
         }
         Commands::Complex(mut cmd) => {
+            confirm_overwrite!(&cmd.output);
             let mx = match &cmd.file {
                 Some(file) => Input::diagram_file::<String>(file)?,
                 None => Input::matrix::<String>()?,
@@ -74,34 +81,35 @@ fn main() -> Result<(), CommandError> {
             }
             let diagram = ComplexDiagram(mx);
             let master = diagram.bip32_master(cmd.password.as_bytes())?;
-            if let Some(path) = &cmd.output {
-                if !fs::exists(path)? || Input::confirm_overwrite("File exists.")? {
-                    Output(&cmd).to_file(&diagram, &master, path)?
-                }
-            } else {
-                Output(&cmd).to_stdout(&diagram, &master)?;
+            match &cmd.output {
+                Some(path) => Output(&cmd).to_file(&diagram, &master, path)?,
+                None => Output(&cmd).to_stdout(&diagram, &master)?,
             }
         }
+        Commands::Derive(mut cmd) => {
+            confirm_overwrite!(&cmd.output);
+            cmd.password = Input::password(true)?;
+            Output::derive(&cmd)?;
+        }
         Commands::Encrypt(cmd) => {
-            let pwd = Input::password(false)?;
             if let Some(key) = &cmd.key {
+                let pwd = Input::password(false)?;
                 let result = Encryptor::encrypt_wif(key, &pwd)?;
                 println!("Encrypted private key: {result}");
             } else if Input::confirm_overwrite("")? {
+                let pwd = Input::password(false)?;
                 encrypt::Output(cmd).encrypt_file(&pwd)?;
             }
         }
         Commands::Decrypt(cmd) => {
-            let pwd = Input::password(false)?;
             if let Some(key) = &cmd.key {
+                let pwd = Input::password(false)?;
                 let result = Encryptor::decrypt_wif(key, &pwd)?;
                 println!("Decrypted private key: {result}");
             } else if Input::confirm_overwrite("")? {
+                let pwd = Input::password(false)?;
                 encrypt::Output(cmd).decrypt_file(&pwd)?;
             }
-        }
-        Commands::Derive(mut cmd) => {
-            cmd.password = Input::password(true)?;
         }
     }
     Ok(())

@@ -2,7 +2,6 @@ use super::unicode::UnicodeUtils;
 use artimonist::{Language, Matrix, ToMatrix};
 use inquire::validator::Validation;
 use inquire::{Confirm, InquireError, PasswordDisplayMode, Select};
-use std::cell::LazyCell;
 use std::fmt::Debug;
 use std::fs::File;
 use std::io::{BufRead, BufReader, Error as IoError};
@@ -67,7 +66,7 @@ impl Input {
     }
 
     // Input password as salt
-    pub fn password(salt: bool) -> Result<String, InquireError> {
+    pub fn password(as_salt: bool) -> Result<String, InquireError> {
         let validator = |v: &str| match v.chars().count() {
             ..5 => Ok(Validation::Invalid(
                 "Encryption key must have at least 5 characters.".into(),
@@ -81,7 +80,7 @@ impl Input {
             .with_custom_confirmation_error_message("The keys don't match.")
             .with_validator(validator)
             .with_formatter(&|_| "Input received".into())
-            .with_help_message(match salt {
+            .with_help_message(match as_salt {
                 true => "Program use encryption key as salt.",
                 false => "Input encryption key",
             })
@@ -89,7 +88,8 @@ impl Input {
     }
 
     pub fn choice_language() -> Result<Language, InquireError> {
-        let choice = Select::new("Which mnemonic language do you want?", (*LANGUAGES).clone())
+        let options = LANGUAGES.map(|v| format!("{v:?}")).to_vec();
+        let choice = Select::new("Which mnemonic language do you want?", options)
             .with_page_size(LANGUAGES.len())
             .prompt()?;
         Ok(language(&choice).unwrap())
@@ -97,7 +97,7 @@ impl Input {
 
     pub fn confirm_overwrite(msg: &str) -> Result<bool, InquireError> {
         if !msg.is_empty() {
-            println!("{msg}");
+            println!("File exists.");
         }
         Confirm::new("Confirm overwrite file?")
             .with_default(false)
@@ -106,22 +106,18 @@ impl Input {
     }
 }
 
-const LANGUAGES: LazyCell<Vec<String>> = LazyCell::new(|| {
-    [
-        Language::English,
-        Language::Japanese,
-        Language::Korean,
-        Language::Spanish,
-        Language::SimplifiedChinese,
-        Language::TraditionalChinese,
-        Language::Franch,
-        Language::Italian,
-        Language::Czech,
-        Language::Portuguese,
-    ]
-    .map(|v| format!("{v:?}"))
-    .to_vec()
-});
+const LANGUAGES: [Language; 10] = [
+    Language::English,
+    Language::Japanese,
+    Language::Korean,
+    Language::Spanish,
+    Language::SimplifiedChinese,
+    Language::TraditionalChinese,
+    Language::Franch,
+    Language::Italian,
+    Language::Czech,
+    Language::Portuguese,
+];
 
 fn language(name: &str) -> Option<Language> {
     match &name.to_lowercase()[..] {
