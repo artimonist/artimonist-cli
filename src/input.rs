@@ -1,7 +1,8 @@
 use super::unicode::UnicodeUtils;
-use artimonist::{Matrix, ToMatrix};
+use artimonist::{Language, Matrix, ToMatrix};
 use inquire::validator::Validation;
-use inquire::{Confirm, InquireError, PasswordDisplayMode};
+use inquire::{Confirm, InquireError, PasswordDisplayMode, Select};
+use std::cell::LazyCell;
 use std::fmt::Debug;
 use std::fs::File;
 use std::io::{BufRead, BufReader, Error as IoError};
@@ -87,6 +88,13 @@ impl Input {
             .prompt()
     }
 
+    pub fn choice_language() -> Result<Language, InquireError> {
+        let choice = Select::new("Which mnemonic language do you want?", (*LANGUAGES).clone())
+            .with_page_size(LANGUAGES.len())
+            .prompt()?;
+        Ok(language(&choice).unwrap())
+    }
+
     pub fn confirm_overwrite(msg: &str) -> Result<bool, InquireError> {
         if !msg.is_empty() {
             println!("{msg}");
@@ -95,5 +103,38 @@ impl Input {
             .with_default(false)
             .with_help_message("This operation will overwrite file.")
             .prompt()
+    }
+}
+
+const LANGUAGES: LazyCell<Vec<String>> = LazyCell::new(|| {
+    [
+        Language::English,
+        Language::Japanese,
+        Language::Korean,
+        Language::Spanish,
+        Language::SimplifiedChinese,
+        Language::TraditionalChinese,
+        Language::Franch,
+        Language::Italian,
+        Language::Czech,
+        Language::Portuguese,
+    ]
+    .map(|v| format!("{v:?}"))
+    .to_vec()
+});
+
+fn language(name: &str) -> Option<Language> {
+    match &name.to_lowercase()[..] {
+        "english" => Some(Language::English),
+        "japanese" => Some(Language::Japanese),
+        "korean" => Some(Language::Korean),
+        "spanish" => Some(Language::Spanish),
+        "simplifiedchinese" => Some(Language::SimplifiedChinese),
+        "traditionalchinese" => Some(Language::TraditionalChinese),
+        "franch" => Some(Language::Franch),
+        "italian" => Some(Language::Italian),
+        "czech" => Some(Language::Czech),
+        "portuguese" => Some(Language::Portuguese),
+        _ => None,
     }
 }

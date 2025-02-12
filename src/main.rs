@@ -1,11 +1,14 @@
+use args::{DeriveCommand, DiagramCommand, EncryptCommand};
 use artimonist::{ComplexDiagram, Encryptor, GenericDiagram, SimpleDiagram};
-use clap::{Parser, Subcommand, ValueEnum};
+use clap::{Parser, Subcommand};
 use std::fs;
 
+mod args;
 mod encrypt;
 mod input;
 mod output;
 mod unicode;
+use args::Target;
 use input::Input;
 use output::Output;
 
@@ -24,47 +27,6 @@ struct Cli {
     command: Commands,
 }
 
-#[derive(Parser)]
-struct DiagramCommand {
-    /// Target
-    #[arg(short, long, default_value = "mnemonic")]
-    target: Target,
-
-    /// Start index
-    #[arg(short, long, default_value_t = 0)]
-    index: u16,
-
-    /// Amount to generate
-    #[arg(short = 'm', long, default_value_t = 1)]
-    amount: u16,
-
-    /// Password as salt
-    #[arg(skip)]
-    password: String,
-
-    /// Input diagram from text file
-    #[arg(short, long)]
-    file: Option<String>,
-
-    /// Output results to text file
-    #[arg(short, long)]
-    output: Option<String>,
-
-    /// Output unicode view for non-displayable character
-    #[arg(short, long)]
-    unicode: bool,
-}
-
-#[derive(Parser)]
-#[group(required = true, multiple = false)]
-struct EncryptCommand {
-    /// Private key (Wif)
-    key: Option<String>,
-    /// Encrypt/Decrypt file
-    #[arg(short, long)]
-    file: Option<String>,
-}
-
 #[derive(Subcommand)]
 enum Commands {
     /// Use simple diagram of 7 * 7 chars
@@ -75,17 +37,8 @@ enum Commands {
     Encrypt(EncryptCommand),
     /// Decrypt private key by bip38
     Decrypt(EncryptCommand),
-}
-
-#[derive(ValueEnum, Clone, Copy, Default, Debug)]
-enum Target {
-    #[default]
-    Mnemonic,
-    #[value(alias("wif"))]
-    Wallet,
-    Xpriv,
-    #[value(alias("pwd"))]
-    Password,
+    /// Derive from master key
+    Derive(DeriveCommand),
 }
 
 fn main() -> Result<(), CommandError> {
@@ -97,15 +50,17 @@ fn main() -> Result<(), CommandError> {
                 None => Input::matrix::<char>()?,
             };
             cmd.password = Input::password(true)?;
+            if matches!(cmd.target, Target::Mnemonic) {
+                cmd.language = Input::choice_language()?;
+            }
             let diagram = SimpleDiagram(mx);
             let master = diagram.bip32_master(cmd.password.as_bytes())?;
-            match &cmd.output {
-                Some(path) => {
-                    if !fs::exists(path)? || Input::confirm_overwrite("File exists.")? {
-                        Output(&cmd).to_file(&diagram, &master, path)?
-                    }
+            if let Some(path) = &cmd.output {
+                if !fs::exists(path)? || Input::confirm_overwrite("File exists.")? {
+                    Output(&cmd).to_file(&diagram, &master, path)?
                 }
-                None => Output(&cmd).to_stdout(&diagram, &master)?,
+            } else {
+                Output(&cmd).to_stdout(&diagram, &master)?;
             }
         }
         Commands::Complex(mut cmd) => {
@@ -114,15 +69,17 @@ fn main() -> Result<(), CommandError> {
                 None => Input::matrix::<String>()?,
             };
             cmd.password = Input::password(true)?;
+            if matches!(cmd.target, Target::Mnemonic) {
+                cmd.language = Input::choice_language()?;
+            }
             let diagram = ComplexDiagram(mx);
             let master = diagram.bip32_master(cmd.password.as_bytes())?;
-            match &cmd.output {
-                Some(path) => {
-                    if !fs::exists(path)? || Input::confirm_overwrite("File exists.")? {
-                        Output(&cmd).to_file(&diagram, &master, path)?
-                    }
+            if let Some(path) = &cmd.output {
+                if !fs::exists(path)? || Input::confirm_overwrite("File exists.")? {
+                    Output(&cmd).to_file(&diagram, &master, path)?
                 }
-                None => Output(&cmd).to_stdout(&diagram, &master)?,
+            } else {
+                Output(&cmd).to_stdout(&diagram, &master)?;
             }
         }
         Commands::Encrypt(cmd) => {
@@ -142,6 +99,9 @@ fn main() -> Result<(), CommandError> {
             } else if Input::confirm_overwrite("")? {
                 encrypt::Output(cmd).decrypt_file(&pwd)?;
             }
+        }
+        Commands::Derive(mut cmd) => {
+            cmd.password = Input::password(true)?;
         }
     }
     Ok(())

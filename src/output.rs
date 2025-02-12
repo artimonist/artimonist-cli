@@ -77,7 +77,7 @@ impl Output<'_> {
     fn generate(&self, master: &Xpriv, index: u32) -> Option<String> {
         let cmd = self.0;
         match cmd.target {
-            Target::Mnemonic => master.bip85_mnemonic(Default::default(), 24, index),
+            Target::Mnemonic => master.bip85_mnemonic(cmd.language, 24, index),
             Target::Xpriv => master.bip85_xpriv(index),
             Target::Password => master.bip85_pwd(Default::default(), 20, index),
             Target::Wallet => master.bip85_wif(index).map(|Wif { mut pk, addr }| {
