@@ -1,5 +1,5 @@
 use args::{DeriveCommand, DiagramCommand, EncryptCommand};
-use artimonist::{ComplexDiagram, Encryptor, GenericDiagram, SimpleDiagram};
+use artimonist::{ComplexDiagram, GenericDiagram, SimpleDiagram};
 use clap::{Parser, Subcommand};
 
 mod args;
@@ -92,9 +92,10 @@ fn main() -> Result<(), CommandError> {
             Output::derive(&cmd)?;
         }
         Commands::Encrypt(cmd) => {
+            use bip38::EncryptWif;
             if let Some(key) = &cmd.key {
                 let pwd = Input::password(false)?;
-                let result = Encryptor::encrypt_wif(key, &pwd)?;
+                let result = key.encrypt_wif(&pwd).map_err(CommandError::Bip38)?;
                 println!("Encrypted private key: {result}");
             } else if Input::confirm_overwrite("")? {
                 let pwd = Input::password(false)?;
@@ -102,9 +103,10 @@ fn main() -> Result<(), CommandError> {
             }
         }
         Commands::Decrypt(cmd) => {
+            use bip38::Decrypt;
             if let Some(key) = &cmd.key {
                 let pwd = Input::password(false)?;
-                let result = Encryptor::decrypt_wif(key, &pwd)?;
+                let result = key.decrypt_to_wif(&pwd).map_err(CommandError::Bip38)?;
                 println!("Decrypted private key: {result}");
             } else if Input::confirm_overwrite("")? {
                 let pwd = Input::password(false)?;
@@ -125,15 +127,15 @@ pub enum CommandError {
     /// Generic error
     #[error("generic error")]
     Generic(#[from] artimonist::error::GenericError),
-    /// Encryptor error
-    #[error("encryptor error")]
-    Encryptor(#[from] artimonist::error::Bip38Error),
     /// File error
     #[error("file error")]
     File(#[from] std::io::Error),
     /// Input error
     #[error("input error")]
     Inquire(#[from] inquire::InquireError),
+    /// Bip38 error
+    #[error("bip38 error")]
+    Bip38(bip38::Error),
 }
 
 #[cfg(test)]

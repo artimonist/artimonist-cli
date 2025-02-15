@@ -1,7 +1,6 @@
 use artimonist::Language;
-use clap::{Parser, ValueEnum};
 
-#[derive(Parser)]
+#[derive(clap::Parser)]
 pub(crate) struct DiagramCommand {
     /// Target
     #[arg(short, long, default_value = "mnemonic")]
@@ -36,7 +35,7 @@ pub(crate) struct DiagramCommand {
     pub unicode: bool,
 }
 
-#[derive(ValueEnum, Clone, Copy, Default, Debug)]
+#[derive(clap::ValueEnum, Clone, Copy, Default, Debug)]
 pub(crate) enum Target {
     #[default]
     Mnemonic,
@@ -47,7 +46,7 @@ pub(crate) enum Target {
     Password,
 }
 
-#[derive(Parser)]
+#[derive(clap::Parser)]
 #[group(required = true, multiple = false)]
 pub(crate) struct EncryptCommand {
     /// Private key (Wif)
@@ -57,9 +56,9 @@ pub(crate) struct EncryptCommand {
     pub file: Option<String>,
 }
 
-#[derive(Parser)]
+#[derive(clap::Parser)]
 pub(crate) struct DeriveCommand {
-    /// Master key
+    /// Master key or Mnemonic
     pub key: String,
 
     /// Start index
@@ -67,8 +66,8 @@ pub(crate) struct DeriveCommand {
     pub index: u16,
 
     /// Amount to generate
-    #[arg(short = 'm', long, default_value_t = 1)]
-    pub amount: u16,
+    #[clap(flatten)]
+    pub m: Amount,
 
     /// Output results to text file
     #[arg(short, long)]
@@ -77,4 +76,20 @@ pub(crate) struct DeriveCommand {
     /// Password as salt
     #[arg(skip)]
     pub password: String,
+}
+
+#[derive(Debug, clap::Args)]
+#[group(required = false, multiple = false)]
+pub(crate) struct Amount {
+    /// Amount to generate
+    #[arg(short = 'm', long, default_value_t = 1)]
+    pub amount: u16,
+
+    /// Multi sign of 2/3.
+    #[arg(long = "m3")]
+    pub m3: Option<u16>,
+
+    /// Multi sign of 3/5.
+    #[arg(long = "m5")]
+    pub m5: Option<u16>,
 }
