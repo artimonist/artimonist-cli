@@ -106,7 +106,7 @@ impl Output<'_> {
         if let Some(path) = &cmd.output {
             let mut f = BufWriter::new(File::create(Path::new(path))?);
             for (i, w) in wallets.into_iter().enumerate() {
-                writeln!(f, "({}): {}", w.replace(" ", " \t"), i + cmd.index as usize)?;
+                writeln!(f, "({}): {}", i + cmd.index as usize, w.replace(" ", " \t"))?;
             }
         } else {
             let mut f = BufWriter::new(std::io::stdout());
