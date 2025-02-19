@@ -91,15 +91,15 @@ impl Output<'_> {
     }
 
     pub fn derive(cmd: &DeriveCommand) -> Result<(), CommandError> {
-        use artimonist::Error::{Bip32Error, Bip39Error};
+        use artimonist::Error::Bip32Error;
         let mut wallets = Vec::new();
         let master = if cmd.key.starts_with("xprv") {
             Xpriv::from_str(&cmd.key).map_err(Bip32Error)?
         } else {
-            Xpriv::from_mnemonic(&cmd.key, &cmd.password).map_err(Bip39Error)?
+            Xpriv::from_mnemonic(&cmd.key, &cmd.password)?
         };
-        for i in cmd.index..cmd.index + cmd.m.amount {
-            let (addr, pk) = master.bip49_wallet(0, i as u32).map_err(Bip32Error)?;
+        for i in cmd.index..cmd.index + cmd.amount {
+            let (addr, pk) = master.bip49_wallet(0, i as u32)?;
             let epk = pk.encrypt_wif(&cmd.password).map_err(CommandError::Bip38)?;
             wallets.push(format!("{addr}, {epk}"));
         }

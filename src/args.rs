@@ -66,8 +66,8 @@ pub(crate) struct DeriveCommand {
     pub index: u16,
 
     /// Amount to generate
-    #[clap(flatten)]
-    pub m: Amount,
+    #[arg(short = 'm', long, default_value_t = 1)]
+    pub amount: u16,
 
     /// Output results to text file
     #[arg(short, long)]
@@ -76,20 +76,4 @@ pub(crate) struct DeriveCommand {
     /// Password as salt
     #[arg(skip)]
     pub password: String,
-}
-
-#[derive(Debug, clap::Args)]
-#[group(required = false, multiple = false)]
-pub(crate) struct Amount {
-    /// Amount to generate
-    #[arg(short = 'm', long, default_value_t = 1)]
-    pub amount: u16,
-
-    /// Multi sign of 2/3.
-    #[arg(long = "m3")]
-    pub m3: Option<u16>,
-
-    /// Multi sign of 3/5.
-    #[arg(long = "m5")]
-    pub m5: Option<u16>,
 }

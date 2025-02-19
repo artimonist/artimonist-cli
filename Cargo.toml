@@ -17,7 +17,7 @@ name = "artimonist"
 path = "src/main.rs"
 
 [dependencies]
-artimonist = { version = "0.9.0", features = ["multilingual"] }
+artimonist = { version = "0.9.1", features = ["multilingual"] }
 clap = { version = "^4.5.28", features = ["derive"] }
 inquire = { version = "^0.7.5", default-features = false, features = ["crossterm"] }
 comfy-table = { version = "^7.1.3", default-features = false }

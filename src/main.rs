@@ -124,9 +124,6 @@ pub enum CommandError {
     /// Artimonist error
     #[error("artimonist error")]
     Artimonist(#[from] artimonist::Error),
-    /// Generic error
-    #[error("generic error")]
-    Generic(#[from] artimonist::error::GenericError),
     /// File error
     #[error("file error")]
     File(#[from] std::io::Error),
