@@ -1,7 +1,6 @@
 use artimonist::Language;
-use clap::{Parser, ValueEnum};
 
-#[derive(Parser)]
+#[derive(clap::Parser)]
 pub(crate) struct DiagramCommand {
     /// Target
     #[arg(short, long, default_value = "mnemonic")]
@@ -36,7 +35,7 @@ pub(crate) struct DiagramCommand {
     pub unicode: bool,
 }
 
-#[derive(ValueEnum, Clone, Copy, Default, Debug)]
+#[derive(clap::ValueEnum, Clone, Copy, Default, Debug)]
 pub(crate) enum Target {
     #[default]
     Mnemonic,
@@ -47,7 +46,7 @@ pub(crate) enum Target {
     Password,
 }
 
-#[derive(Parser)]
+#[derive(clap::Parser)]
 #[group(required = true, multiple = false)]
 pub(crate) struct EncryptCommand {
     /// Private key (Wif)
@@ -57,9 +56,9 @@ pub(crate) struct EncryptCommand {
     pub file: Option<String>,
 }
 
-#[derive(Parser)]
+#[derive(clap::Parser)]
 pub(crate) struct DeriveCommand {
-    /// Master key
+    /// Master key or Mnemonic
     pub key: String,
 
     /// Start index

@@ -1,6 +1,7 @@
 use super::unicode::UnicodeUtils;
 use crate::{CommandError, DeriveCommand, DiagramCommand, Target};
-use artimonist::{Encryptor, Wif, Xpriv, BIP49, BIP85};
+use artimonist::{Wif, Xpriv, BIP39, BIP49, BIP85};
+use bip38::EncryptWif;
 use std::{
     fs::File,
     io::{BufWriter, Result as IoResult, Write},
@@ -28,8 +29,8 @@ impl Output<'_> {
                 .join("  ");
             writeln!(f, "{ln}")?;
         }
-        writeln!(f, "{}", "=".repeat(30))?;
         if cmd.unicode {
+            writeln!(f, "{}", "-".repeat(30))?;
             for r in mx.iter() {
                 let ln = r
                     .iter()
@@ -41,8 +42,8 @@ impl Output<'_> {
                     .join("  ");
                 writeln!(f, "{ln}")?;
             }
-            writeln!(f, "{}", "=".repeat(30))?;
         }
+        writeln!(f, "{}", "=".repeat(50))?;
         for i in cmd.index..cmd.index + cmd.amount {
             match self.generate(master, i as u32).map(|s| (i, s)) {
                 Some((i, s)) => writeln!(f, "({i}): {}", s.replace(", ", ",\t"))?,
@@ -82,7 +83,7 @@ impl Output<'_> {
             Target::Xpriv => master.bip85_xpriv(index),
             Target::Password => master.bip85_pwd(Default::default(), 20, index),
             Target::Wallet => master.bip85_wif(index).map(|Wif { mut pk, addr }| {
-                pk = Encryptor::encrypt_wif(&pk, &cmd.password).unwrap_or_default();
+                pk = pk.encrypt_wif(&cmd.password).unwrap_or_default();
                 format!("{addr}, {pk}")
             }),
         }
@@ -92,21 +93,25 @@ impl Output<'_> {
     pub fn derive(cmd: &DeriveCommand) -> Result<(), CommandError> {
         use artimonist::Error::Bip32Error;
         let mut wallets = Vec::new();
-        let master = Xpriv::from_str(&cmd.key).map_err(Bip32Error)?;
+        let master = if cmd.key.starts_with("xprv") {
+            Xpriv::from_str(&cmd.key).map_err(Bip32Error)?
+        } else {
+            Xpriv::from_mnemonic(&cmd.key, &cmd.password)?
+        };
         for i in cmd.index..cmd.index + cmd.amount {
-            let (addr, pk) = master.bip49_wallet(0, i as u32).map_err(Bip32Error)?;
-            let epk = Encryptor::encrypt_wif(&pk, &cmd.password)?;
+            let (addr, pk) = master.bip49_wallet(0, i as u32)?;
+            let epk = pk.encrypt_wif(&cmd.password).map_err(CommandError::Bip38)?;
             wallets.push(format!("{addr}, {epk}"));
         }
         if let Some(path) = &cmd.output {
             let mut f = BufWriter::new(File::create(Path::new(path))?);
             for (i, w) in wallets.into_iter().enumerate() {
-                writeln!(f, "({i}): {}", w.replace(" ", " \t"))?;
+                writeln!(f, "({}): {}", i + cmd.index as usize, w.replace(" ", " \t"))?;
             }
         } else {
             let mut f = BufWriter::new(std::io::stdout());
             for (i, w) in wallets.into_iter().enumerate() {
-                writeln!(f, "({i}): {w}")?;
+                writeln!(f, "({}): {w}", i + cmd.index as usize)?;
             }
         }
         Ok(())

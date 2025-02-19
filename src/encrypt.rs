@@ -1,5 +1,6 @@
+use bip38::{Decrypt, EncryptWif};
+
 use crate::{CommandError, EncryptCommand};
-use artimonist::Encryptor;
 use std::io::{BufRead, BufWriter, Write};
 use std::path::Path;
 use std::{fs::File, io::BufReader};
@@ -31,8 +32,8 @@ impl Output {
         let mut vs = vec![];
         for ln in BufReader::new(File::open(Path::new(path))?).lines() {
             let result = match encrypt {
-                true => Encryptor::encrypt_wif(&ln?, pwd)?,
-                false => Encryptor::decrypt_wif(&ln?, pwd)?,
+                true => ln?.encrypt_wif(pwd).map_err(CommandError::Bip38)?,
+                false => ln?.decrypt_to_wif(pwd).map_err(CommandError::Bip38)?,
             };
             vs.push(result);
         }
