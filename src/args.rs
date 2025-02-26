@@ -2,10 +2,6 @@ use artimonist::Language;
 
 #[derive(clap::Parser, Debug)]
 pub(crate) struct DiagramCommand {
-    /// Target
-    #[arg(short, long, default_value = "mnemonic")]
-    pub target: Target,
-
     /// Start index
     #[arg(short, long, default_value_t = 0, value_parser = clap::value_parser!(u32).range(0..65536))]
     pub index: u32,
@@ -22,9 +18,13 @@ pub(crate) struct DiagramCommand {
     #[arg(short, long)]
     pub output: Option<String>,
 
-    /// Output unicode view for non-displayable character
+    /// Unicode view for non-displayable character
     #[arg(short, long)]
     pub unicode: bool,
+
+    /// Generation target
+    #[command(flatten)]
+    pub target: GenerationTarget,
 
     /// Password as salt
     #[arg(skip)]
@@ -35,13 +35,24 @@ pub(crate) struct DiagramCommand {
     pub language: Language,
 }
 
-#[derive(clap::ValueEnum, Clone, Copy, Default, Debug)]
-pub(crate) enum Target {
-    #[default]
-    Mnemonic,
-    Wif,
-    Xpriv,
-    Pwd,
+#[derive(clap::Args, Debug)]
+#[group(required = false, multiple = false)]
+pub(crate) struct GenerationTarget {
+    /// Generate bip39 mnemonic [default]
+    #[arg(long, visible_alias = "bip39")]
+    pub mnemonic: bool,
+
+    /// Generate wallet address and private key
+    #[arg(long, visible_aliases = ["wallet", "address"])]
+    pub wif: bool,
+
+    /// Generate master key for HD-Wallet
+    #[arg(long, visible_aliases = ["hd", "master", "root"])]
+    pub xpriv: bool,
+
+    /// Generate password
+    #[arg(long, visible_aliases = ["password", "passphrase"])]
+    pub pwd: bool,
 }
 
 #[derive(clap::Parser)]
@@ -91,11 +102,11 @@ pub(crate) struct DeriveCommand {
 #[derive(clap::Args, Debug)]
 #[group(required = false, multiple = false)]
 pub(crate) struct MultisigType {
-    /// Multiple signatures of 2-3 [derive path: account'/0/index]
+    /// Multiple signatures address of 2-3 [derive path: account'/0/index]
     #[arg(long)]
     pub m23: bool,
 
-    /// Multiple signatures of 3-5 [derive path: account'/0/index]
+    /// Multiple signatures address of 3-5 [derive path: account'/0/index]
     #[arg(long)]
     pub m35: bool,
 }

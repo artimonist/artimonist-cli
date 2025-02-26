@@ -1,13 +1,13 @@
 [package]
 name = "artimonist-cli"
-version = "0.10.0"
-description = "A tool for generating mnemonics based on diagrams."
+version = "0.11.0"
+description = "A tool for generating mnemonics and wallets."
 authors = ["Artimonist <artimonist@gmail.com>"]
 homepage = "https://artimonist.org/"
-repository = "https://github.com/artimonist/artimonist-cli/"
+repository = "https://github.com/artimonist/cli/"
 
 license = "MIT"
-keywords = ["bitcoin", "mnemonic"]
+keywords = ["bitcoin", "wallet", "mnemonic", "crypto", "btc", "art"]
 categories = ["cryptography"]
 rust-version = "1.85.0"
 edition = "2024"
@@ -17,7 +17,7 @@ name = "artimonist"
 path = "src/main.rs"
 
 [dependencies]
-artimonist = { version = "0.11.2", features = ["multilingual"] }
+artimonist = { version = "0.11.3", features = ["multilingual"] }
 clap = { version = "^4.5.28", features = ["derive"] }
 inquire = { version = "^0.7.5", default-features = false, features = ["crossterm"] }
 comfy-table = { version = "^7.1.3", default-features = false }

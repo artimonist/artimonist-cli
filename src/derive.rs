@@ -115,10 +115,11 @@ use DeriveMethod::*;
 impl DerivationPath {
     #[inline]
     fn path(&self) -> DeriveMethod {
-        if self.bip44 || self.bip84 {
-            return if self.bip44 { Bip44 } else { Bip84 };
+        match self {
+            Self { bip44: true, .. } => Bip44,
+            Self { bip84: true, .. } => Bip84,
+            _ => Bip49,
         }
-        Bip49 // default
     }
     #[inline]
     pub fn account(&self, root: &Xpriv, account: u32) -> DeriveResult<(String, String)> {

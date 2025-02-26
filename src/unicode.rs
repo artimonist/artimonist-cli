@@ -1,5 +1,5 @@
 /// parse unicode characters of \u{...} format.
-pub trait UnicodeUtils {
+trait UnicodeUtils {
     fn unicode_decode(&self) -> String;
     fn unicode_encode(&self) -> String;
 }
@@ -38,6 +38,36 @@ impl UnicodeUtils for str {
                     .collect::<Vec<char>>(),
             })
             .collect()
+    }
+}
+
+pub trait Transformer<const N: usize>
+where
+    Self: Sized,
+{
+    fn decode(v: &str) -> Option<Self>;
+    fn encode(v: &Self) -> String;
+}
+
+impl<const N: usize> Transformer<N> for char {
+    #[inline]
+    fn decode(v: &str) -> Option<Self> {
+        v.unicode_decode().chars().next()
+    }
+    #[inline]
+    fn encode(v: &Self) -> String {
+        format!("{v}").unicode_encode()
+    }
+}
+
+impl<const N: usize> Transformer<N> for String {
+    #[inline]
+    fn decode(v: &str) -> Option<Self> {
+        Some(v.unicode_decode().chars().take(N).collect())
+    }
+    #[inline]
+    fn encode(v: &Self) -> String {
+        v.unicode_encode()
     }
 }
 
