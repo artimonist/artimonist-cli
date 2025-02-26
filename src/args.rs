@@ -1,26 +1,18 @@
 use artimonist::Language;
 
-#[derive(clap::Parser)]
+#[derive(clap::Parser, Debug)]
 pub(crate) struct DiagramCommand {
     /// Target
     #[arg(short, long, default_value = "mnemonic")]
     pub target: Target,
 
     /// Start index
-    #[arg(short, long, default_value_t = 0)]
-    pub index: u16,
+    #[arg(short, long, default_value_t = 0, value_parser = clap::value_parser!(u32).range(0..65536))]
+    pub index: u32,
 
     /// Amount to generate
-    #[arg(short = 'm', long, default_value_t = 1)]
-    pub amount: u16,
-
-    /// Password as salt
-    #[arg(skip)]
-    pub password: String,
-
-    /// Mnemonic language
-    #[arg(skip)]
-    pub language: Language,
+    #[arg(short = 'm', long, default_value_t = 1, value_parser = clap::value_parser!(u32).range(0..65536))]
+    pub amount: u32,
 
     /// Input diagram from text file
     #[arg(short, long)]
@@ -33,17 +25,23 @@ pub(crate) struct DiagramCommand {
     /// Output unicode view for non-displayable character
     #[arg(short, long)]
     pub unicode: bool,
+
+    /// Password as salt
+    #[arg(skip)]
+    pub password: String,
+
+    /// Mnemonic language
+    #[arg(skip)]
+    pub language: Language,
 }
 
 #[derive(clap::ValueEnum, Clone, Copy, Default, Debug)]
 pub(crate) enum Target {
     #[default]
     Mnemonic,
-    #[value(alias("wif"))]
-    Wallet,
+    Wif,
     Xpriv,
-    #[value(alias("pwd"))]
-    Password,
+    Pwd,
 }
 
 #[derive(clap::Parser)]
@@ -56,24 +54,62 @@ pub(crate) struct EncryptCommand {
     pub file: Option<String>,
 }
 
-#[derive(clap::Parser)]
+#[derive(clap::Parser, Debug)]
 pub(crate) struct DeriveCommand {
-    /// Master key or Mnemonic
+    /// Master key or Mnemonic string
     pub key: String,
 
-    /// Start index
-    #[arg(short, long, default_value_t = 0)]
-    pub index: u16,
+    /// Account start index
+    #[arg(short, long, default_value_t = 0, value_parser = clap::value_parser!(u32).range(0..65536))]
+    pub account: u32,
 
-    /// Amount to generate
-    #[arg(short = 'm', long, default_value_t = 1)]
-    pub amount: u16,
+    /// Address start index
+    #[arg(short, long, default_value_t = 0, value_parser = clap::value_parser!(u32).range(0..65536))]
+    pub index: u32,
+
+    /// Amount of address
+    #[arg(short = 'm', long, default_value_t = 20, value_parser = clap::value_parser!(u32).range(0..65536))]
+    pub amount: u32,
 
     /// Output results to text file
     #[arg(short, long)]
     pub output: Option<String>,
 
+    /// Derivation path select
+    #[command(flatten)]
+    pub derive: DerivationPath,
+
+    /// Multi sign address
+    #[command(flatten)]
+    pub multisig: MultisigType,
+
     /// Password as salt
     #[arg(skip)]
     pub password: String,
+}
+
+#[derive(clap::Args, Debug)]
+#[group(required = false, multiple = false)]
+pub(crate) struct MultisigType {
+    /// Multiple signatures of 2-3 [derive path: account'/0/index]
+    #[arg(long)]
+    pub m23: bool,
+
+    /// Multiple signatures of 3-5 [derive path: account'/0/index]
+    #[arg(long)]
+    pub m35: bool,
+}
+
+#[derive(clap::Args, Debug)]
+#[group(required = false, multiple = false)]
+pub(crate) struct DerivationPath {
+    /// Use derive path: m/44'/0'/account'/0/index' [p2pkh]
+    #[arg(long)]
+    pub bip44: bool,
+    /// Use derive path: m/49'/0'/account'/0/index' [p2shwpkh, default]
+    #[arg(long)]
+    pub bip49: bool,
+    /// Use derive path: m/84'/0'/account'/0/index' [p2wpkh]
+    #[arg(long)]
+    pub bip84: bool,
 }

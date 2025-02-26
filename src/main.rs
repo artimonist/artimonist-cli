@@ -1,13 +1,14 @@
-use args::{DeriveCommand, DiagramCommand, EncryptCommand};
 use artimonist::{ComplexDiagram, GenericDiagram, SimpleDiagram};
 use clap::{Parser, Subcommand};
 
 mod args;
+mod derive;
 mod encrypt;
 mod input;
 mod output;
 mod unicode;
-use args::Target;
+
+use args::{DeriveCommand, DiagramCommand, EncryptCommand, Target};
 use input::Input;
 use output::Output;
 
@@ -36,21 +37,22 @@ enum Commands {
     Encrypt(EncryptCommand),
     /// Decrypt private key by bip38
     Decrypt(EncryptCommand),
-    /// Derive from master key
+    /// Derive from master key or mnemonic
     Derive(DeriveCommand),
+}
+
+macro_rules! confirm_overwrite {
+    ($output: expr) => {
+        if let Some(path) = $output {
+            if std::fs::exists(path)? && !Input::confirm_overwrite("File exists.")? {
+                return Ok(());
+            }
+        }
+    };
 }
 
 fn main() -> Result<(), CommandError> {
     let args = Cli::parse();
-    macro_rules! confirm_overwrite {
-        ($output: expr) => {
-            if let Some(path) = $output {
-                if std::fs::exists(path)? && !Input::confirm_overwrite("File exists.")? {
-                    return Ok(());
-                }
-            }
-        };
-    }
     match args.command {
         Commands::Simple(mut cmd) => {
             confirm_overwrite!(&cmd.output);
@@ -86,11 +88,6 @@ fn main() -> Result<(), CommandError> {
                 None => Output(&cmd).to_stdout(&diagram, &master)?,
             }
         }
-        Commands::Derive(mut cmd) => {
-            confirm_overwrite!(&cmd.output);
-            cmd.password = Input::password(true)?;
-            Output::derive(&cmd)?;
-        }
         Commands::Encrypt(cmd) => {
             use bip38::EncryptWif;
             if let Some(key) = &cmd.key {
@@ -113,6 +110,13 @@ fn main() -> Result<(), CommandError> {
                 encrypt::Output(cmd).decrypt_file(&pwd)?;
             }
         }
+        Commands::Derive(mut cmd) => {
+            confirm_overwrite!(&cmd.output);
+            if artimonist::NETWORK.is_mainnet() && !cmd.is_multisig() {
+                cmd.password = Input::password(true)?;
+            }
+            cmd.execute()?;
+        }
     }
     Ok(())
 }
@@ -120,24 +124,22 @@ fn main() -> Result<(), CommandError> {
 use thiserror::Error;
 
 #[derive(Error, Debug)]
-pub enum CommandError {
-    /// Artimonist error
+pub(crate) enum CommandError {
     #[error("artimonist error")]
     Artimonist(#[from] artimonist::Error),
-    /// File error
     #[error("file error")]
     File(#[from] std::io::Error),
-    /// Input error
     #[error("input error")]
     Inquire(#[from] inquire::InquireError),
-    /// Bip38 error
     #[error("bip38 error")]
     Bip38(bip38::Error),
+    #[error("derive error")]
+    Derive(#[from] derive::DeriveError),
 }
 
 #[cfg(test)]
 mod diagram_test {
-    use artimonist::{GenericDiagram, SimpleDiagram, Wif, BIP85};
+    use artimonist::{BIP85, GenericDiagram, SimpleDiagram, Wif};
 
     #[test]
     fn test_simple() {
