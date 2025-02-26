@@ -1,11 +1,5 @@
-use crate::{
-    DiagramCommand,
-    args::GenerationTarget,
-    unicode::{Formatter, UnicodeUtils},
-};
-use artimonist::{
-    BIP85, ComplexDiagram, GenericDiagram, Matrix, SimpleDiagram, ToMatrix, Wif, Xpriv,
-};
+use crate::{DiagramCommand, args::GenerationTarget, unicode::Transformer};
+use artimonist::{ComplexDiagram, GenericDiagram, Matrix, SimpleDiagram, ToMatrix, Wif, Xpriv};
 use bip38::EncryptWif;
 use inquire::InquireError;
 use std::{
@@ -26,10 +20,7 @@ where
     fn by_inquire() -> Result<Self, InquireError>;
 }
 
-impl<T: Debug> MatrixInput<T> for Matrix<T, 7, 7>
-where
-    for<'a> &'a str: Formatter<T>,
-{
+impl<T: Debug + Transformer<20>> MatrixInput<T> for Matrix<T, 7, 7> {
     fn from_file(path: &str) -> Result<Self, IoError> {
         let file = File::open(Path::new(path))?;
         let buffered = BufReader::new(file);
@@ -40,7 +31,7 @@ where
                 Ok(ln) => ln
                     .split_whitespace()
                     .take(7)
-                    .map(|s| s.trim_matches('\"').format())
+                    .map(|s| Transformer::decode(s.trim_matches('\"')))
                     .collect::<Vec<_>>(),
                 _ => vec![],
             })
@@ -56,7 +47,7 @@ where
                 .with_help_message("Fill characters in quotes.")
                 .prompt()?
                 .split_whitespace()
-                .map(|s| s.trim_matches('\"').format())
+                .map(|s| Transformer::decode(s.trim_matches('\"')))
                 .collect();
             mvs.push(vs);
         }
@@ -71,7 +62,7 @@ pub(crate) enum Target {
     Pwd,
 }
 
-pub(crate) trait DiagramOutput<T: ToString>
+pub(crate) trait DiagramOutput<T: ToString + Transformer<20>>
 where
     Self: GenericDiagram,
 {
@@ -99,7 +90,7 @@ where
                 let ln = r
                     .iter()
                     .map(|v| match v {
-                        Some(s) => format!("\"{}\"", s.to_string().unicode_encode()),
+                        Some(s) => format!("\"{}\"", Transformer::encode(s)),
                         None => "\"\"".to_owned(),
                     })
                     .collect::<Vec<String>>()
@@ -163,6 +154,7 @@ trait Generation {
 impl Generation for Xpriv {
     #[inline]
     fn bip85_generation(&self, cmd: &DiagramCommand, index: u32) -> Option<String> {
+        use artimonist::BIP85;
         match cmd.target() {
             Target::Mnemonic => self.bip85_mnemonic(cmd.language, 24, index),
             Target::Xpriv => self.bip85_xpriv(index),
@@ -196,12 +188,14 @@ pub trait FmtTable<T> {
     fn fmt_table(&self, unicode: bool) -> comfy_table::Table;
 }
 
-impl<const H: usize, const W: usize, T: ToString> FmtTable<T> for artimonist::Matrix<T, H, W> {
+impl<const H: usize, const W: usize, T: ToString + Transformer<20>> FmtTable<T>
+    for artimonist::Matrix<T, H, W>
+{
     fn fmt_table(&self, unicode: bool) -> comfy_table::Table {
         let mx = self.iter().map(|r| {
             r.iter().map(|v| match v {
                 Some(x) => match unicode {
-                    true => x.to_string().unicode_encode(),
+                    true => Transformer::encode(x),
                     false => x.to_string(),
                 },
                 None => "".to_owned(),
