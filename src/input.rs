@@ -25,7 +25,7 @@ pub struct Input;
 
 impl Input {
     /// Input diagram from file
-    pub fn diagram_file<T: Debug>(path: &str) -> Result<Matrix<7, 7, T>, IoError>
+    pub fn diagram_file<T: Debug>(path: &str) -> Result<Matrix<T, 7, 7>, IoError>
     where
         for<'a> &'a str: Formatter<T>,
     {
@@ -47,7 +47,7 @@ impl Input {
     }
 
     /// Input diagram
-    pub fn matrix<T: Debug>() -> Result<Matrix<7, 7, T>, InquireError>
+    pub fn matrix<T: Debug>() -> Result<Matrix<T, 7, 7>, InquireError>
     where
         for<'a> &'a str: Formatter<T>,
     {
