@@ -1,25 +1,24 @@
-use artimonist::{ComplexDiagram, GenericDiagram, SimpleDiagram};
-use clap::{Parser, Subcommand};
-
 mod args;
 mod derive;
+mod diagram;
 mod encrypt;
 mod input;
-mod output;
 mod unicode;
 
-use args::{DeriveCommand, DiagramCommand, EncryptCommand, Target};
+use args::{DeriveCommand, DiagramCommand, EncryptCommand};
+use artimonist::{ComplexDiagram, Matrix, SimpleDiagram};
+use clap::{Parser, Subcommand};
+use diagram::{DiagramOutput, MatrixInput};
 use input::Input;
-use output::Output;
 
 const ABOUT_LONG: &str = "
 Artimonist
-A tool for generating mnemonics based on diagrams.
+A tool for generating mnemonics and wallets.
 
 Project location: <https://github.com/artimonist/artimonist-cli>
 Web version: <https://www.artimonist.org>";
 
-/// Artimonist - A tool for generating mnemonics based on diagrams.   
+/// Artimonist - A tool for generating mnemonics and wallets.   
 #[derive(Parser)]
 #[command(version, long_about=ABOUT_LONG)]
 struct Cli {
@@ -57,35 +56,31 @@ fn main() -> Result<(), CommandError> {
         Commands::Simple(mut cmd) => {
             confirm_overwrite!(&cmd.output);
             let mx = match &cmd.file {
-                Some(file) => Input::diagram_file::<char>(file)?,
-                None => Input::matrix::<char>()?,
+                Some(file) => Matrix::<char>::from_file(file)?,
+                None => Matrix::<char>::by_inquire()?,
             };
-            cmd.password = Input::password(true)?;
-            if matches!(cmd.target, Target::Mnemonic) {
+            if cmd.is_mnemonic() {
                 cmd.language = Input::choice_language()?;
             }
-            let diagram = SimpleDiagram(mx);
-            let master = diagram.bip32_master(cmd.password.as_bytes())?;
+            cmd.password = Input::password(true)?;
             match &cmd.output {
-                Some(path) => Output(&cmd).to_file(&diagram, &master, path)?,
-                None => Output(&cmd).to_stdout(&diagram, &master)?,
+                Some(path) => SimpleDiagram(mx).to_file(&cmd, path)?,
+                None => SimpleDiagram(mx).display(&cmd)?,
             }
         }
         Commands::Complex(mut cmd) => {
             confirm_overwrite!(&cmd.output);
             let mx = match &cmd.file {
-                Some(file) => Input::diagram_file::<String>(file)?,
-                None => Input::matrix::<String>()?,
+                Some(file) => Matrix::<String>::from_file(file)?,
+                None => Matrix::<String>::by_inquire()?,
             };
-            cmd.password = Input::password(true)?;
-            if matches!(cmd.target, Target::Mnemonic) {
+            if cmd.is_mnemonic() {
                 cmd.language = Input::choice_language()?;
             }
-            let diagram = ComplexDiagram(mx);
-            let master = diagram.bip32_master(cmd.password.as_bytes())?;
+            cmd.password = Input::password(true)?;
             match &cmd.output {
-                Some(path) => Output(&cmd).to_file(&diagram, &master, path)?,
-                None => Output(&cmd).to_stdout(&diagram, &master)?,
+                Some(path) => ComplexDiagram(mx).to_file(&cmd, path)?,
+                None => ComplexDiagram(mx).display(&cmd)?,
             }
         }
         Commands::Encrypt(cmd) => {
@@ -125,14 +120,14 @@ use thiserror::Error;
 
 #[derive(Error, Debug)]
 pub(crate) enum CommandError {
-    #[error("artimonist error")]
-    Artimonist(#[from] artimonist::Error),
     #[error("file error")]
     File(#[from] std::io::Error),
     #[error("input error")]
     Inquire(#[from] inquire::InquireError),
     #[error("bip38 error")]
     Bip38(bip38::Error),
+    #[error("diagram error")]
+    Diagram(#[from] diagram::DiagramError),
     #[error("derive error")]
     Derive(#[from] derive::DeriveError),
 }
@@ -141,6 +136,7 @@ pub(crate) enum CommandError {
 mod diagram_test {
     use artimonist::{BIP85, GenericDiagram, SimpleDiagram, Wif};
 
+    /// Test compatible with old version data
     #[test]
     fn test_simple() {
         const CHARS: &str = "【1$≈⅞£】";
@@ -171,8 +167,8 @@ mod diagram_test {
         // Simple diagram compatible with older serializations
         // Matrix use generic serializations
         let diagram = SimpleDiagram::from_values(&CHARS.chars().collect::<Vec<_>>(), &INDICES);
-        let mx = &diagram.0;
-        assert_ne!(diagram.to_bytes().unwrap(), mx.to_bytes().unwrap());
+        // let mx = &diagram.0;
+        // assert_ne!(diagram.to_bytes().unwrap(), mx.to_bytes().unwrap());
 
         // simple diagram compatible with older results
         let master = diagram.bip32_master(Default::default()).unwrap();

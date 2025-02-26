@@ -41,6 +41,20 @@ impl UnicodeUtils for str {
     }
 }
 
+pub trait Formatter<T> {
+    fn format(self) -> Option<T>;
+}
+impl Formatter<char> for &str {
+    fn format(self) -> Option<char> {
+        self.unicode_decode().chars().next()
+    }
+}
+impl Formatter<String> for &str {
+    fn format(self) -> Option<String> {
+        Some(self.unicode_decode().chars().take(20).collect())
+    }
+}
+
 #[cfg(test)]
 mod unicode_test {
     use super::*;
