@@ -88,11 +88,11 @@ impl DeriveCommand {
             }
         } else {
             let mut f = BufWriter::new(std::io::stdout());
-            for account in accounts.iter() {
-                writeln!(f, "account({}) xpub: {}", self.account, account.0)?;
+            for (i, (xpub, _)) in accounts.iter().enumerate() {
+                writeln!(f, "account({}) xpub: {xpub}", self.account + i as u32)?;
             }
-            for account in accounts.iter() {
-                writeln!(f, "account({}) xpriv: {}", self.account, account.1)?;
+            for (i, (_, xpriv)) in accounts.iter().enumerate() {
+                writeln!(f, "account({}) xpriv: {xpriv}", self.account + i as u32)?;
             }
             for (i, (addr, pk)) in wallets.into_iter().enumerate() {
                 writeln!(f, "({}): {addr}, {pk})", i + self.index as usize,)?;
