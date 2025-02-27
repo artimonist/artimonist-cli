@@ -116,9 +116,7 @@ fn main() -> Result<(), CommandError> {
     Ok(())
 }
 
-use thiserror::Error;
-
-#[derive(Error, Debug)]
+#[derive(thiserror::Error, Debug)]
 pub(crate) enum CommandError {
     #[error("file error")]
     File(#[from] std::io::Error),
