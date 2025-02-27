@@ -13,7 +13,6 @@ pub trait Encryptor {
 }
 
 impl Encryptor for EncryptCommand {
-    #[inline]
     fn execute(&self, encrypt: bool) -> Result<(), EncryptError> {
         if let Some(key) = &self.key {
             if encrypt {

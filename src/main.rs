@@ -87,22 +87,22 @@ fn main() -> Result<(), CommandError> {
         Commands::Encrypt(mut cmd) => {
             if artimonist::NETWORK.is_mainnet() {
                 let prefix = ['K', 'L', '5'];
-                if cmd.key.as_ref().is_some_and(|k| !k.starts_with(prefix)) {
+                if cmd.key.as_ref().is_some_and(|k| k.starts_with(prefix)) {
+                    cmd.password = Input::password(false)?;
+                    cmd.execute(true)?;
+                } else {
                     println!("Invalid private key");
-                    return Ok(());
                 }
-                cmd.password = Input::password(false)?;
-                cmd.execute(true)?;
             }
         }
         Commands::Decrypt(mut cmd) => {
             if artimonist::NETWORK.is_mainnet() {
-                if cmd.key.as_ref().is_some_and(|k| !k.starts_with("6P")) {
+                if cmd.key.as_ref().is_some_and(|k| k.starts_with("6P")) {
+                    cmd.password = Input::password(false)?;
+                    cmd.execute(false)?;
+                } else {
                     println!("Invalid encrypted key");
-                    return Ok(());
                 }
-                cmd.password = Input::password(false)?;
-                cmd.execute(false)?;
             }
         }
         Commands::Derive(mut cmd) => {
