@@ -60,9 +60,14 @@ pub(crate) struct GenerationTarget {
 pub(crate) struct EncryptCommand {
     /// Private key (Wif)
     pub key: Option<String>,
+
     /// Encrypt/Decrypt file
     #[arg(short, long)]
     pub file: Option<String>,
+
+    /// Password
+    #[arg(skip)]
+    pub password: String,
 }
 
 #[derive(clap::Parser, Debug)]
@@ -79,7 +84,7 @@ pub(crate) struct DeriveCommand {
     pub index: u32,
 
     /// Amount of address
-    #[arg(short = 'm', long, default_value_t = 20, value_parser = clap::value_parser!(u32).range(0..65536))]
+    #[arg(short = 'm', long, default_value_t = 5, value_parser = clap::value_parser!(u32).range(0..65536))]
     pub amount: u32,
 
     /// Output results to text file

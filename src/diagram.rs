@@ -61,6 +61,19 @@ pub(crate) enum Target {
     Xpriv,
     Pwd,
 }
+impl DiagramCommand {
+    pub fn target(&self) -> Target {
+        match self.target {
+            GenerationTarget { wif: true, .. } => Target::Wif,
+            GenerationTarget { xpriv: true, .. } => Target::Xpriv,
+            GenerationTarget { pwd: true, .. } => Target::Pwd,
+            _ => Target::Mnemonic,
+        }
+    }
+    pub fn is_mnemonic(&self) -> bool {
+        matches!(self.target(), Target::Mnemonic)
+    }
+}
 
 pub(crate) trait DiagramOutput<T: ToString + Transformer<20>>
 where
@@ -167,20 +180,6 @@ impl Generation for Xpriv {
             }),
         }
         .ok()
-    }
-}
-
-impl DiagramCommand {
-    pub fn target(&self) -> Target {
-        match self.target {
-            GenerationTarget { wif: true, .. } => Target::Wif,
-            GenerationTarget { xpriv: true, .. } => Target::Xpriv,
-            GenerationTarget { pwd: true, .. } => Target::Pwd,
-            _ => Target::Mnemonic,
-        }
-    }
-    pub fn is_mnemonic(&self) -> bool {
-        matches!(self.target(), Target::Mnemonic)
     }
 }
 

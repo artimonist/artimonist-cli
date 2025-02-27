@@ -7,7 +7,6 @@ use std::{
     path::Path,
     str::FromStr,
 };
-use thiserror::Error;
 
 type DeriveResult<T = ()> = Result<T, DeriveError>;
 
@@ -31,8 +30,6 @@ impl DeriveCommand {
     }
 
     fn exec_derive(&self, master: &Xpriv) -> DeriveResult {
-        // derive account
-        let account = self.derive.account(master, self.account)?;
         // derive wallets
         let mut wallets = (self.index..self.index + self.amount)
             .map(|index| self.derive.wallet(master, self.account, index))
@@ -46,17 +43,17 @@ impl DeriveCommand {
         // output
         if let Some(path) = &self.output {
             let mut f = BufWriter::new(File::create(Path::new(path))?);
-            writeln!(f, "account({}) xpub: {}", self.account, account.0)?;
-            writeln!(f, "account({}) xpriv: {}", self.account, account.1)?;
+            let path = self.derive.path(self.account);
             for (i, (addr, pk)) in wallets.into_iter().enumerate() {
-                writeln!(f, "({}): {addr},\t{pk})", i + self.index as usize,)?;
+                let index = self.index + i as u32;
+                writeln!(f, "[{path}/0/{index}']: {addr},\t{pk}",)?;
             }
         } else {
             let mut f = BufWriter::new(std::io::stdout());
-            writeln!(f, "account({}) xpub: {}", self.account, account.0)?;
-            writeln!(f, "account({}) xpriv: {}", self.account, account.1)?;
+            let path = self.derive.path(self.account);
             for (i, (addr, pk)) in wallets.into_iter().enumerate() {
-                writeln!(f, "({}): {addr}, {pk})", i + self.index as usize,)?;
+                let index = self.index + i as u32;
+                writeln!(f, "[{path}/0/{index}']: {addr}, {pk}")?;
             }
         }
         Ok(())
@@ -82,39 +79,72 @@ impl DeriveCommand {
         if let Some(path) = &self.output {
             let mut f = BufWriter::new(File::create(Path::new(path))?);
             for (i, (xpub, _)) in accounts.iter().enumerate() {
-                writeln!(f, "account({}) xpub: {xpub}", self.account + i as u32)?;
+                let path = self.derive.path(self.account + i as u32);
+                writeln!(f, "[{path}]: {xpub}")?;
             }
+            writeln!(f, "{}", "-".repeat(200))?;
             for (i, (_, xpriv)) in accounts.iter().enumerate() {
-                writeln!(f, "account({}) xpriv: {xpriv}", self.account + i as u32)?;
+                let path = self.derive.path(self.account + i as u32);
+                writeln!(f, "[{path}]: {xpriv}")?;
             }
-            for (i, (addr, pk)) in wallets.into_iter().enumerate() {
-                writeln!(f, "({}): {addr},\t{pk})", i + self.index as usize,)?;
+            writeln!(f, "{}", "=".repeat(30))?;
+            for (i, (addr, _)) in wallets.into_iter().enumerate() {
+                let index = self.index + i as u32;
+                writeln!(f, "[m/0/{index}]: {addr}")?;
             }
         } else {
-            let mut f = BufWriter::new(std::io::stdout());
-            for (i, (xpub, _)) in accounts.iter().enumerate() {
-                writeln!(f, "account({}) xpub: {xpub}", self.account + i as u32)?;
-            }
-            for (i, (_, xpriv)) in accounts.iter().enumerate() {
-                writeln!(f, "account({}) xpriv: {xpriv}", self.account + i as u32)?;
-            }
-            for (i, (addr, pk)) in wallets.into_iter().enumerate() {
-                writeln!(f, "({}): {addr}, {pk})", i + self.index as usize,)?;
-            }
+            self.display_multisig_accounts(&accounts)?;
+            self.display_multisig_wallets(&wallets);
         }
         Ok(())
+    }
+
+    fn display_multisig_accounts(&self, accounts: &[(String, String)]) -> DeriveResult {
+        let mut f = BufWriter::new(std::io::stdout());
+        let path_first = self.derive.path(self.account);
+        let path_last = self
+            .derive
+            .path(self.account + if self.multisig.m23 { 3 } else { 5 } - 1);
+        writeln!(f)?;
+        writeln!(f, "Account xpubs: [{}] ~ [{}]", path_first, path_last)?;
+        for (xpub, _) in accounts {
+            writeln!(f, "  {xpub}")?;
+        }
+        writeln!(f)?;
+        writeln!(f, "Account xprivs: [{}] ~ [{}]", path_first, path_last)?;
+        for (_, xpriv) in accounts {
+            writeln!(f, "  {xpriv}")?;
+        }
+        Ok(())
+    }
+    fn display_multisig_wallets(&self, wallets: &[(String, String)]) {
+        use comfy_table::{ContentArrangement, Table, modifiers::*, presets::*};
+        let mut table = Table::new();
+        table
+            .load_preset(UTF8_FULL)
+            .apply_modifier(UTF8_SOLID_INNER_BORDERS)
+            .set_content_arrangement(ContentArrangement::Dynamic)
+            .set_width(100)
+            .set_header(vec!["Path", "Address"]);
+        for (i, (addr, _)) in wallets.iter().enumerate() {
+            let index = self.index + i as u32;
+            table.add_row(vec![format!("m/0/{index}"), addr.to_string()]);
+        }
+        println!();
+        println!("Addresses: ");
+        println!("{table}");
     }
 }
 
 enum DeriveMethod {
-    Bip44,
-    Bip49,
-    Bip84,
+    Bip44 = 44,
+    Bip49 = 49,
+    Bip84 = 84,
 }
 use DeriveMethod::*;
 impl DerivationPath {
     #[inline]
-    fn path(&self) -> DeriveMethod {
+    fn method(&self) -> DeriveMethod {
         match self {
             Self { bip44: true, .. } => Bip44,
             Self { bip84: true, .. } => Bip84,
@@ -122,8 +152,15 @@ impl DerivationPath {
         }
     }
     #[inline]
+    fn path(&self, account: u32) -> String {
+        match artimonist::NETWORK.is_mainnet() {
+            true => format!("m/{}'/0'/{account}'", self.method() as u8),
+            false => format!("m/{}'/1'/{account}'", self.method() as u8),
+        }
+    }
+    #[inline]
     pub fn account(&self, root: &Xpriv, account: u32) -> DeriveResult<(String, String)> {
-        Ok(match self.path() {
+        Ok(match self.method() {
             Bip44 => root.bip44_account(account)?,
             Bip49 => root.bip49_account(account)?,
             Bip84 => root.bip84_account(account)?,
@@ -131,7 +168,7 @@ impl DerivationPath {
     }
     #[inline]
     pub fn wallet(&self, root: &Xpriv, account: u32, index: u32) -> DeriveResult<(String, String)> {
-        Ok(match self.path() {
+        Ok(match self.method() {
             Bip44 => root.bip44_wallet(account, index)?,
             Bip49 => root.bip49_wallet(account, index)?,
             Bip84 => root.bip84_wallet(account, index)?,
@@ -144,7 +181,7 @@ impl DerivationPath {
         account: u32,
         index: u32,
     ) -> DeriveResult<(String, String)> {
-        Ok(match self.path() {
+        Ok(match self.method() {
             Bip44 => root.bip44_multisig::<M, N>(account, index)?,
             Bip49 => root.bip49_multisig::<M, N>(account, index)?,
             Bip84 => root.bip84_multisig::<M, N>(account, index)?,
@@ -152,7 +189,7 @@ impl DerivationPath {
     }
 }
 
-#[derive(Error, Debug)]
+#[derive(thiserror::Error, Debug)]
 pub(crate) enum DeriveError {
     #[error("io error")]
     Output(#[from] std::io::Error),

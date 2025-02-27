@@ -9,6 +9,7 @@ use args::{DeriveCommand, DiagramCommand, EncryptCommand};
 use artimonist::{ComplexDiagram, Matrix, SimpleDiagram};
 use clap::{Parser, Subcommand};
 use diagram::{DiagramOutput, MatrixInput};
+use encrypt::Encryptor;
 use input::Input;
 
 const ABOUT_LONG: &str = "
@@ -83,26 +84,25 @@ fn main() -> Result<(), CommandError> {
                 None => ComplexDiagram(mx).display(&cmd)?,
             }
         }
-        Commands::Encrypt(cmd) => {
-            use bip38::EncryptWif;
-            if let Some(key) = &cmd.key {
-                let pwd = Input::password(false)?;
-                let result = key.encrypt_wif(&pwd).map_err(CommandError::Bip38)?;
-                println!("Encrypted private key: {result}");
-            } else if Input::confirm_overwrite("")? {
-                let pwd = Input::password(false)?;
-                encrypt::Output(cmd).encrypt_file(&pwd)?;
+        Commands::Encrypt(mut cmd) => {
+            if artimonist::NETWORK.is_mainnet() {
+                let prefix = ['K', 'L', '5'];
+                if cmd.key.as_ref().is_some_and(|k| k.starts_with(prefix)) {
+                    cmd.password = Input::password(false)?;
+                    cmd.execute(true)?;
+                } else {
+                    println!("Invalid private key");
+                }
             }
         }
-        Commands::Decrypt(cmd) => {
-            use bip38::Decrypt;
-            if let Some(key) = &cmd.key {
-                let pwd = Input::password(false)?;
-                let result = key.decrypt_to_wif(&pwd).map_err(CommandError::Bip38)?;
-                println!("Decrypted private key: {result}");
-            } else if Input::confirm_overwrite("")? {
-                let pwd = Input::password(false)?;
-                encrypt::Output(cmd).decrypt_file(&pwd)?;
+        Commands::Decrypt(mut cmd) => {
+            if artimonist::NETWORK.is_mainnet() {
+                if cmd.key.as_ref().is_some_and(|k| k.starts_with("6P")) {
+                    cmd.password = Input::password(false)?;
+                    cmd.execute(false)?;
+                } else {
+                    println!("Invalid encrypted key");
+                }
             }
         }
         Commands::Derive(mut cmd) => {
@@ -116,16 +116,14 @@ fn main() -> Result<(), CommandError> {
     Ok(())
 }
 
-use thiserror::Error;
-
-#[derive(Error, Debug)]
+#[derive(thiserror::Error, Debug)]
 pub(crate) enum CommandError {
     #[error("file error")]
     File(#[from] std::io::Error),
     #[error("input error")]
     Inquire(#[from] inquire::InquireError),
-    #[error("bip38 error")]
-    Bip38(bip38::Error),
+    #[error("encrypt error")]
+    Encrypt(#[from] encrypt::EncryptError),
     #[error("diagram error")]
     Diagram(#[from] diagram::DiagramError),
     #[error("derive error")]
