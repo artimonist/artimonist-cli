@@ -60,9 +60,14 @@ pub(crate) struct GenerationTarget {
 pub(crate) struct EncryptCommand {
     /// Private key (Wif)
     pub key: Option<String>,
+
     /// Encrypt/Decrypt file
     #[arg(short, long)]
     pub file: Option<String>,
+
+    /// Password
+    #[arg(skip)]
+    pub password: String,
 }
 
 #[derive(clap::Parser, Debug)]

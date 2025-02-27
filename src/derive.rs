@@ -44,7 +44,6 @@ impl DeriveCommand {
         if let Some(path) = &self.output {
             let mut f = BufWriter::new(File::create(Path::new(path))?);
             let path = self.derive.path(self.account);
-            writeln!(f, "{}", "=".repeat(50))?;
             for (i, (addr, pk)) in wallets.into_iter().enumerate() {
                 let index = self.index + i as u32;
                 writeln!(f, "[{path}/0/{index}']: {addr},\t{pk}",)?;
