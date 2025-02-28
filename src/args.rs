@@ -18,8 +18,8 @@ pub(crate) struct DiagramCommand {
     #[arg(short, long)]
     pub output: Option<String>,
 
-    /// Unicode view for non-displayable character
-    #[arg(short, long)]
+    /// Show unicode view for non-displayable character
+    #[arg(long)]
     pub unicode: bool,
 
     /// Generation target
@@ -98,6 +98,10 @@ pub(crate) struct DeriveCommand {
     /// Multi sign address
     #[command(flatten)]
     pub multisig: MultisigType,
+
+    /// Show account xprivs and redeem scripts
+    #[arg(long)]
+    pub redeem: bool,
 
     /// Password as salt
     #[arg(skip)]
