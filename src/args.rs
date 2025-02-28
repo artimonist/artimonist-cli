@@ -24,7 +24,7 @@ pub(crate) struct DiagramCommand {
 
     /// Generation target
     #[command(flatten)]
-    pub target: GenerationTarget,
+    pub target: DiagramTarget,
 
     /// Password as salt
     #[arg(skip)]
@@ -36,8 +36,8 @@ pub(crate) struct DiagramCommand {
 }
 
 #[derive(clap::Args, Debug)]
-#[group(required = false, multiple = false)]
-pub(crate) struct GenerationTarget {
+#[group(required = false, multiple = true)]
+pub(crate) struct DiagramTarget {
     /// Generate bip39 mnemonic [default]
     #[arg(long, visible_alias = "bip39")]
     pub mnemonic: bool,
@@ -93,11 +93,11 @@ pub(crate) struct DeriveCommand {
 
     /// Derivation path select
     #[command(flatten)]
-    pub derive: DerivationPath,
+    pub derive: DerivePath,
 
     /// Multi sign address
     #[command(flatten)]
-    pub multisig: MultisigType,
+    pub multisig: DeriveMultisig,
 
     /// Show account xprivs and redeem scripts
     #[arg(long)]
@@ -110,19 +110,7 @@ pub(crate) struct DeriveCommand {
 
 #[derive(clap::Args, Debug)]
 #[group(required = false, multiple = false)]
-pub(crate) struct MultisigType {
-    /// Multiple signatures address of 2-3 [derive path: account'/0/index]
-    #[arg(long)]
-    pub m23: bool,
-
-    /// Multiple signatures address of 3-5 [derive path: account'/0/index]
-    #[arg(long)]
-    pub m35: bool,
-}
-
-#[derive(clap::Args, Debug)]
-#[group(required = false, multiple = false)]
-pub(crate) struct DerivationPath {
+pub(crate) struct DerivePath {
     /// Use derive path: m/44'/0'/account'/0/index' [p2pkh]
     #[arg(long)]
     pub bip44: bool,
@@ -132,4 +120,16 @@ pub(crate) struct DerivationPath {
     /// Use derive path: m/84'/0'/account'/0/index' [p2wpkh]
     #[arg(long)]
     pub bip84: bool,
+}
+
+#[derive(clap::Args, Debug)]
+#[group(required = false, multiple = false)]
+pub(crate) struct DeriveMultisig {
+    /// Multiple signatures address of 2-3 [derive path: account'/0/index]
+    #[arg(long)]
+    pub m23: bool,
+
+    /// Multiple signatures address of 3-5 [derive path: account'/0/index]
+    #[arg(long)]
+    pub m35: bool,
 }
