@@ -58,6 +58,7 @@ impl DeriveCommand {
         }
         Ok(())
     }
+
     fn exec_multisig(&self, master: &Xpriv) -> DeriveResult {
         assert!(self.is_multisig());
         let (_, n) = if self.multisig.m23 { (2, 3) } else { (3, 5) };
@@ -78,23 +79,41 @@ impl DeriveCommand {
         // output
         if let Some(path) = &self.output {
             let mut f = BufWriter::new(File::create(Path::new(path))?);
+            writeln!(f, "{} <Account xpubs> {}", "-".repeat(20), "-".repeat(30))?;
             for (i, (xpub, _)) in accounts.iter().enumerate() {
                 let path = self.derive.path(self.account + i as u32);
                 writeln!(f, "[{path}]: {xpub}")?;
             }
-            writeln!(f, "{}", "-".repeat(200))?;
-            for (i, (_, xpriv)) in accounts.iter().enumerate() {
-                let path = self.derive.path(self.account + i as u32);
-                writeln!(f, "[{path}]: {xpriv}")?;
+            if self.redeem {
+                writeln!(f, "{} <Account xprivs> {}", "-".repeat(20), "-".repeat(30))?;
+                for (i, (_, xpriv)) in accounts.iter().enumerate() {
+                    let path = self.derive.path(self.account + i as u32);
+                    writeln!(f, "[{path}]: {xpriv}")?;
+                }
             }
-            writeln!(f, "{}", "=".repeat(30))?;
-            for (i, (addr, _)) in wallets.into_iter().enumerate() {
+            writeln!(
+                f,
+                "{} <Multiple signature addresses> {}",
+                "=".repeat(10),
+                "=".repeat(20)
+            )?;
+            for (i, (addr, _)) in wallets.iter().enumerate() {
                 let index = self.index + i as u32;
                 writeln!(f, "[m/0/{index}]: {addr}")?;
+            }
+            if self.redeem {
+                writeln!(f, "{} <Redeem scripts> {}", "-".repeat(20), "-".repeat(30))?;
+                for (i, (_, script)) in wallets.iter().enumerate() {
+                    let index = self.index + i as u32;
+                    writeln!(f, "[m/0/{index}]: {script}")?;
+                }
             }
         } else {
             self.display_multisig_accounts(&accounts)?;
             self.display_multisig_wallets(&wallets);
+            if self.redeem {
+                self.display_multisig_scripts(&wallets)?;
+            }
         }
         Ok(())
     }
@@ -110,13 +129,16 @@ impl DeriveCommand {
         for (xpub, _) in accounts {
             writeln!(f, "  {xpub}")?;
         }
-        writeln!(f)?;
-        writeln!(f, "Account xprivs: [{}] ~ [{}]", path_first, path_last)?;
-        for (_, xpriv) in accounts {
-            writeln!(f, "  {xpriv}")?;
+        if self.redeem {
+            writeln!(f)?;
+            writeln!(f, "Account xprivs: [{}] ~ [{}]", path_first, path_last)?;
+            for (_, xpriv) in accounts {
+                writeln!(f, "  {xpriv}")?;
+            }
         }
         Ok(())
     }
+
     fn display_multisig_wallets(&self, wallets: &[(String, String)]) {
         use comfy_table::{ContentArrangement, Table, modifiers::*, presets::*};
         let mut table = Table::new();
@@ -133,6 +155,17 @@ impl DeriveCommand {
         println!();
         println!("Addresses: ");
         println!("{table}");
+    }
+
+    fn display_multisig_scripts(&self, wallets: &[(String, String)]) -> DeriveResult {
+        let mut f = BufWriter::new(std::io::stdout());
+        writeln!(f)?;
+        writeln!(f, "Redeem scripts:")?;
+        for (i, (_, script)) in wallets.iter().enumerate() {
+            let index = self.index + i as u32;
+            writeln!(f, "[m/0/{index}]: {script}")?;
+        }
+        Ok(())
     }
 }
 
