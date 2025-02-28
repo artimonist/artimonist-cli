@@ -1,4 +1,4 @@
-use crate::{DeriveCommand, args::DerivationPath};
+use crate::{DeriveCommand, args::DerivePath};
 use artimonist::{BIP39, BIP44, BIP49, BIP84, Xpriv, bitcoin};
 use bip38::EncryptWif;
 use std::{
@@ -175,7 +175,7 @@ enum DeriveMethod {
     Bip84 = 84,
 }
 use DeriveMethod::*;
-impl DerivationPath {
+impl DerivePath {
     #[inline]
     fn method(&self) -> DeriveMethod {
         match self {

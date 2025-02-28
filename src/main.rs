@@ -60,7 +60,7 @@ fn main() -> Result<(), CommandError> {
                 Some(file) => Matrix::<char>::from_file(file)?,
                 None => Matrix::<char>::by_inquire()?,
             };
-            if cmd.is_mnemonic() {
+            if cmd.has_mnemonic() {
                 cmd.language = Input::choice_language()?;
             }
             cmd.password = Input::password(true)?;
@@ -75,7 +75,7 @@ fn main() -> Result<(), CommandError> {
                 Some(file) => Matrix::<String>::from_file(file)?,
                 None => Matrix::<String>::by_inquire()?,
             };
-            if cmd.is_mnemonic() {
+            if cmd.has_mnemonic() {
                 cmd.language = Input::choice_language()?;
             }
             cmd.password = Input::password(true)?;
