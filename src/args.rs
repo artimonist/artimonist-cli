@@ -92,16 +92,16 @@ pub(crate) struct DeriveCommand {
     pub output: Option<String>,
 
     /// Derivation path select
-    #[command(flatten)]
+    #[clap(flatten)]
     pub derive: DerivePath,
 
     /// Multi sign address
-    #[command(flatten)]
+    #[clap(flatten)]
     pub multisig: DeriveMultisig,
 
-    /// Show account xprivs and redeem scripts
-    #[arg(long)]
-    pub redeem: bool,
+    /// Show account xprivs and redeem scripts of multisig
+    #[arg(long, visible_alias = "redeem", requires = "m23", requires = "m35")]
+    pub private: bool,
 
     /// Password as salt
     #[arg(skip)]

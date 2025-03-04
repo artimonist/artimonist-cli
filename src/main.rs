@@ -85,27 +85,32 @@ fn main() -> Result<(), CommandError> {
             }
         }
         Commands::Encrypt(mut cmd) => {
-            if artimonist::NETWORK.is_mainnet() {
-                let prefix = ['K', 'L', '5'];
-                if cmd.key.as_ref().is_some_and(|k| k.starts_with(prefix)) {
-                    cmd.password = Input::password(false)?;
-                    cmd.execute(true)?;
-                } else {
-                    println!("Invalid private key");
-                }
+            if !artimonist::NETWORK.is_mainnet() {
+                return Ok(());
             }
+            if !check_private_key(&cmd.key, false) {
+                println!("Invalid private key");
+                return Ok(());
+            }
+            cmd.password = Input::password(false)?;
+            cmd.execute(true)?;
         }
         Commands::Decrypt(mut cmd) => {
-            if artimonist::NETWORK.is_mainnet() {
-                if cmd.key.as_ref().is_some_and(|k| k.starts_with("6P")) {
-                    cmd.password = Input::password(false)?;
-                    cmd.execute(false)?;
-                } else {
-                    println!("Invalid encrypted key");
-                }
+            if !artimonist::NETWORK.is_mainnet() {
+                return Ok(());
             }
+            if !check_private_key(&cmd.key, true) {
+                println!("Invalid private key");
+                return Ok(());
+            }
+            cmd.password = Input::password(false)?;
+            cmd.execute(false)?;
         }
         Commands::Derive(mut cmd) => {
+            if !check_master_key(&cmd.key) && !check_mnemonic(&cmd.key) {
+                println!("Invalid master key or mnemonic");
+                return Ok(());
+            }
             confirm_overwrite!(&cmd.output);
             if artimonist::NETWORK.is_mainnet() && !cmd.is_multisig() {
                 cmd.password = Input::password(true)?;
@@ -114,6 +119,23 @@ fn main() -> Result<(), CommandError> {
         }
     }
     Ok(())
+}
+
+#[inline]
+fn check_private_key(s: &Option<String>, encrypted: bool) -> bool {
+    let s = s.as_ref().map_or("".to_owned(), |v| v.to_string());
+    match encrypted {
+        true => s.starts_with("6P") && s.len() == 58,
+        false => s.starts_with(['K', 'L', '5']) && s.len() == 52,
+    }
+}
+#[inline]
+fn check_master_key(s: &str) -> bool {
+    s.starts_with("xprv") && s.len() == 111
+}
+#[inline]
+fn check_mnemonic(s: &str) -> bool {
+    matches!(s.split_whitespace().count(), 12 | 15 | 18 | 21 | 24)
 }
 
 #[derive(thiserror::Error, Debug)]
@@ -132,7 +154,7 @@ pub(crate) enum CommandError {
 
 #[cfg(test)]
 mod diagram_test {
-    use artimonist::{BIP85, GenericDiagram, SimpleDiagram, Wif};
+    use artimonist::{GenericDiagram, SimpleDiagram, Wif, BIP85};
 
     /// Test compatible with old version data
     #[test]
