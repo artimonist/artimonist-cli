@@ -24,7 +24,7 @@ jobs:
       - name: Compile and release
         uses: artimonist/rust-build.action@v1.4.6
         env:
-          TOOLCHAIN VERSION: 1.85
+          TOOLCHAIN VERSION: 1.84
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           RUSTTARGET: ${{ matrix.target }}
