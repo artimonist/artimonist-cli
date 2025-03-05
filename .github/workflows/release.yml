@@ -22,6 +22,7 @@ jobs:
         env:
           TOOLCHAIN_VERSION: 1.84
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          UPLOAD_URL: https://api.github.com/repos/artimonist/cli/releases
         with:
           RUSTTARGET: ${{ matrix.target }}
           ARCHIVE_TYPES: ${{ matrix.archive }}
