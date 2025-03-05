@@ -19,12 +19,10 @@ jobs:
             archive: zip
     steps:
       - uses: actions/checkout@master
-      - name: Rust update
-        run: rustup update stable
       - name: Compile and release
         uses: k12u/rust-build.action@1.4.6
         env:
-          TOOLCHAIN VERSION: 1.84
+          TOOLCHAIN_VERSION: 1.84
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           RUSTTARGET: ${{ matrix.target }}
