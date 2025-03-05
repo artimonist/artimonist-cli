@@ -1,5 +1,5 @@
-use crate::{DeriveCommand, args::DerivePath};
-use artimonist::{BIP39, BIP44, BIP49, BIP84, Xpriv, bitcoin};
+use crate::{args::DerivePath, DeriveCommand};
+use artimonist::{bitcoin, Xpriv, BIP39, BIP44, BIP49, BIP84};
 use bip38::EncryptWif;
 use std::{
     fs::File,
@@ -84,7 +84,7 @@ impl DeriveCommand {
                 let path = self.derive.path(self.account + i as u32);
                 writeln!(f, "[{path}]: {xpub}")?;
             }
-            if self.redeem {
+            if self.private {
                 writeln!(f, "{} <Account xprivs> {}", "-".repeat(20), "-".repeat(30))?;
                 for (i, (_, xpriv)) in accounts.iter().enumerate() {
                     let path = self.derive.path(self.account + i as u32);
@@ -101,7 +101,7 @@ impl DeriveCommand {
                 let index = self.index + i as u32;
                 writeln!(f, "[m/0/{index}]: {addr}")?;
             }
-            if self.redeem {
+            if self.private {
                 writeln!(f, "{} <Redeem scripts> {}", "-".repeat(20), "-".repeat(30))?;
                 for (i, (_, script)) in wallets.iter().enumerate() {
                     let index = self.index + i as u32;
@@ -111,7 +111,7 @@ impl DeriveCommand {
         } else {
             self.display_multisig_accounts(&accounts)?;
             self.display_multisig_wallets(&wallets);
-            if self.redeem {
+            if self.private {
                 self.display_multisig_scripts(&wallets)?;
             }
         }
@@ -129,7 +129,7 @@ impl DeriveCommand {
         for (xpub, _) in accounts {
             writeln!(f, "  {xpub}")?;
         }
-        if self.redeem {
+        if self.private {
             writeln!(f)?;
             writeln!(f, "Account xprivs: [{}] ~ [{}]", path_first, path_last)?;
             for (_, xpriv) in accounts {
@@ -140,7 +140,7 @@ impl DeriveCommand {
     }
 
     fn display_multisig_wallets(&self, wallets: &[(String, String)]) {
-        use comfy_table::{ContentArrangement, Table, modifiers::*, presets::*};
+        use comfy_table::{modifiers::*, presets::*, ContentArrangement, Table};
         let mut table = Table::new();
         table
             .load_preset(UTF8_FULL)
