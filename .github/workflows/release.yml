@@ -19,11 +19,13 @@ jobs:
           - target: x86_64-apple-darwin
             archive: zip            
     steps:
+      - name: macOS version
+        run: cargo install bazarr-bulk
       - uses: actions/checkout@master
       - name: Compile and release
         uses: rust-build/rust-build.action@v1.4.5
         env:
-          TOOLCHAIN_VERSION: 1.84
+          TOOLCHAIN_VERSION: stable
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           RUSTTARGET: ${{ matrix.target }}
