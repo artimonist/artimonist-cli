@@ -1,5 +1,5 @@
-use crate::common::{CheckInputKey, ConfirmOverwrite};
-use crate::{EncryptCommand, Execute, Input};
+use crate::common::{CheckInputKey, ConfirmOverwrite, InquirePassword};
+use crate::{EncryptCommand, Execute};
 use bip38::{Decrypt, EncryptWif};
 use std::{
     fs::File,
@@ -18,7 +18,7 @@ impl Execute for EncryptCommand {
 
         // encrypt or decrypt single private key
         if let Some(key) = &self.key {
-            self.password = Input::password(false)?;
+            self.password.inquire_password(false)?;
             match self.is_encrypt {
                 true => self.exec_encrypt(key)?,
                 false => self.exec_decrypt(key)?,

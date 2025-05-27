@@ -5,6 +5,14 @@ pub trait CheckInputKey {
     fn is_mnemonic(&self) -> bool;
 }
 
+pub trait ConfirmOverwrite {
+    fn confirm_overwrite(&self) -> bool;
+}
+
+pub trait InquirePassword {
+    fn inquire_password(&mut self, as_salt: bool) -> anyhow::Result<()>;
+}
+
 impl CheckInputKey for str {
     #[inline]
     fn is_private(&self) -> bool {
@@ -27,10 +35,6 @@ impl CheckInputKey for str {
     }
 }
 
-pub trait ConfirmOverwrite {
-    fn confirm_overwrite(&self) -> bool;
-}
-
 impl ConfirmOverwrite for Option<String> {
     fn confirm_overwrite(&self) -> bool {
         if let Some(path) = self {
@@ -44,5 +48,35 @@ impl ConfirmOverwrite for Option<String> {
             }
         }
         true
+    }
+}
+
+impl InquirePassword for String {
+    fn inquire_password(&mut self, as_salt: bool) -> anyhow::Result<()> {
+        use inquire::validator::Validation;
+
+        const INVALID_MSG: &str = "Encryption key must have at least 5 characters.";
+        let validator = |v: &str| {
+            if v.chars().count() < 5 {
+                Ok(Validation::Invalid(INVALID_MSG.into()))
+            } else {
+                Ok(Validation::Valid)
+            }
+        };
+
+        *self = inquire::Password::new("Encryption Key: ")
+            .with_display_mode(inquire::PasswordDisplayMode::Masked)
+            .with_display_toggle_enabled()
+            .with_custom_confirmation_message("Encryption Key (confirm):")
+            .with_custom_confirmation_error_message("The keys don't match.")
+            .with_validator(validator)
+            .with_formatter(&|_| "Input received".into())
+            .with_help_message(if as_salt {
+                "Program use encryption key as salt."
+            } else {
+                "Input encryption key"
+            })
+            .prompt()?;
+        Ok(())
     }
 }

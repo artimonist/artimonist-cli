@@ -1,88 +1,26 @@
+use args::{Cli, Commands, DeriveCommand, DiagramCommand, DiagramType, EncryptCommand};
+use clap::Parser;
+
 mod args;
 mod common;
 mod derive;
 mod diagram;
 mod encrypt;
-mod input;
-mod unicode;
 
-use args::{DeriveCommand, DiagramCommand, EncryptCommand};
-use artimonist::{ComplexDiagram, Matrix, SimpleDiagram};
-use clap::{Parser, Subcommand};
-use diagram::{DiagramOutput, MatrixInput};
-use input::Input;
-
-const ABOUT_LONG: &str = "
-Artimonist
-A tool for generating mnemonics and wallets.
-
-Project location: <https://github.com/artimonist/artimonist-cli>
-Web version: <https://www.artimonist.org>";
-
-/// Artimonist - A tool for generating mnemonics and wallets.   
-#[derive(Parser)]
-#[command(version, long_about=ABOUT_LONG)]
-struct Cli {
-    #[command(subcommand)]
-    command: Commands,
+pub trait Execute {
+    fn execute(&mut self) -> anyhow::Result<()>;
 }
 
-#[derive(Subcommand)]
-enum Commands {
-    /// Use simple diagram of 7 * 7 chars
-    Simple(DiagramCommand),
-    /// Use complex diagram of 7 * 7 strings
-    Complex(DiagramCommand),
-    /// Encrypt private key by bip38
-    Encrypt(EncryptCommand),
-    /// Decrypt private key by bip38
-    Decrypt(EncryptCommand),
-    /// Derive from master key or mnemonic
-    Derive(DeriveCommand),
-}
-
-macro_rules! confirm_overwrite {
-    ($output: expr) => {
-        if let Some(path) = $output {
-            if std::fs::exists(path)? && !Input::confirm_overwrite("File exists.")? {
-                return Ok(());
-            }
-        }
-    };
-}
-
-fn main() -> Result<(), anyhow::Error> {
+fn main() -> anyhow::Result<()> {
     let args = Cli::parse();
     match args.command {
         Commands::Simple(mut cmd) => {
-            confirm_overwrite!(&cmd.output);
-            let mx = match &cmd.file {
-                Some(file) => Matrix::<char>::from_file(file)?,
-                None => Matrix::<char>::by_inquire()?,
-            };
-            if cmd.has_mnemonic() {
-                cmd.language = Input::choice_language()?;
-            }
-            cmd.password = Input::password(true)?;
-            match &cmd.output {
-                Some(path) => SimpleDiagram(mx).to_file(&cmd, path)?,
-                None => SimpleDiagram(mx).display(&cmd)?,
-            }
+            cmd.diagram_type = DiagramType::Simple;
+            cmd.execute()?;
         }
         Commands::Complex(mut cmd) => {
-            confirm_overwrite!(&cmd.output);
-            let mx = match &cmd.file {
-                Some(file) => Matrix::<String>::from_file(file)?,
-                None => Matrix::<String>::by_inquire()?,
-            };
-            if cmd.has_mnemonic() {
-                cmd.language = Input::choice_language()?;
-            }
-            cmd.password = Input::password(true)?;
-            match &cmd.output {
-                Some(path) => ComplexDiagram(mx).to_file(&cmd, path)?,
-                None => ComplexDiagram(mx).display(&cmd)?,
-            }
+            cmd.diagram_type = DiagramType::Complex;
+            cmd.execute()?;
         }
         Commands::Encrypt(mut cmd) => {
             cmd.is_encrypt = true;
@@ -95,10 +33,6 @@ fn main() -> Result<(), anyhow::Error> {
         Commands::Derive(mut cmd) => cmd.execute()?,
     }
     Ok(())
-}
-
-pub trait Execute {
-    fn execute(&mut self) -> Result<(), anyhow::Error>;
 }
 
 #[cfg(test)]

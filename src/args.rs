@@ -1,4 +1,34 @@
 use artimonist::Language;
+use clap::{Parser, Subcommand};
+
+const ABOUT: &str = "
+Artimonist
+A tool for generating mnemonics and wallets.
+
+Project location: <https://github.com/artimonist/artimonist-cli>
+Web version: <https://www.artimonist.org>";
+
+/// Artimonist - A tool for generating mnemonics and wallets.   
+#[derive(Parser)]
+#[command(version, long_about=ABOUT)]
+pub struct Cli {
+    #[command(subcommand)]
+    pub command: Commands,
+}
+
+#[derive(Subcommand)]
+pub enum Commands {
+    /// Use simple diagram of 7 * 7 chars
+    Simple(DiagramCommand),
+    /// Use complex diagram of 7 * 7 strings
+    Complex(DiagramCommand),
+    /// Encrypt private key by bip38
+    Encrypt(EncryptCommand),
+    /// Decrypt private key by bip38
+    Decrypt(EncryptCommand),
+    /// Derive from master key or mnemonic
+    Derive(DeriveCommand),
+}
 
 #[derive(clap::Parser, Debug)]
 pub struct DiagramCommand {
@@ -33,6 +63,16 @@ pub struct DiagramCommand {
     /// Mnemonic language
     #[arg(skip)]
     pub language: Language,
+
+    #[arg(skip)]
+    pub diagram_type: DiagramType,
+}
+
+#[derive(Default, Debug, PartialEq)]
+pub enum DiagramType {
+    #[default]
+    Simple,
+    Complex,
 }
 
 #[derive(clap::Args, Debug)]
@@ -114,7 +154,7 @@ pub struct DeriveCommand {
 
 #[derive(clap::Args, Debug)]
 #[group(required = false, multiple = false)]
-pub(crate) struct DerivePath {
+pub struct DerivePath {
     /// Use derive path: m/44'/0'/account'/0/index' [p2pkh]
     #[arg(long)]
     pub bip44: bool,
@@ -128,7 +168,7 @@ pub(crate) struct DerivePath {
 
 #[derive(clap::Args, Debug)]
 #[group(required = false, multiple = false)]
-pub(crate) struct DeriveMultisig {
+pub struct DeriveMultisig {
     /// Multiple signatures address of 2-3 [derive path: account'/0/index]
     #[arg(long)]
     pub m23: bool,

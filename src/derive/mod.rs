@@ -1,13 +1,11 @@
+use crate::common::{CheckInputKey, ConfirmOverwrite, InquirePassword};
+use crate::{DeriveCommand, Execute};
+use artimonist::{Xpriv, BIP39};
+use std::str::FromStr;
+
 mod multisig;
 mod path;
 mod wallet;
-
-use crate::{
-    common::{CheckInputKey, ConfirmOverwrite},
-    DeriveCommand, Execute, Input,
-};
-use artimonist::{Xpriv, BIP39};
-use std::str::FromStr;
 
 use multisig::MultiSig;
 use wallet::Wallet;
@@ -26,9 +24,10 @@ impl Execute for DeriveCommand {
         }
 
         // inquire password
-        if self.key.is_mnemonic() || self.is_wallet() {
-            let as_salt = self.key.is_mnemonic();
-            self.password = Input::password(as_salt)?;
+        if self.key.is_mnemonic() {
+            self.password.inquire_password(true)?;
+        } else if self.is_wallet() {
+            self.password.inquire_password(false)?;
         }
 
         // generate master key

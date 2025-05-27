@@ -1,67 +1,15 @@
-use crate::{DiagramCommand, unicode::Transformer};
-use artimonist::{BIP85, ComplexDiagram, GenericDiagram, Matrix, SimpleDiagram, ToMatrix};
+use super::unicode::Transformer;
+use crate::DiagramCommand;
+use artimonist::{ComplexDiagram, GenericDiagram, Matrix, SimpleDiagram, BIP85};
 use bip38::EncryptWif;
-use inquire::InquireError;
 use std::{
     fmt::Debug,
     fs::File,
-    io::{BufRead, BufReader, BufWriter, Error as IoError, Write},
+    io::{BufWriter, Write},
     path::Path,
 };
 
-pub(crate) trait MatrixInput<T: Debug>
-where
-    Self: Sized,
-{
-    /// load 7 * 7 matrix from file
-    fn from_file(path: &str) -> Result<Self, IoError>;
-
-    /// input 7 * 7 matrix by inquire
-    fn by_inquire() -> Result<Self, InquireError>;
-}
-
-impl<T: Debug + Transformer<20>> MatrixInput<T> for Matrix<T, 7, 7> {
-    fn from_file(path: &str) -> Result<Self, IoError> {
-        let file = File::open(Path::new(path))?;
-        let buffered = BufReader::new(file);
-        let mvs = buffered
-            .lines()
-            .take(7)
-            .map(|r| match r {
-                Ok(ln) => ln
-                    .split_whitespace()
-                    .take(7)
-                    .map(|s| Transformer::decode(s.trim_matches('\"')))
-                    .collect::<Vec<_>>(),
-                _ => vec![],
-            })
-            .collect::<Vec<_>>();
-        Ok(mvs.to_matrix())
-    }
-
-    fn by_inquire() -> Result<Self, InquireError> {
-        let mut mvs: Vec<_> = vec![];
-        for i in 1..=7 {
-            let vs: Vec<_> = inquire::Text::new(&format!("row ({i})"))
-                .with_initial_value(&"\"\"  ".repeat(7))
-                .with_help_message("Fill characters in quotes.")
-                .prompt()?
-                .split_whitespace()
-                .map(|s| Transformer::decode(s.trim_matches('\"')))
-                .collect();
-            mvs.push(vs);
-        }
-        Ok(mvs.to_matrix())
-    }
-}
-
-impl DiagramCommand {
-    pub fn has_mnemonic(&self) -> bool {
-        self.target.mnemonic || !(self.target.wif | self.target.xpriv | self.target.pwd)
-    }
-}
-
-pub(crate) trait DiagramOutput<T: ToString + Transformer<20>>
+pub trait DiagramOutput<T: ToString + Transformer<20>>
 where
     Self: GenericDiagram,
 {
@@ -70,6 +18,7 @@ where
     fn to_file(&self, cmd: &DiagramCommand, path: &str) -> Result<(), DiagramError> {
         let mut f = BufWriter::new(File::create(Path::new(path))?);
         let mx = self.matrix();
+
         // diagram view
         for r in mx.iter() {
             let ln = r
@@ -82,6 +31,7 @@ where
                 .join("  ");
             writeln!(f, "{ln}")?;
         }
+
         // unicode view
         if cmd.unicode {
             writeln!(f, "{}", "-".repeat(30))?;
@@ -97,6 +47,7 @@ where
                 writeln!(f, "{ln}")?;
             }
         }
+
         // generation results
         writeln!(f, "{}", "=".repeat(50))?;
         let master = self.bip32_master(cmd.password.as_bytes())?;
