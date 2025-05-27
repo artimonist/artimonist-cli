@@ -1,27 +1,23 @@
-pub trait Execute {
-    fn execute(&mut self) -> Result<(), anyhow::Error>;
-}
-
-pub trait CheckInput {
-    fn is_private_key(&self) -> bool;
-    fn is_encrypted_key(&self) -> bool;
-    fn is_master_key(&self) -> bool;
+pub trait CheckInputKey {
+    fn is_private(&self) -> bool;
+    fn is_encrypted(&self) -> bool;
+    fn is_master(&self) -> bool;
     fn is_mnemonic(&self) -> bool;
 }
 
-impl CheckInput for str {
+impl CheckInputKey for str {
     #[inline]
-    fn is_private_key(&self) -> bool {
+    fn is_private(&self) -> bool {
         self.starts_with(['K', 'L', '5']) && self.len() == 52
     }
 
     #[inline]
-    fn is_encrypted_key(&self) -> bool {
+    fn is_encrypted(&self) -> bool {
         self.starts_with("6P") && self.len() == 58
     }
 
     #[inline]
-    fn is_master_key(&self) -> bool {
+    fn is_master(&self) -> bool {
         self.starts_with("xprv") && self.len() == 111
     }
 

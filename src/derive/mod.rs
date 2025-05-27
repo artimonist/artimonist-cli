@@ -3,8 +3,8 @@ mod path;
 mod wallet;
 
 use crate::{
-    common::{CheckInput, ConfirmOverwrite, Execute},
-    DeriveCommand, Input,
+    common::{CheckInputKey, ConfirmOverwrite},
+    DeriveCommand, Execute, Input,
 };
 use artimonist::{Xpriv, BIP39};
 use std::str::FromStr;
@@ -15,7 +15,7 @@ use wallet::Wallet;
 impl Execute for DeriveCommand {
     fn execute(&mut self) -> Result<(), anyhow::Error> {
         // check input key
-        if !self.key.is_master_key() && !self.key.is_mnemonic() {
+        if !self.key.is_master() && !self.key.is_mnemonic() {
             println!("Invalid master key or mnemonic phrase.");
             return Ok(());
         }
@@ -32,7 +32,7 @@ impl Execute for DeriveCommand {
         }
 
         // generate master key
-        let master = if self.key.is_master_key() {
+        let master = if self.key.is_master() {
             Xpriv::from_str(&self.key)?
         } else {
             Xpriv::from_mnemonic(&self.key, &self.password)?

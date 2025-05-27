@@ -9,9 +9,7 @@ mod unicode;
 use args::{DeriveCommand, DiagramCommand, EncryptCommand};
 use artimonist::{ComplexDiagram, Matrix, SimpleDiagram};
 use clap::{Parser, Subcommand};
-use common::Execute;
 use diagram::{DiagramOutput, MatrixInput};
-use encrypt::Encryptor;
 use input::Input;
 
 const ABOUT_LONG: &str = "
@@ -87,39 +85,20 @@ fn main() -> Result<(), anyhow::Error> {
             }
         }
         Commands::Encrypt(mut cmd) => {
-            if !artimonist::NETWORK.is_mainnet() {
-                return Ok(());
-            }
-            if !check_private_key(&cmd.key, false) {
-                println!("Invalid private key");
-                return Ok(());
-            }
-            cmd.password = Input::password(false)?;
-            cmd.execute(true)?;
+            cmd.is_encrypt = true;
+            cmd.execute()?
         }
         Commands::Decrypt(mut cmd) => {
-            if !artimonist::NETWORK.is_mainnet() {
-                return Ok(());
-            }
-            if !check_private_key(&cmd.key, true) {
-                println!("Invalid private key");
-                return Ok(());
-            }
-            cmd.password = Input::password(false)?;
-            cmd.execute(false)?;
+            cmd.is_encrypt = false;
+            cmd.execute()?
         }
         Commands::Derive(mut cmd) => cmd.execute()?,
     }
     Ok(())
 }
 
-#[inline]
-fn check_private_key(s: &Option<String>, encrypted: bool) -> bool {
-    let s = s.as_ref().map_or("".to_owned(), |v| v.to_string());
-    match encrypted {
-        true => s.starts_with("6P") && s.len() == 58,
-        false => s.starts_with(['K', 'L', '5']) && s.len() == 52,
-    }
+pub trait Execute {
+    fn execute(&mut self) -> Result<(), anyhow::Error>;
 }
 
 #[cfg(test)]

@@ -1,7 +1,7 @@
 use artimonist::Language;
 
 #[derive(clap::Parser, Debug)]
-pub(crate) struct DiagramCommand {
+pub struct DiagramCommand {
     /// Start index
     #[arg(short, long, default_value_t = 0, value_parser = clap::value_parser!(u32).range(0..65536))]
     pub index: u32,
@@ -37,7 +37,7 @@ pub(crate) struct DiagramCommand {
 
 #[derive(clap::Args, Debug)]
 #[group(required = false, multiple = true)]
-pub(crate) struct DiagramTarget {
+pub struct DiagramTarget {
     /// Generate bip39 mnemonic [default]
     #[arg(long, visible_alias = "bip39")]
     pub mnemonic: bool,
@@ -57,7 +57,7 @@ pub(crate) struct DiagramTarget {
 
 #[derive(clap::Parser)]
 #[group(required = true, multiple = false)]
-pub(crate) struct EncryptCommand {
+pub struct EncryptCommand {
     /// Private key (Wif)
     pub key: Option<String>,
 
@@ -68,10 +68,14 @@ pub(crate) struct EncryptCommand {
     /// Password
     #[arg(skip)]
     pub password: String,
+
+    // encrypt or decrypt
+    #[arg(skip)]
+    pub is_encrypt: bool,
 }
 
 #[derive(clap::Parser, Debug)]
-pub(crate) struct DeriveCommand {
+pub struct DeriveCommand {
     /// Master key or Mnemonic string
     pub key: String,
 
