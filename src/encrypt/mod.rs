@@ -62,19 +62,19 @@ impl EncryptCommand {
             println!("File too large.");
             return Ok(());
         }
+
         let mut vs = vec![];
         let lns = BufReader::new(File::open(Path::new(file))?).lines();
         for ln in lns {
             let key = ln?;
             let result = match self.is_encrypt {
-                true => self.encrypt(key.trim()),
-                false => self.decrypt(key.trim()),
+                true => self.encrypt(key.trim())?,
+                false => self.decrypt(key.trim())?,
             };
-            if result.is_err() {
-                println!("error: {}", key);
-            }
-            vs.push(result?);
+            vs.push(result);
         }
+
+        // write results to original file
         let mut f = BufWriter::new(File::create(Path::new(file))?);
         for v in vs {
             writeln!(f, "{v}")?;
