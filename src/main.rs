@@ -1,4 +1,5 @@
 mod args;
+mod common;
 mod derive;
 mod diagram;
 mod encrypt;
@@ -8,6 +9,7 @@ mod unicode;
 use args::{DeriveCommand, DiagramCommand, EncryptCommand};
 use artimonist::{ComplexDiagram, Matrix, SimpleDiagram};
 use clap::{Parser, Subcommand};
+use common::Execute;
 use diagram::{DiagramOutput, MatrixInput};
 use encrypt::Encryptor;
 use input::Input;
@@ -51,7 +53,7 @@ macro_rules! confirm_overwrite {
     };
 }
 
-fn main() -> Result<(), CommandError> {
+fn main() -> Result<(), anyhow::Error> {
     let args = Cli::parse();
     match args.command {
         Commands::Simple(mut cmd) => {
@@ -106,17 +108,7 @@ fn main() -> Result<(), CommandError> {
             cmd.password = Input::password(false)?;
             cmd.execute(false)?;
         }
-        Commands::Derive(mut cmd) => {
-            if !check_master_key(&cmd.key) && !check_mnemonic(&cmd.key) {
-                println!("Invalid master key or mnemonic");
-                return Ok(());
-            }
-            confirm_overwrite!(&cmd.output);
-            if artimonist::NETWORK.is_mainnet() && !cmd.is_multisig() {
-                cmd.password = Input::password(true)?;
-            }
-            cmd.execute()?;
-        }
+        Commands::Derive(mut cmd) => cmd.execute()?,
     }
     Ok(())
 }
@@ -128,28 +120,6 @@ fn check_private_key(s: &Option<String>, encrypted: bool) -> bool {
         true => s.starts_with("6P") && s.len() == 58,
         false => s.starts_with(['K', 'L', '5']) && s.len() == 52,
     }
-}
-#[inline]
-fn check_master_key(s: &str) -> bool {
-    s.starts_with("xprv") && s.len() == 111
-}
-#[inline]
-fn check_mnemonic(s: &str) -> bool {
-    matches!(s.split_whitespace().count(), 12 | 15 | 18 | 21 | 24)
-}
-
-#[derive(thiserror::Error, Debug)]
-pub(crate) enum CommandError {
-    #[error("file error")]
-    File(#[from] std::io::Error),
-    #[error("input error")]
-    Inquire(#[from] inquire::InquireError),
-    #[error("encrypt error")]
-    Encrypt(#[from] encrypt::EncryptError),
-    #[error("diagram error")]
-    Diagram(#[from] diagram::DiagramError),
-    #[error("derive error")]
-    Derive(#[from] derive::DeriveError),
 }
 
 #[cfg(test)]
