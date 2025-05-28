@@ -17,7 +17,8 @@ name = "artimonist"
 path = "src/main.rs"
 
 [features]
-default = []
+default = ["automatic"]
+automatic = []  # automatic test by assert_cmd
 
 [dependencies]
 artimonist = { version = "0.11.5", features = ["multilingual"] }

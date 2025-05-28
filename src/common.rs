@@ -37,6 +37,7 @@ impl CheckInputKey for str {
 
 impl ConfirmOverwrite for Option<String> {
     fn confirm_overwrite(&self) -> bool {
+        #[cfg(not(feature = "automatic"))]
         if let Some(path) = self {
             if std::path::Path::new(path).exists() {
                 println!("File exists.");
@@ -52,6 +53,13 @@ impl ConfirmOverwrite for Option<String> {
 }
 
 impl InquirePassword for String {
+    #[cfg(feature = "automatic")]
+    fn inquire_password(&mut self, _as_salt: bool) -> anyhow::Result<()> {
+        *self = "123456".to_string(); // Placeholder for automatic feature
+        Ok(())
+    }
+
+    #[cfg(not(feature = "automatic"))]
     fn inquire_password(&mut self, as_salt: bool) -> anyhow::Result<()> {
         use inquire::validator::Validation;
 
