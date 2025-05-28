@@ -1,5 +1,5 @@
 use artimonist::Language;
-use inquire::Select;
+use artimonist::Language::*;
 
 pub trait ChooseLanguage {
     /// Prompt user to choose a mnemonic language.
@@ -7,9 +7,16 @@ pub trait ChooseLanguage {
 }
 
 impl ChooseLanguage for Language {
+    #[cfg(feature = "automatic")]
+    fn choose_language(&mut self) -> anyhow::Result<()> {
+        *self = English;
+        Ok(())
+    }
+
+    #[cfg(not(feature = "automatic"))]
     fn choose_language(&mut self) -> anyhow::Result<()> {
         let options = LANGUAGES.map(|v| format!("{v:?}")).to_vec();
-        let choice = Select::new("Which mnemonic language do you want?", options)
+        let choice = inquire::Select::new("Which mnemonic language do you want?", options)
             .with_page_size(LANGUAGES.len())
             .prompt()?;
         let wrap: LanguageWrap = choice.into();
@@ -18,7 +25,7 @@ impl ChooseLanguage for Language {
     }
 }
 
-use artimonist::Language::*;
+#[cfg(not(feature = "automatic"))]
 const LANGUAGES: [Language; 10] = [
     English,
     Japanese,
@@ -32,8 +39,10 @@ const LANGUAGES: [Language; 10] = [
     Portuguese,
 ];
 
+#[cfg(not(feature = "automatic"))]
 struct LanguageWrap(pub Language);
 
+#[cfg(not(feature = "automatic"))]
 impl From<String> for LanguageWrap {
     fn from(value: String) -> Self {
         let lang = match value.to_lowercase().as_str() {
