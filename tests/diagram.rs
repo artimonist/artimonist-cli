@@ -18,6 +18,11 @@ macro_rules! cli_execute {
 
 #[test]
 fn test_diagram_simple() {
+    // mnemonic
+    cli_execute!("simple -f simple.art -i 1000 -m 10 -o simple_default.out");
+    let result = std::fs::read_to_string("tests/diagram/simple_default.out").unwrap();
+    assert_eq!(result.trim(), include_str!("diagram/simple_default").trim());
+
     // wif
     cli_execute!("simple -f simple.art --wif -i 100 -m 20 -o simple_wif.out");
     let result = std::fs::read_to_string("tests/diagram/simple_wif.out").unwrap();
@@ -33,16 +38,31 @@ fn test_diagram_simple() {
     let result = std::fs::read_to_string("tests/diagram/simple_pwd.out").unwrap();
     assert_eq!(result.trim(), include_str!("diagram/simple_pwd").trim());
 
-    // mnemonic
-    cli_execute!("simple -f simple.art -i 1000 -m 10 -o simple_mnemonic.out");
-    let result = std::fs::read_to_string("tests/diagram/simple_mnemonic.out").unwrap();
-    assert_eq!(
-        result.trim(),
-        include_str!("diagram/simple_mnemonic").trim()
-    );
-
     // unicode
+    cli_execute!("simple -f simple_unicode.art --unicode -i 200 -o simple_unicode.out");
+    let result = std::fs::read_to_string("tests/diagram/simple_unicode.out").unwrap();
+    assert_eq!(result.trim(), include_str!("diagram/simple_unicode").trim());
 }
 
 #[test]
-fn test_diagram_complex() {}
+fn test_diagram_complex() {
+    cli_execute!("complex -f complex.art -i 500 -m 20 -o complex_default.out");
+    let result = std::fs::read_to_string("tests/diagram/complex_default.out").unwrap();
+    assert_eq!(result, include_str!("diagram/complex_default"));
+
+    cli_execute!("complex -f complex.art --wif -i 1024 -m 10 -o complex_wif.out");
+    let result = std::fs::read_to_string("tests/diagram/complex_wif.out").unwrap();
+    assert_eq!(result, include_str!("diagram/complex_wif"));
+
+    cli_execute!("complex -f complex.art --xpriv -i 2048 -m 5 -o complex_xpriv.out");
+    let result = std::fs::read_to_string("tests/diagram/complex_xpriv.out").unwrap();
+    assert_eq!(result, include_str!("diagram/complex_xpriv"));
+
+    cli_execute!("complex -f complex.art --pwd -i 8192 -m 50 -o complex_pwd.out");
+    let result = std::fs::read_to_string("tests/diagram/complex_pwd.out").unwrap();
+    assert_eq!(result, include_str!("diagram/complex_pwd"));
+
+    cli_execute!("complex -f complex_unicode.art --unicode -m 3 -o complex_unicode.out");
+    let result = std::fs::read_to_string("tests/diagram/complex_unicode.out").unwrap();
+    assert_eq!(result, include_str!("diagram/complex_unicode"));
+}
