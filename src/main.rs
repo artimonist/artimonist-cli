@@ -1,155 +1,38 @@
+use args::{Cli, Commands, DeriveCommand, DiagramCommand, DiagramType, EncryptCommand};
+use clap::Parser;
+
 mod args;
+mod common;
 mod derive;
 mod diagram;
 mod encrypt;
-mod input;
-mod unicode;
 
-use args::{DeriveCommand, DiagramCommand, EncryptCommand};
-use artimonist::{ComplexDiagram, Matrix, SimpleDiagram};
-use clap::{Parser, Subcommand};
-use diagram::{DiagramOutput, MatrixInput};
-use encrypt::Encryptor;
-use input::Input;
-
-const ABOUT_LONG: &str = "
-Artimonist
-A tool for generating mnemonics and wallets.
-
-Project location: <https://github.com/artimonist/artimonist-cli>
-Web version: <https://www.artimonist.org>";
-
-/// Artimonist - A tool for generating mnemonics and wallets.   
-#[derive(Parser)]
-#[command(version, long_about=ABOUT_LONG)]
-struct Cli {
-    #[command(subcommand)]
-    command: Commands,
+pub trait Execute {
+    fn execute(&mut self) -> anyhow::Result<()>;
 }
 
-#[derive(Subcommand)]
-enum Commands {
-    /// Use simple diagram of 7 * 7 chars
-    Simple(DiagramCommand),
-    /// Use complex diagram of 7 * 7 strings
-    Complex(DiagramCommand),
-    /// Encrypt private key by bip38
-    Encrypt(EncryptCommand),
-    /// Decrypt private key by bip38
-    Decrypt(EncryptCommand),
-    /// Derive from master key or mnemonic
-    Derive(DeriveCommand),
-}
-
-macro_rules! confirm_overwrite {
-    ($output: expr) => {
-        if let Some(path) = $output {
-            if std::fs::exists(path)? && !Input::confirm_overwrite("File exists.")? {
-                return Ok(());
-            }
-        }
-    };
-}
-
-fn main() -> Result<(), CommandError> {
+fn main() -> anyhow::Result<()> {
     let args = Cli::parse();
     match args.command {
         Commands::Simple(mut cmd) => {
-            confirm_overwrite!(&cmd.output);
-            let mx = match &cmd.file {
-                Some(file) => Matrix::<char>::from_file(file)?,
-                None => Matrix::<char>::by_inquire()?,
-            };
-            if cmd.has_mnemonic() {
-                cmd.language = Input::choice_language()?;
-            }
-            cmd.password = Input::password(true)?;
-            match &cmd.output {
-                Some(path) => SimpleDiagram(mx).to_file(&cmd, path)?,
-                None => SimpleDiagram(mx).display(&cmd)?,
-            }
-        }
-        Commands::Complex(mut cmd) => {
-            confirm_overwrite!(&cmd.output);
-            let mx = match &cmd.file {
-                Some(file) => Matrix::<String>::from_file(file)?,
-                None => Matrix::<String>::by_inquire()?,
-            };
-            if cmd.has_mnemonic() {
-                cmd.language = Input::choice_language()?;
-            }
-            cmd.password = Input::password(true)?;
-            match &cmd.output {
-                Some(path) => ComplexDiagram(mx).to_file(&cmd, path)?,
-                None => ComplexDiagram(mx).display(&cmd)?,
-            }
-        }
-        Commands::Encrypt(mut cmd) => {
-            if !artimonist::NETWORK.is_mainnet() {
-                return Ok(());
-            }
-            if !check_private_key(&cmd.key, false) {
-                println!("Invalid private key");
-                return Ok(());
-            }
-            cmd.password = Input::password(false)?;
-            cmd.execute(true)?;
-        }
-        Commands::Decrypt(mut cmd) => {
-            if !artimonist::NETWORK.is_mainnet() {
-                return Ok(());
-            }
-            if !check_private_key(&cmd.key, true) {
-                println!("Invalid private key");
-                return Ok(());
-            }
-            cmd.password = Input::password(false)?;
-            cmd.execute(false)?;
-        }
-        Commands::Derive(mut cmd) => {
-            if !check_master_key(&cmd.key) && !check_mnemonic(&cmd.key) {
-                println!("Invalid master key or mnemonic");
-                return Ok(());
-            }
-            confirm_overwrite!(&cmd.output);
-            if artimonist::NETWORK.is_mainnet() && !cmd.is_multisig() {
-                cmd.password = Input::password(true)?;
-            }
+            cmd.diagram_type = DiagramType::Simple;
             cmd.execute()?;
         }
+        Commands::Complex(mut cmd) => {
+            cmd.diagram_type = DiagramType::Complex;
+            cmd.execute()?;
+        }
+        Commands::Encrypt(mut cmd) => {
+            cmd.is_encrypt = true;
+            cmd.execute()?
+        }
+        Commands::Decrypt(mut cmd) => {
+            cmd.is_encrypt = false;
+            cmd.execute()?
+        }
+        Commands::Derive(mut cmd) => cmd.execute()?,
     }
     Ok(())
-}
-
-#[inline]
-fn check_private_key(s: &Option<String>, encrypted: bool) -> bool {
-    let s = s.as_ref().map_or("".to_owned(), |v| v.to_string());
-    match encrypted {
-        true => s.starts_with("6P") && s.len() == 58,
-        false => s.starts_with(['K', 'L', '5']) && s.len() == 52,
-    }
-}
-#[inline]
-fn check_master_key(s: &str) -> bool {
-    s.starts_with("xprv") && s.len() == 111
-}
-#[inline]
-fn check_mnemonic(s: &str) -> bool {
-    matches!(s.split_whitespace().count(), 12 | 15 | 18 | 21 | 24)
-}
-
-#[derive(thiserror::Error, Debug)]
-pub(crate) enum CommandError {
-    #[error("file error")]
-    File(#[from] std::io::Error),
-    #[error("input error")]
-    Inquire(#[from] inquire::InquireError),
-    #[error("encrypt error")]
-    Encrypt(#[from] encrypt::EncryptError),
-    #[error("diagram error")]
-    Diagram(#[from] diagram::DiagramError),
-    #[error("derive error")]
-    Derive(#[from] derive::DeriveError),
 }
 
 #[cfg(test)]

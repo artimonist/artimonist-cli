@@ -1,7 +1,37 @@
 use artimonist::Language;
+use clap::{Parser, Subcommand};
+
+const ABOUT: &str = "
+Artimonist
+A tool for generating mnemonics and wallets.
+
+Project location: <https://github.com/artimonist/artimonist-cli>
+Web version: <https://www.artimonist.org>";
+
+/// Artimonist - A tool for generating mnemonics and wallets.   
+#[derive(Parser)]
+#[command(version, long_about=ABOUT)]
+pub struct Cli {
+    #[command(subcommand)]
+    pub command: Commands,
+}
+
+#[derive(Subcommand)]
+pub enum Commands {
+    /// Use simple diagram of 7 * 7 chars
+    Simple(DiagramCommand),
+    /// Use complex diagram of 7 * 7 strings
+    Complex(DiagramCommand),
+    /// Encrypt private key by bip38
+    Encrypt(EncryptCommand),
+    /// Decrypt private key by bip38
+    Decrypt(EncryptCommand),
+    /// Derive from master key or mnemonic
+    Derive(DeriveCommand),
+}
 
 #[derive(clap::Parser, Debug)]
-pub(crate) struct DiagramCommand {
+pub struct DiagramCommand {
     /// Start index
     #[arg(short, long, default_value_t = 0, value_parser = clap::value_parser!(u32).range(0..65536))]
     pub index: u32,
@@ -33,11 +63,21 @@ pub(crate) struct DiagramCommand {
     /// Mnemonic language
     #[arg(skip)]
     pub language: Language,
+
+    #[arg(skip)]
+    pub diagram_type: DiagramType,
+}
+
+#[derive(Default, Debug, PartialEq)]
+pub enum DiagramType {
+    #[default]
+    Simple,
+    Complex,
 }
 
 #[derive(clap::Args, Debug)]
 #[group(required = false, multiple = true)]
-pub(crate) struct DiagramTarget {
+pub struct DiagramTarget {
     /// Generate bip39 mnemonic [default]
     #[arg(long, visible_alias = "bip39")]
     pub mnemonic: bool,
@@ -57,7 +97,7 @@ pub(crate) struct DiagramTarget {
 
 #[derive(clap::Parser)]
 #[group(required = true, multiple = false)]
-pub(crate) struct EncryptCommand {
+pub struct EncryptCommand {
     /// Private key (Wif)
     pub key: Option<String>,
 
@@ -68,10 +108,14 @@ pub(crate) struct EncryptCommand {
     /// Password
     #[arg(skip)]
     pub password: String,
+
+    // encrypt or decrypt
+    #[arg(skip)]
+    pub is_encrypt: bool,
 }
 
 #[derive(clap::Parser, Debug)]
-pub(crate) struct DeriveCommand {
+pub struct DeriveCommand {
     /// Master key or Mnemonic string
     pub key: String,
 
@@ -110,7 +154,7 @@ pub(crate) struct DeriveCommand {
 
 #[derive(clap::Args, Debug)]
 #[group(required = false, multiple = false)]
-pub(crate) struct DerivePath {
+pub struct DerivePath {
     /// Use derive path: m/44'/0'/account'/0/index' [p2pkh]
     #[arg(long)]
     pub bip44: bool,
@@ -124,7 +168,7 @@ pub(crate) struct DerivePath {
 
 #[derive(clap::Args, Debug)]
 #[group(required = false, multiple = false)]
-pub(crate) struct DeriveMultisig {
+pub struct DeriveMultisig {
     /// Multiple signatures address of 2-3 [derive path: account'/0/index]
     #[arg(long)]
     pub m23: bool,
