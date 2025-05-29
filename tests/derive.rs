@@ -1,4 +1,4 @@
-#![cfg(test)]
+mod common;
 use assert_cmd::Command;
 
 macro_rules! cli_derive {
@@ -14,16 +14,6 @@ macro_rules! cli_derive {
             .assert()
             .success();
     };
-}
-
-fn cleanup() {
-    let paths = std::fs::read_dir("tests/derive").unwrap();
-    for path in paths {
-        let path = path.unwrap().path();
-        if path.is_file() && path.extension().map_or(false, |ext| ext == "out") {
-            let _ = std::fs::remove_file(path);
-        }
-    }
 }
 
 #[test]
@@ -47,7 +37,7 @@ fn test_derive_mnemonic() {
     let result = std::fs::read_to_string("tests/derive/mnemonic_bip84.out").unwrap();
     assert_eq!(result, include_str!("derive/mnemonic_bip84"));
 
-    cleanup();
+    common::cleanup("tests/derive/mnemonic_*.out");
 }
 
 #[test]
@@ -79,7 +69,7 @@ fn test_derive_multisig() {
     let result = std::fs::read_to_string("tests/derive/bip84_m35.out").unwrap();
     assert_eq!(result, include_str!("derive/bip84_m35"));
 
-    cleanup();
+    common::cleanup("tests/derive/bip*_m*.out");
 }
 
 #[test]
@@ -112,5 +102,5 @@ fn test_derive_master() {
     let result = std::fs::read_to_string("tests/derive/master_m35.out").unwrap();
     assert_eq!(result, include_str!("derive/master_m35"));
 
-    cleanup();
+    common::cleanup("tests/derive/master_*.out");
 }

@@ -37,4 +37,5 @@ strip = true
 
 [dev-dependencies]
 assert_cmd = "2.0.16"
+glob = "0.3.2"
 predicates = "3.1.3"

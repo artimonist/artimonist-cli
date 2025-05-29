@@ -1,4 +1,4 @@
-#![cfg(test)]
+mod common;
 use assert_cmd::Command;
 
 macro_rules! cli_execute {
@@ -40,6 +40,8 @@ fn test_diagram_simple() {
     cli_execute!("simple -f simple_unicode.art --unicode -i 200 -o simple_unicode.out");
     let result = std::fs::read_to_string("tests/diagram/simple_unicode.out").unwrap();
     assert_eq!(result.trim(), include_str!("diagram/simple_unicode").trim());
+
+    common::cleanup("tests/diagram/simple_*.out");
 }
 
 #[test]
@@ -63,4 +65,6 @@ fn test_diagram_complex() {
     cli_execute!("complex -f complex_unicode.art --unicode -m 3 -o complex_unicode.out");
     let result = std::fs::read_to_string("tests/diagram/complex_unicode.out").unwrap();
     assert_eq!(result, include_str!("diagram/complex_unicode"));
+
+    common::cleanup("tests/diagram/complex_*.out");
 }
