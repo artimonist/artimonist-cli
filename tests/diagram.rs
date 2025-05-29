@@ -1,7 +1,5 @@
 #![cfg(test)]
-
 use assert_cmd::Command;
-// use predicates::str::contains;
 
 macro_rules! cli_execute {
     ($args:literal) => {
