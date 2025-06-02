@@ -55,14 +55,42 @@ where
         let mut mvs: Vec<_> = vec![];
         for i in 1..=7 {
             let vs: Vec<_> = inquire::Text::new(&format!("row ({i})"))
-                .with_initial_value(&"\"\"  ".repeat(7))
+                .with_initial_value(&"``  ".repeat(7).trim_end())
                 .with_help_message("Fill characters in quotes.")
                 .prompt()?
-                .split_whitespace()
-                .map(|s| Transformer::decode(s.trim_matches('\"')))
+                .split("`  `")
+                .enumerate()
+                .map(|(i, s)| match i {
+                    0 => Transformer::decode(s.trim_start_once("`")),
+                    6 => Transformer::decode(s.trim_end_once("`")),
+                    _ => Transformer::decode(s),
+                })
                 .collect();
             mvs.push(vs);
         }
         Ok(mvs.to_matrix())
+    }
+}
+
+trait TrimOnce {
+    fn trim_start_once(&self, pat: &str) -> &Self;
+    fn trim_end_once(&self, pat: &str) -> &Self;
+}
+
+impl TrimOnce for str {
+    fn trim_start_once(&self, pat: &str) -> &Self {
+        if self.starts_with(pat) {
+            &self[pat.len()..]
+        } else {
+            &self
+        }
+    }
+
+    fn trim_end_once(&self, pat: &str) -> &Self {
+        if self.ends_with(pat) {
+            &self[..self.len() - pat.len()]
+        } else {
+            &self
+        }
     }
 }
