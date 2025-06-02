@@ -3,11 +3,7 @@ mod matrix;
 mod output;
 mod unicode;
 
-use self::{
-    language::ChooseLanguage,
-    matrix::{InquireMatrix, LoadMatrix},
-    output::DiagramOutput,
-};
+use self::{language::ChooseLanguage, matrix::LoadMatrix, output::DiagramOutput};
 use crate::common::{ConfirmOverwrite, InquirePassword};
 use crate::{DiagramCommand, DiagramType, Execute};
 use anyhow::Result;
@@ -36,8 +32,8 @@ impl DiagramCommand {
 
         // load the matrix from file or inquire it from user
         let mx = match &self.file {
-            Some(file) => Matrix::<char>::load_matrix(file)?,
-            None => Matrix::<char>::inquire_matrix()?,
+            Some(file) => Matrix::<char>::from_file(file)?,
+            None => Matrix::<char>::from_inquire()?,
         };
 
         // choose a mnemonic language if needed
@@ -62,8 +58,8 @@ impl DiagramCommand {
 
         // load the matrix from file or inquire it from user
         let mx = match &self.file {
-            Some(file) => Matrix::<String>::load_matrix(file)?,
-            None => Matrix::<String>::inquire_matrix()?,
+            Some(file) => Matrix::<String>::from_file(file)?,
+            None => Matrix::<String>::from_inquire()?,
         };
 
         // choose a mnemonic language if needed
