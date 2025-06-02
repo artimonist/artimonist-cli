@@ -2,7 +2,7 @@ mod common;
 use assert_cmd::Command;
 
 macro_rules! cli_derive {
-    ($args:expr, $key:expr) => {
+    ($args:expr, $key:expr) => {{
         let args = $args.split_whitespace().collect::<Vec<_>>();
         let mut cmd = Command::cargo_bin("artimonist").unwrap();
         cmd.current_dir("tests/derive")
@@ -12,8 +12,11 @@ macro_rules! cli_derive {
             // .write_stdin("123456")
             // .write_stdin("123456")
             .assert()
-            .success();
-    };
+            .success()
+            .get_output()
+            .clone()
+            .stdout
+    }};
 }
 
 #[test]
@@ -103,4 +106,17 @@ fn test_derive_master() {
     assert_eq!(result, include_str!("derive/master_m35"));
 
     common::cleanup("tests/derive/master_*.out");
+}
+
+#[test]
+fn test_derive_console() {
+    const MASTER: &str = "xprv9s21ZrQH143K4UoTfggaDMmCkfpe9UoALJsg38fDuE5aEmiP9eub61MJmkMfKVjRdM38StnFGo3nb4tGgXZ91LeZZFsG11u7paJzCk9memZ";
+
+    let output = cli_derive!("-a 50 -i 300 -m 5", MASTER);
+    let result = include_bytes!("derive/derive_console");
+    assert!(output.ends_with(result));
+
+    let output = cli_derive!("--m23 -a 100 -m 5 --private", MASTER);
+    let result = include_bytes!("derive/derive_m23_console");
+    assert!(output.ends_with(result));
 }
