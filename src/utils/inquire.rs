@@ -1,5 +1,3 @@
-use super::unicode::UnicodeUtils;
-
 pub trait CheckInputKey {
     fn is_private(&self) -> bool;
     fn is_encrypted(&self) -> bool;
@@ -63,6 +61,7 @@ impl InquirePassword for String {
 
     #[cfg(not(feature = "automatic"))]
     fn inquire_password(&mut self, as_salt: bool) -> anyhow::Result<()> {
+        use super::unicode::UnicodeUtils;
         use inquire::validator::Validation;
 
         const INVALID_MSG: &str = "Encryption key must have at least 5 characters.";
