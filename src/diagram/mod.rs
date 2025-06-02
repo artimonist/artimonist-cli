@@ -1,9 +1,12 @@
+mod console;
 mod language;
 mod matrix;
 mod output;
 mod unicode;
 
-use self::{language::ChooseLanguage, matrix::LoadMatrix, output::DiagramOutput};
+use self::{
+    console::ConsoleOutput, language::ChooseLanguage, matrix::LoadMatrix, output::DiagramOutput,
+};
 use crate::common::{ConfirmOverwrite, InquirePassword};
 use crate::{DiagramCommand, DiagramType, Execute};
 use anyhow::Result;
@@ -23,7 +26,7 @@ impl Execute for DiagramCommand {
 
 impl DiagramCommand {
     #[inline]
-    pub fn has_mnemonic(&self) -> bool {
+    pub fn is_mnemonic(&self) -> bool {
         self.target.mnemonic || !(self.target.wif || self.target.xpriv || self.target.pwd)
     }
 
@@ -37,7 +40,7 @@ impl DiagramCommand {
         };
 
         // choose a mnemonic language if needed
-        if self.has_mnemonic() {
+        if self.is_mnemonic() {
             self.language.choose_language()?;
         }
 
@@ -63,7 +66,7 @@ impl DiagramCommand {
         };
 
         // choose a mnemonic language if needed
-        if self.has_mnemonic() {
+        if self.is_mnemonic() {
             self.language.choose_language()?;
         }
 

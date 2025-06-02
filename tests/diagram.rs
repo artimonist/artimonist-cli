@@ -89,4 +89,12 @@ fn test_diagram_console() {
     let output = cli_execute!("complex -f complex_unicode.art -i 1000");
     let result = include_bytes!("diagram/complex_unicode_console");
     assert!(output.ends_with(result));
+
+    let output = cli_execute!("simple -f simple.art --xpriv --wif --mnemonic --pwd");
+    let result = include_bytes!("diagram/simple_all_console");
+    assert!(output.ends_with(result));
+
+    let output = cli_execute!("complex -f complex.art --xpriv --wif --mnemonic --pwd");
+    let result = include_bytes!("diagram/complex_all_console");
+    assert!(output.ends_with(result));
 }
