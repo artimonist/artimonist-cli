@@ -7,14 +7,12 @@ pub trait ChooseLanguage {
 }
 
 impl ChooseLanguage for Language {
-    #[cfg(feature = "automatic")]
     fn choose_language(&mut self) -> anyhow::Result<()> {
-        *self = English;
-        Ok(())
-    }
+        if crate::TESTING_MODE {
+            *self = English; // Skip prompt in testing mode
+            return Ok(());
+        }
 
-    #[cfg(not(feature = "automatic"))]
-    fn choose_language(&mut self) -> anyhow::Result<()> {
         let options = LANGUAGES.map(|v| format!("{v:?}")).to_vec();
         let choice = inquire::Select::new("Which mnemonic language do you want?", options)
             .with_page_size(LANGUAGES.len())
@@ -25,7 +23,6 @@ impl ChooseLanguage for Language {
     }
 }
 
-#[cfg(not(feature = "automatic"))]
 const LANGUAGES: [Language; 10] = [
     English,
     Japanese,
@@ -39,10 +36,8 @@ const LANGUAGES: [Language; 10] = [
     Portuguese,
 ];
 
-#[cfg(not(feature = "automatic"))]
 struct LanguageWrap(pub Language);
 
-#[cfg(not(feature = "automatic"))]
 impl From<String> for LanguageWrap {
     fn from(value: String) -> Self {
         let lang = match value.to_lowercase().as_str() {

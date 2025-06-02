@@ -56,13 +56,17 @@ pub struct DiagramCommand {
     #[command(flatten)]
     pub target: DiagramTarget,
 
-    /// Password as salt
-    #[arg(skip)]
-    pub password: String,
-
     /// Mnemonic language
     #[arg(skip)]
     pub language: Language,
+
+    /// Password as salt
+    #[cfg(not(feature = "testing"))]
+    #[arg(skip)]
+    pub password: String,
+    #[cfg(feature = "testing")]
+    #[arg(short, long, default_value = "123456")]
+    pub password: String,
 
     #[arg(skip)]
     pub diagram_type: DiagramType,
@@ -106,7 +110,11 @@ pub struct EncryptCommand {
     pub file: Option<String>,
 
     /// Password
+    #[cfg(not(feature = "testing"))]
     #[arg(skip)]
+    pub password: String,
+    #[cfg(feature = "testing")]
+    #[arg(short, long, default_value = "123456")]
     pub password: String,
 
     // encrypt or decrypt
@@ -148,7 +156,11 @@ pub struct DeriveCommand {
     pub private: bool,
 
     /// Password as salt
+    #[cfg(not(feature = "testing"))]
     #[arg(skip)]
+    pub password: String,
+    #[cfg(feature = "testing")]
+    #[arg(short, long, default_value = "123456")]
     pub password: String,
 }
 

@@ -7,6 +7,11 @@ mod diagram;
 mod encrypt;
 mod utils;
 
+#[cfg(feature = "testing")]
+pub const TESTING_MODE: bool = true;
+#[cfg(not(feature = "testing"))]
+pub const TESTING_MODE: bool = false;
+
 pub trait Execute {
     fn execute(&mut self) -> anyhow::Result<()>;
 }
