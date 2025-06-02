@@ -1,3 +1,5 @@
+use super::unicode::UnicodeUtils;
+
 pub trait CheckInputKey {
     fn is_private(&self) -> bool;
     fn is_encrypted(&self) -> bool;
@@ -65,7 +67,7 @@ impl InquirePassword for String {
 
         const INVALID_MSG: &str = "Encryption key must have at least 5 characters.";
         let validator = |v: &str| {
-            if v.chars().count() < 5 {
+            if v.unicode_decode().chars().count() < 5 {
                 Ok(Validation::Invalid(INVALID_MSG.into()))
             } else {
                 Ok(Validation::Valid)
@@ -84,7 +86,8 @@ impl InquirePassword for String {
             } else {
                 "Input encryption key"
             })
-            .prompt()?;
+            .prompt()?
+            .unicode_decode();
         Ok(())
     }
 }

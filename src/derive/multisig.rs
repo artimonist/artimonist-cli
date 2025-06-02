@@ -1,10 +1,8 @@
 use crate::DeriveCommand;
 use artimonist::Xpriv;
-use std::{
-    fs::File,
-    io::{BufWriter, Write},
-    path::Path,
-};
+use std::fs::File;
+use std::io::{BufWriter, Write};
+
 type DeriveResult<T = ()> = anyhow::Result<T>;
 
 pub trait MultiSig {
@@ -44,7 +42,7 @@ impl MultiSig for DeriveCommand {
 
         // output
         if let Some(path) = &self.output {
-            let mut f = BufWriter::new(File::create(Path::new(path))?);
+            let mut f = BufWriter::new(File::create(path)?);
             writeln!(f, "{} <Account xpubs> {}", "-".repeat(20), "-".repeat(30))?;
             for (i, (xpub, _)) in accounts.iter().enumerate() {
                 let path = self.derive.path(self.account + i as u32);

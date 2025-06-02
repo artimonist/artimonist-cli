@@ -1,5 +1,5 @@
 /// parse unicode characters of \u{...} format.
-trait UnicodeUtils {
+pub trait UnicodeUtils {
     fn unicode_decode(&self) -> String;
     fn unicode_encode(&self) -> String;
 }

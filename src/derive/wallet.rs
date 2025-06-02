@@ -1,11 +1,8 @@
 use crate::DeriveCommand;
 use artimonist::Xpriv;
 use bip38::EncryptWif;
-use std::{
-    fs::File,
-    io::{BufWriter, Write},
-    path::Path,
-};
+use std::fs::File;
+use std::io::{BufWriter, Write};
 
 type DeriveResult<T = ()> = Result<T, anyhow::Error>;
 
@@ -39,7 +36,7 @@ impl Wallet for DeriveCommand {
 
         // output
         if let Some(path) = &self.output {
-            let mut f = BufWriter::new(File::create(Path::new(path))?);
+            let mut f = BufWriter::new(File::create(path)?);
             let path = self.derive.path(self.account);
             for (i, (addr, pk)) in wallets.into_iter().enumerate() {
                 let index = self.index + i as u32;
