@@ -2,7 +2,8 @@ mod console;
 mod file;
 mod language;
 mod matrix;
-mod unicode;
+
+use crate::utils::unicode;
 
 use self::{
     console::ConsoleOutput, file::FileOutput, language::ChooseLanguage, matrix::LoadMatrix,
