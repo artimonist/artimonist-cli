@@ -114,7 +114,7 @@ pub struct EncryptCommand {
     #[arg(skip)]
     pub password: String,
     #[cfg(feature = "testing")]
-    #[arg(short, long, default_value = "123456")]
+    #[arg(default_value = "123456")]
     pub password: String,
 
     // encrypt or decrypt

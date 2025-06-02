@@ -7,8 +7,7 @@ macro_rules! cli_execute {
         let mut cmd = Command::cargo_bin("artimonist").unwrap();
         cmd.current_dir("tests/diagram")
             .args(&args)
-            // .write_stdin("123456")
-            // .write_stdin("123456")
+            .args(&["-p", "123456"])
             .assert()
             .success()
             .get_output()
