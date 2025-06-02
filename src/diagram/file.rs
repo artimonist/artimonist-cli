@@ -17,11 +17,12 @@ where
         let mx = self.matrix();
 
         // diagram view
-        mx.art(f)?;
+        mx.display(f, false)?;
 
         // unicode view
         if cmd.unicode {
-            mx.unicode(f)?;
+            writeln!(f, "{}", "-".repeat(30))?;
+            mx.display(f, true)?;
         }
 
         // derived results
@@ -44,37 +45,26 @@ impl FileOutput<String> for ComplexDiagram {
 }
 
 trait MatrixToFile {
-    fn art(&self, f: &mut impl Write) -> anyhow::Result<()>;
-    fn unicode(&self, f: &mut impl Write) -> anyhow::Result<()>;
+    fn display(&self, f: &mut impl Write, unicode: bool) -> anyhow::Result<()>;
 }
 
 impl<T> MatrixToFile for Matrix<T, 7, 7>
 where
     T: Transformer<20> + ToString,
 {
-    fn art(&self, f: &mut impl Write) -> anyhow::Result<()> {
+    fn display(&self, f: &mut impl Write, unicode: bool) -> anyhow::Result<()> {
+        let fmt = |s: &T| -> String {
+            match unicode {
+                true => format!(r#""{}""#, Transformer::encode(s)),
+                false => format!(r#""{}""#, s.to_string()),
+            }
+        };
         for r in self.iter() {
             let ln = r
                 .iter()
                 .map(|v| match v {
-                    Some(s) => format!("`{}`", s.to_string()),
-                    None => "``".to_owned(),
-                })
-                .collect::<Vec<String>>()
-                .join("  ");
-            writeln!(f, "{ln}")?;
-        }
-        Ok(())
-    }
-
-    fn unicode(&self, f: &mut impl Write) -> anyhow::Result<()> {
-        writeln!(f, "{}", "-".repeat(30))?;
-        for r in self.iter() {
-            let ln = r
-                .iter()
-                .map(|v| match v {
-                    Some(s) => format!("`{}`", Transformer::encode(s)),
-                    None => "``".to_owned(),
+                    Some(s) => fmt(s),
+                    None => r#""""#.to_owned(),
                 })
                 .collect::<Vec<String>>()
                 .join("  ");

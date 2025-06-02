@@ -73,13 +73,13 @@ _(Some terminal fonts display different characters width, using standard font ma
 
 ### mnemonic
 **`> artimonist simple`**  
-`> row (1) "【" "" "" "" "" "" ""`  
-`> row (2) "" "1" "" "" "" "" ""`  
-`> row (3) "" "" "$" "" "" "" ""`  
-`> row (4) "" "" "" "≈" "" "" ""`  
-`> row (5) "" "" "" "" "⅞" "" ""`  
-`> row (6) "" "" "" "" "" "£" ""`  
-`> row (7) "" "" "" "" "" "" "】"`  
+`> row (1) "【"  ""  ""  ""  ""  ""  ""`  
+`> row (2) ""  "1"  ""  ""  ""  ""  ""`  
+`> row (3) ""  ""  "$"  ""  ""  ""  ""`  
+`> row (4) ""  ""  ""  "≈"  ""  ""  ""`  
+`> row (5) ""  ""  ""  ""  "⅞"  ""  ""`  
+`> row (6) ""  ""  ""  ""  ""  "£"  ""`  
+`> row (7) ""  ""  ""  ""  ""  ""  "】"`  
 _(Accepts any Unicode character written as "\u{1234}")_  
 _(With salt of '123456')_  
 ``` shell

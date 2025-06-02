@@ -41,7 +41,7 @@ where
         let mut mvs: Vec<_> = vec![];
         (1..=7).for_each(|i| {
             let ln = inquire::Text::new(&format!("row ({i})"))
-                .with_initial_value("``  ".repeat(7).trim_end())
+                .with_initial_value(r#"""  "#.repeat(7).trim_end())
                 .with_help_message("Fill characters in quotes.")
                 .prompt();
             if let Ok(ln) = ln {
@@ -54,11 +54,11 @@ where
     }
 
     fn parse_values(line: &str) -> Vec<Option<T>> {
-        line.strip_prefix("`")
+        line.strip_prefix('"')
             .unwrap_or(line)
-            .strip_suffix("`")
+            .strip_suffix('"')
             .unwrap_or(line)
-            .split("`  `")
+            .split(r#""  ""#)
             .take(7)
             .map(Transformer::decode)
             .collect::<Vec<_>>()
