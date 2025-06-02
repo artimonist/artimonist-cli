@@ -1,4 +1,4 @@
-use crate::common::{CheckInputKey, ConfirmOverwrite, InquirePassword};
+use crate::utils::{CheckInputKey, ConfirmOverwrite, InquirePassword};
 use crate::{DeriveCommand, Execute};
 use artimonist::{Xpriv, BIP39};
 use std::str::FromStr;

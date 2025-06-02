@@ -1,12 +1,9 @@
-use crate::common::{CheckInputKey, ConfirmOverwrite, InquirePassword};
+use crate::utils::{CheckInputKey, ConfirmOverwrite, InquirePassword};
 use crate::{EncryptCommand, Execute};
 use anyhow::{anyhow, Result};
 use bip38::{Decrypt, EncryptWif};
-use std::{
-    fs::File,
-    io::{BufRead, BufReader, BufWriter, Write},
-    path::Path,
-};
+use std::fs::File;
+use std::io::{BufRead, BufReader, BufWriter, Write};
 
 pub const FILE_MAX_LEN: u64 = 1024 * 1024;
 
@@ -63,7 +60,7 @@ impl EncryptCommand {
         }
 
         let mut vs = vec![];
-        let lns = BufReader::new(File::open(Path::new(file))?).lines();
+        let lns = BufReader::new(File::open(file)?).lines();
         for ln in lns {
             let key = ln?;
             if self.is_encrypt && key.trim().is_private() {
@@ -78,7 +75,7 @@ impl EncryptCommand {
         }
 
         // write results to original file
-        let mut f = BufWriter::new(File::create(Path::new(file))?);
+        let mut f = BufWriter::new(File::create(file)?);
         for v in vs {
             writeln!(f, "{v}")?;
         }

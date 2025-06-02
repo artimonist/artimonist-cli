@@ -7,7 +7,7 @@ mod unicode;
 use self::{
     console::ConsoleOutput, file::FileOutput, language::ChooseLanguage, matrix::LoadMatrix,
 };
-use crate::common::{ConfirmOverwrite, InquirePassword};
+use crate::utils::{ConfirmOverwrite, InquirePassword};
 use crate::{DiagramCommand, DiagramType, Execute};
 use anyhow::Result;
 use artimonist::{ComplexDiagram, Matrix, SimpleDiagram};

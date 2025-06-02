@@ -2,10 +2,10 @@ use args::{Cli, Commands, DeriveCommand, DiagramCommand, DiagramType, EncryptCom
 use clap::Parser;
 
 mod args;
-mod common;
 mod derive;
 mod diagram;
 mod encrypt;
+mod utils;
 
 pub trait Execute {
     fn execute(&mut self) -> anyhow::Result<()>;
