@@ -13,7 +13,7 @@ where
     fn matrix(&self) -> &Matrix<T, 7, 7>;
 
     fn to_file(&self, cmd: &DiagramCommand, path: &str) -> anyhow::Result<()> {
-        let ref mut f = BufWriter::new(File::create(path)?);
+        let f = &mut BufWriter::new(File::create(path)?);
         let mx = self.matrix();
 
         // diagram view
@@ -57,8 +57,8 @@ where
             let ln = r
                 .iter()
                 .map(|v| match v {
-                    Some(s) => format!("\"{}\"", s.to_string()),
-                    None => "\"\"".to_owned(),
+                    Some(s) => format!("`{}`", s.to_string()),
+                    None => "``".to_owned(),
                 })
                 .collect::<Vec<String>>()
                 .join("  ");
@@ -73,8 +73,8 @@ where
             let ln = r
                 .iter()
                 .map(|v| match v {
-                    Some(s) => format!("\"{}\"", Transformer::encode(s)),
-                    None => "\"\"".to_owned(),
+                    Some(s) => format!("`{}`", Transformer::encode(s)),
+                    None => "``".to_owned(),
                 })
                 .collect::<Vec<String>>()
                 .join("  ");

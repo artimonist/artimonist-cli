@@ -41,7 +41,7 @@ where
         let mut mvs: Vec<_> = vec![];
         (1..=7).for_each(|i| {
             let ln = inquire::Text::new(&format!("row ({i})"))
-                .with_initial_value(&"``  ".repeat(7).trim_end())
+                .with_initial_value("``  ".repeat(7).trim_end())
                 .with_help_message("Fill characters in quotes.")
                 .prompt();
             if let Ok(ln) = ln {
@@ -54,37 +54,13 @@ where
     }
 
     fn parse_values(line: &str) -> Vec<Option<T>> {
-        line.split("`  `")
+        line.strip_prefix("`")
+            .unwrap_or(line)
+            .strip_suffix("`")
+            .unwrap_or(line)
+            .split("`  `")
             .take(7)
-            .enumerate()
-            .map(|(i, s)| match i {
-                0 => Transformer::decode(s.trim_start_once("`")),
-                6 => Transformer::decode(s.trim_end_once("`")),
-                _ => Transformer::decode(s),
-            })
+            .map(Transformer::decode)
             .collect::<Vec<_>>()
-    }
-}
-
-trait TrimOnce {
-    fn trim_start_once(&self, pat: &str) -> &Self;
-    fn trim_end_once(&self, pat: &str) -> &Self;
-}
-
-impl TrimOnce for str {
-    fn trim_start_once(&self, pat: &str) -> &Self {
-        if self.starts_with(pat) {
-            &self[pat.len()..]
-        } else {
-            &self
-        }
-    }
-
-    fn trim_end_once(&self, pat: &str) -> &Self {
-        if self.ends_with(pat) {
-            &self[..self.len() - pat.len()]
-        } else {
-            &self
-        }
     }
 }

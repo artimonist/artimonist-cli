@@ -8,7 +8,7 @@ pub trait ConsoleOutput<T: ToString + Transformer<20>>: GenericDiagram {
     fn matrix(&self) -> &Matrix<T, 7, 7>;
 
     fn display(&self, cmd: &DiagramCommand) -> anyhow::Result<()> {
-        let ref mut f = BufWriter::new(std::io::stdout());
+        let f = &mut BufWriter::new(std::io::stdout());
         let mx = self.matrix();
 
         // diagram view
@@ -55,19 +55,19 @@ impl DeriveToConsole for DiagramCommand {
     fn derive_all(&self, master: &Xpriv, f: &mut impl Write) -> anyhow::Result<()> {
         if self.has_mnemonic() {
             writeln!(f)?;
-            self.mnemonic(&master, f)?;
+            self.mnemonic(master, f)?;
         }
         if self.target.wif {
             writeln!(f)?;
-            self.wif(&master, f)?;
+            self.wif(master, f)?;
         }
         if self.target.xpriv {
             writeln!(f)?;
-            self.xpriv(&master, f)?;
+            self.xpriv(master, f)?;
         }
         if self.target.pwd {
             writeln!(f)?;
-            self.pwd(&master, f)?;
+            self.pwd(master, f)?;
         }
         Ok(())
     }
