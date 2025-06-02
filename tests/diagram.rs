@@ -2,7 +2,7 @@ mod common;
 use assert_cmd::Command;
 
 macro_rules! cli_execute {
-    ($args:literal) => {
+    ($args:literal) => {{
         let args = $args.split_whitespace().collect::<Vec<_>>();
         let mut cmd = Command::cargo_bin("artimonist").unwrap();
         cmd.current_dir("tests/diagram")
@@ -10,8 +10,11 @@ macro_rules! cli_execute {
             // .write_stdin("123456")
             // .write_stdin("123456")
             .assert()
-            .success();
-    };
+            .success()
+            .get_output()
+            .clone()
+            .stdout
+    }};
 }
 
 #[test]
@@ -67,4 +70,23 @@ fn test_diagram_complex() {
     assert_eq!(result, include_str!("diagram/complex_unicode"));
 
     common::cleanup("tests/diagram/complex_*.out");
+}
+
+#[test]
+fn test_diagram_console() {
+    let output = cli_execute!("simple -f simple.art --wif -m 5");
+    let result = include_bytes!("diagram/simple_wif_console");
+    assert!(output.ends_with(result));
+
+    let output = cli_execute!("simple -f simple.art --xpriv -i 100 -m 5");
+    let result = include_bytes!("diagram/simple_xpriv_console");
+    assert!(output.ends_with(result));
+
+    let output = cli_execute!("complex -f complex.art -m 10");
+    let result = include_bytes!("diagram/complex_default_console");
+    assert!(output.ends_with(result));
+
+    let output = cli_execute!("complex -f complex_unicode.art -i 1000");
+    let result = include_bytes!("diagram/complex_unicode_console");
+    assert!(output.ends_with(result));
 }
