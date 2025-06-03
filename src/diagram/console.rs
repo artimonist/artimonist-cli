@@ -1,5 +1,5 @@
 use super::unicode::Transformer;
-use crate::diagram::DiagramCommand;
+use super::DiagramCommand;
 use artimonist::{ComplexDiagram, GenericDiagram, Matrix, SimpleDiagram, Xpriv, BIP85};
 use bip38::EncryptWif;
 use std::io::{BufWriter, Write};

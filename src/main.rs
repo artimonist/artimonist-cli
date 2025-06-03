@@ -1,11 +1,34 @@
-use args::{Cli, Commands, DeriveCommand, DiagramCommand, DiagramType, EncryptCommand};
-use clap::Parser;
-
-mod args;
 mod derive;
 mod diagram;
 mod encrypt;
 mod utils;
+
+use clap::{Parser, Subcommand};
+use derive::DeriveCommand;
+use diagram::{DiagramCommand, DiagramType};
+use encrypt::EncryptCommand;
+
+/// Artimonist - A tool for generating mnemonics and wallets.   
+#[derive(Parser)]
+#[command(version, long_about=CMD_ABOUT)]
+pub struct Cli {
+    #[command(subcommand)]
+    pub command: Commands,
+}
+
+#[derive(Subcommand)]
+pub enum Commands {
+    /// Use simple diagram of 7 * 7 chars
+    Simple(DiagramCommand),
+    /// Use complex diagram of 7 * 7 strings
+    Complex(DiagramCommand),
+    /// Encrypt private key by bip38
+    Encrypt(EncryptCommand),
+    /// Decrypt private key by bip38
+    Decrypt(EncryptCommand),
+    /// Derive from master key or mnemonic
+    Derive(DeriveCommand),
+}
 
 #[cfg(feature = "automatic")]
 pub const AUTOMATIC_MODE: bool = true;
@@ -39,6 +62,13 @@ fn main() -> anyhow::Result<()> {
     }
     Ok(())
 }
+
+const CMD_ABOUT: &str = "
+Artimonist
+A tool for generating mnemonics and wallets.
+
+Project location: <https://github.com/artimonist/artimonist-cli>
+Web version: <https://www.artimonist.org>";
 
 #[cfg(test)]
 mod diagram_test {

@@ -1,5 +1,5 @@
 use super::unicode::Transformer;
-use crate::DiagramCommand;
+use super::DiagramCommand;
 use anyhow::Ok;
 use artimonist::{ComplexDiagram, GenericDiagram, Matrix, SimpleDiagram, Xpriv, BIP85};
 use bip38::EncryptWif;
