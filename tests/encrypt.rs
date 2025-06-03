@@ -7,7 +7,7 @@ macro_rules! cli_test_content {
         let mut cmd = Command::cargo_bin("artimonist").unwrap();
         cmd.current_dir("tests/encrypt")
         .args(&[$($arg),+])
-        // .args(&["-p", "123456"])
+        .args(&["-p", "123456"])
         .assert()
         .success()
         .stdout(contains($content));

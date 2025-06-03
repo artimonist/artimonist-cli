@@ -99,29 +99,6 @@ pub struct DiagramTarget {
     pub pwd: bool,
 }
 
-#[derive(clap::Parser)]
-#[group(required = true, multiple = false)]
-pub struct EncryptCommand {
-    /// Private key (Wif)
-    pub key: Option<String>,
-
-    /// Encrypt/Decrypt file
-    #[arg(short, long)]
-    pub file: Option<String>,
-
-    /// Password
-    #[cfg(not(feature = "testing"))]
-    #[arg(skip)]
-    pub password: String,
-    #[cfg(feature = "testing")]
-    #[arg(default_value = "123456")]
-    pub password: String,
-
-    // encrypt or decrypt
-    #[arg(skip)]
-    pub is_encrypt: bool,
-}
-
 #[derive(clap::Parser, Debug)]
 pub struct DeriveCommand {
     /// Master key or Mnemonic string
@@ -188,4 +165,34 @@ pub struct DeriveMultisig {
     /// Multiple signatures address of 3-5 [derive path: account'/0/index]
     #[arg(long)]
     pub m35: bool,
+}
+
+#[derive(clap::Parser)]
+pub struct EncryptCommand {
+    /// encrypt/decrypt source
+    #[clap(flatten)]
+    pub source: EncryptSource,
+
+    /// Password
+    #[cfg(not(feature = "testing"))]
+    #[arg(skip)]
+    pub password: String,
+    #[cfg(feature = "testing")]
+    #[arg(short, long, default_value = "123456")]
+    pub password: String,
+
+    // encrypt or decrypt
+    #[arg(skip)]
+    pub is_encrypt: bool,
+}
+
+#[derive(clap::Args, Debug)]
+#[group(required = true, multiple = false)]
+pub struct EncryptSource {
+    /// Private key (Wif)
+    pub key: Option<String>,
+
+    /// Encrypt/Decrypt file
+    #[arg(short, long)]
+    pub file: Option<String>,
 }
