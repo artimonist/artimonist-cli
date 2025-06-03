@@ -14,7 +14,7 @@ impl Execute for EncryptCommand {
         }
 
         // encrypt or decrypt single private key
-        if let Some(key) = &self.key {
+        if let Some(key) = &self.source.key {
             self.password.inquire_password(false)?;
             match self.is_encrypt {
                 true => self.exec_encrypt(key)?,
@@ -24,8 +24,8 @@ impl Execute for EncryptCommand {
         }
 
         // encrypt or decrypt private keys in bulk from a file
-        if let Some(path) = &self.file {
-            if self.file.confirm_overwrite() {
+        if let Some(path) = &self.source.file {
+            if self.source.file.confirm_overwrite() {
                 self.password.inquire_password(false)?;
                 self.exec_bulk(path)?;
             }

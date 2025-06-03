@@ -56,13 +56,17 @@ pub struct DiagramCommand {
     #[command(flatten)]
     pub target: DiagramTarget,
 
-    /// Password as salt
-    #[arg(skip)]
-    pub password: String,
-
     /// Mnemonic language
     #[arg(skip)]
     pub language: Language,
+
+    /// Password as salt
+    #[cfg(not(feature = "automatic"))]
+    #[arg(skip)]
+    pub password: String,
+    #[cfg(feature = "automatic")]
+    #[arg(short, long, default_value = "123456")]
+    pub password: String,
 
     #[arg(skip)]
     pub diagram_type: DiagramType,
@@ -93,25 +97,6 @@ pub struct DiagramTarget {
     /// Generate password
     #[arg(long, visible_aliases = ["password", "passphrase"])]
     pub pwd: bool,
-}
-
-#[derive(clap::Parser)]
-#[group(required = true, multiple = false)]
-pub struct EncryptCommand {
-    /// Private key (Wif)
-    pub key: Option<String>,
-
-    /// Encrypt/Decrypt file
-    #[arg(short, long)]
-    pub file: Option<String>,
-
-    /// Password
-    #[arg(skip)]
-    pub password: String,
-
-    // encrypt or decrypt
-    #[arg(skip)]
-    pub is_encrypt: bool,
 }
 
 #[derive(clap::Parser, Debug)]
@@ -148,7 +133,11 @@ pub struct DeriveCommand {
     pub private: bool,
 
     /// Password as salt
+    #[cfg(not(feature = "automatic"))]
     #[arg(skip)]
+    pub password: String,
+    #[cfg(feature = "automatic")]
+    #[arg(short, long, default_value = "123456")]
     pub password: String,
 }
 
@@ -176,4 +165,34 @@ pub struct DeriveMultisig {
     /// Multiple signatures address of 3-5 [derive path: account'/0/index]
     #[arg(long)]
     pub m35: bool,
+}
+
+#[derive(clap::Parser)]
+pub struct EncryptCommand {
+    /// encrypt/decrypt source
+    #[clap(flatten)]
+    pub source: EncryptSource,
+
+    /// Password
+    #[cfg(not(feature = "automatic"))]
+    #[arg(skip)]
+    pub password: String,
+    #[cfg(feature = "automatic")]
+    #[arg(short, long, default_value = "123456")]
+    pub password: String,
+
+    // encrypt or decrypt
+    #[arg(skip)]
+    pub is_encrypt: bool,
+}
+
+#[derive(clap::Args, Debug)]
+#[group(required = true, multiple = false)]
+pub struct EncryptSource {
+    /// Private key (Wif)
+    pub key: Option<String>,
+
+    /// Encrypt/Decrypt file
+    #[arg(short, long)]
+    pub file: Option<String>,
 }

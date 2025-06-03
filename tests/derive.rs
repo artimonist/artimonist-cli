@@ -7,10 +7,9 @@ macro_rules! cli_derive {
         let mut cmd = Command::cargo_bin("artimonist").unwrap();
         cmd.current_dir("tests/derive")
             .arg("derive")
+            .args(&["-p", "123456"])
             .args(&args)
             .arg($key)
-            // .write_stdin("123456")
-            // .write_stdin("123456")
             .assert()
             .success()
             .get_output()
