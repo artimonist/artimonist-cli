@@ -1,23 +1,23 @@
+mod cmd;
 mod console;
 mod file;
 mod language;
 mod matrix;
 
-use crate::utils::unicode;
+pub use cmd::{DiagramCommand, DiagramType};
 
 use self::{
     console::ConsoleOutput, file::FileOutput, language::ChooseLanguage, matrix::LoadMatrix,
 };
-use crate::utils::{ConfirmOverwrite, InquirePassword};
-use crate::{DiagramCommand, DiagramType, Execute};
-use anyhow::Result;
+use crate::utils::{unicode, ConfirmOverwrite, InquirePassword};
+use crate::Execute;
 use artimonist::{ComplexDiagram, Matrix, SimpleDiagram};
 
 impl Execute for DiagramCommand {
-    fn execute(&mut self) -> Result<()> {
+    fn execute(&mut self) -> anyhow::Result<()> {
         self.output.confirm_overwrite();
 
-        use DiagramType::*;
+        use cmd::DiagramType::*;
         match self.diagram_type {
             Simple => self.execute_simple(),
             Complex => self.execute_complex(),
@@ -31,7 +31,7 @@ impl DiagramCommand {
         self.target.mnemonic || !(self.target.wif || self.target.xpriv || self.target.pwd)
     }
 
-    fn execute_simple(&mut self) -> Result<()> {
+    fn execute_simple(&mut self) -> anyhow::Result<()> {
         debug_assert!(self.diagram_type == DiagramType::Simple);
 
         // load the matrix from file or inquire it from user
@@ -57,7 +57,7 @@ impl DiagramCommand {
         Ok(())
     }
 
-    fn execute_complex(&mut self) -> Result<()> {
+    fn execute_complex(&mut self) -> anyhow::Result<()> {
         debug_assert!(self.diagram_type == DiagramType::Complex);
 
         // load the matrix from file or inquire it from user

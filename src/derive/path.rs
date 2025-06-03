@@ -1,13 +1,13 @@
-use crate::args::DerivePath;
+use super::cmd::DerivePath;
 use artimonist::{Xpriv, BIP44, BIP49, BIP84};
-
-type DeriveResult<T = ()> = Result<T, anyhow::Error>;
 
 enum DeriveMethod {
     Bip44 = 44,
     Bip49 = 49,
     Bip84 = 84,
 }
+
+type DeriveResult = anyhow::Result<(String, String)>;
 
 use DeriveMethod::*;
 
@@ -30,7 +30,7 @@ impl DerivePath {
     }
 
     #[inline]
-    pub fn account(&self, root: &Xpriv, account: u32) -> DeriveResult<(String, String)> {
+    pub fn account(&self, root: &Xpriv, account: u32) -> DeriveResult {
         Ok(match self.method() {
             Bip44 => root.bip44_account(account)?,
             Bip49 => root.bip49_account(account)?,
@@ -39,7 +39,7 @@ impl DerivePath {
     }
 
     #[inline]
-    pub fn wallet(&self, root: &Xpriv, account: u32, index: u32) -> DeriveResult<(String, String)> {
+    pub fn wallet(&self, root: &Xpriv, account: u32, index: u32) -> DeriveResult {
         Ok(match self.method() {
             Bip44 => root.bip44_wallet(account, index)?,
             Bip49 => root.bip49_wallet(account, index)?,
@@ -53,7 +53,7 @@ impl DerivePath {
         root: &Xpriv,
         account: u32,
         index: u32,
-    ) -> DeriveResult<(String, String)> {
+    ) -> DeriveResult {
         Ok(match self.method() {
             Bip44 => root.bip44_multisig::<M, N>(account, index)?,
             Bip49 => root.bip49_multisig::<M, N>(account, index)?,

@@ -1,13 +1,15 @@
-use crate::utils::{CheckInputKey, ConfirmOverwrite, InquirePassword};
-use crate::{DeriveCommand, Execute};
-use artimonist::{Xpriv, BIP39};
-use std::str::FromStr;
-
+mod cmd;
 mod multisig;
 mod path;
 mod wallet;
 
+pub use cmd::DeriveCommand;
+
+use crate::utils::{CheckInputKey, ConfirmOverwrite, InquirePassword};
+use crate::Execute;
+use artimonist::{Xpriv, BIP39};
 use multisig::MultiSig;
+use std::str::FromStr;
 use wallet::Wallet;
 
 impl Execute for DeriveCommand {

@@ -1,6 +1,6 @@
 use crate::utils::{CheckInputKey, ConfirmOverwrite, InquirePassword};
 use crate::{EncryptCommand, Execute};
-use anyhow::{anyhow, Result};
+use anyhow::anyhow;
 use bip38::{Decrypt, EncryptWif};
 use std::fs::File;
 use std::io::{BufRead, BufReader, BufWriter, Write};
@@ -8,7 +8,7 @@ use std::io::{BufRead, BufReader, BufWriter, Write};
 pub const FILE_MAX_LEN: u64 = 1024 * 1024;
 
 impl Execute for EncryptCommand {
-    fn execute(&mut self) -> Result<(), anyhow::Error> {
+    fn execute(&mut self) -> anyhow::Result<()> {
         if !artimonist::NETWORK.is_mainnet() {
             return Err(anyhow!("encrypt/decrypt is only available on mainnet"));
         }
