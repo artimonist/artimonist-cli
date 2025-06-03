@@ -8,8 +8,8 @@ pub trait ChooseLanguage {
 
 impl ChooseLanguage for Language {
     fn choose_language(&mut self) -> anyhow::Result<()> {
-        if crate::TESTING_MODE {
-            *self = English; // Skip prompt in testing mode
+        if crate::AUTOMATIC_MODE {
+            *self = English; // Skip prompt in automatic mode
             return Ok(());
         }
 

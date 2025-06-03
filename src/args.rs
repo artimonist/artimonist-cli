@@ -61,10 +61,10 @@ pub struct DiagramCommand {
     pub language: Language,
 
     /// Password as salt
-    #[cfg(not(feature = "testing"))]
+    #[cfg(not(feature = "automatic"))]
     #[arg(skip)]
     pub password: String,
-    #[cfg(feature = "testing")]
+    #[cfg(feature = "automatic")]
     #[arg(short, long, default_value = "123456")]
     pub password: String,
 
@@ -133,10 +133,10 @@ pub struct DeriveCommand {
     pub private: bool,
 
     /// Password as salt
-    #[cfg(not(feature = "testing"))]
+    #[cfg(not(feature = "automatic"))]
     #[arg(skip)]
     pub password: String,
-    #[cfg(feature = "testing")]
+    #[cfg(feature = "automatic")]
     #[arg(short, long, default_value = "123456")]
     pub password: String,
 }
@@ -174,10 +174,10 @@ pub struct EncryptCommand {
     pub source: EncryptSource,
 
     /// Password
-    #[cfg(not(feature = "testing"))]
+    #[cfg(not(feature = "automatic"))]
     #[arg(skip)]
     pub password: String,
-    #[cfg(feature = "testing")]
+    #[cfg(feature = "automatic")]
     #[arg(short, long, default_value = "123456")]
     pub password: String,
 

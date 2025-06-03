@@ -37,8 +37,8 @@ impl CheckInputKey for str {
 
 impl ConfirmOverwrite for Option<String> {
     fn confirm_overwrite(&self) -> bool {
-        if crate::TESTING_MODE {
-            return true; // Skip confirmation in testing mode
+        if crate::AUTOMATIC_MODE {
+            return true; // Skip confirmation in automatic mode
         }
 
         if let Some(path) = self {
@@ -60,7 +60,7 @@ impl InquirePassword for String {
         use super::unicode::UnicodeUtils;
         use inquire::validator::Validation;
 
-        if crate::TESTING_MODE {
+        if crate::AUTOMATIC_MODE {
             return Ok(()); // Skip if already set
         }
 
