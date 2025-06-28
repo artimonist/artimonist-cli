@@ -23,7 +23,7 @@ impl Execute for DiagramCommand {
 impl DiagramCommand {
     #[inline]
     pub fn has_mnemonic(&self) -> bool {
-        self.target.mnemonic || !(self.target.wif || self.target.xpriv || self.target.pwd)
+        self.target.mnemonic || !(self.target.wif || self.target.xprv || self.target.pwd)
     }
 
     fn execute_simple(&mut self) -> anyhow::Result<()> {

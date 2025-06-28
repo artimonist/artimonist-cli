@@ -26,9 +26,9 @@ fn test_diagram_simple() {
     let result = cli_execute!("simple -f simple.art --wif -i 100 -m 10");
     assert_eq!(result, include_str!("diagram/simple_wif"));
 
-    // xpriv
-    let result = cli_execute!("simple -f simple.art --xpriv -m 20");
-    assert_eq!(result, include_str!("diagram/simple_xpriv"));
+    // xprv
+    let result = cli_execute!("simple -f simple.art --xprv -m 20");
+    assert_eq!(result, include_str!("diagram/simple_xprv"));
 
     // pwd
     let result = cli_execute!("simple -f simple.art --pwd -m 100");
@@ -47,8 +47,8 @@ fn test_diagram_complex() {
     let result = cli_execute!("complex -f complex.art --wif -i 1024 -m 10");
     assert_eq!(result, include_str!("diagram/complex_wif"));
 
-    let result = cli_execute!("complex -f complex.art --xpriv -i 2048 -m 5");
-    assert_eq!(result, include_str!("diagram/complex_xpriv"));
+    let result = cli_execute!("complex -f complex.art --xprv -i 2048 -m 5");
+    assert_eq!(result, include_str!("diagram/complex_xprv"));
 
     let result = cli_execute!("complex -f complex.art --pwd -i 8192 -m 50");
     assert_eq!(result, include_str!("diagram/complex_pwd"));

@@ -7,7 +7,7 @@ Web version: **<https://www.artimonist.org>**
 
 ### Help infomation
 **`> artimonist --help`**
-``` shell
+``` blank
 Usage: artimonist <COMMAND>
 
 Commands:
@@ -19,7 +19,7 @@ Commands:
   help     Print this message or the help of the given subcommand(s)
 ```
 **`> artimonist simple --help`**
-``` shell
+``` blank
 Usage: artimonist simple [OPTIONS]
 
 Options:
@@ -30,12 +30,12 @@ Options:
       --unicode          Show unicode view for non-displayable character
       --mnemonic         Generate bip39 mnemonic [default] [aliases: bip39]
       --wif              Generate wallet address and private key [aliases: wallet, address]
-      --xpriv            Generate master key for HD-Wallet [aliases: hd, master, root]
+      --xprv            Generate master key for HD-Wallet [aliases: hd, master, root]
       --pwd              Generate password [aliases: password, passphrase]
   -h, --help             Print help
 ```
 **`> artimonist derive --help`**
-``` shell
+``` blank
 Usage: artimonist derive [OPTIONS] <KEY>
 
 Arguments:
@@ -86,13 +86,13 @@ _(Some terminal fonts display different characters width, using standard font ma
 `> row (7) ""  ""  ""  ""  ""  ""  "】"`  
 _(Accepts any Unicode character written as "\u{1234}")_  
 _(With salt of '123456')_  
-``` shell
+``` blank
 (0): tattoo slide more city sample ask tell unfold category spoil mother bottom assume session rib humble school usage ensure game bottom able mind exile
 ```
 
 ### wallet
 **`> artimonist simple --wallet --amount 5`**  
-``` shell
+``` blank
 (0): 3QUo3a7XB8u9hQK8qjNpjbjy13NfNyFvBa, 6PYTgnyGxwze4uCPu159m6wDxcmng7P4zpJZXQCUT1c4ULf44U8YyDkGMn
 (1): 35doRbCyWPShWdmteEJ22WF5erBuodf36B, 6PYWhNEcMShynPayAaZzVgkQ1PdHtjoqgvpUP73NSJFKnvEuAmFdrUQ1ad
 (2): 39fwZPrpp7wrq5dBrXFYs8HnbnS5V8sgJL, 6PYQHCK2RJBYwTxGoth59ejdpMQpa71zjiU3A76EZdVJCo8ytDHZRyBtDf
@@ -100,14 +100,14 @@ _(With salt of '123456')_
 (4): 3AQU4ZCDBHK6QFBa9A47MpaCesiRSVvB5a, 6PYPZmdi6rG6dBrR5tyV2EPdDEQqd1WW7qLyVWtD66BQALA2tVnqrezUMc
 ``` 
 
-### xpriv
-**`> artimonist simple --xpriv`**  
-``` shell
+### xprv
+**`> artimonist simple --xprv`**  
+``` blank
 (0): xprv9s21ZrQH143K4NhZJaqTRwAaQztwHG3fUbLur3MBRiVJhEg1ZVQPGzStfYaBJnVtrdsJUGhPCEdYnh9e4K8XLuDP3XhPtMFypV3ujRtgRY4
 ```
 ### derive
 **`> artimonist derive "tattoo slide more city sample ask tell unfold category spoil mother bottom assume session rib humble school usage ensure game bottom able mind exile"`**  
-``` shell
+``` blank
 [m/49'/0'/0'/0/0']: 3Q1bUyxjBK61mxprWQcC7nPrcXHyRMmVfp, 6PYSSLeanSzKBeAbxZDEBLmuSQYmcvKjcWNGFfzW7BnKeMrgN8Zw86fyDX
 [m/49'/0'/0'/0/1']: 35mva48ekvWgt9UoG9VR1549VFjQdvX1sM, 6PYTH3CF8Q2rBr6SWqUPeCQbDBFdELvfcqxDtmBwT8U5YS9ACura1QXwq5
 [m/49'/0'/0'/0/2']: 3879yFnks2bBNjWhkDmzjfWLdebXcuYv8i, 6PYRwqmMCpsuWCZ5nLFStsibdweLGzgrDGVFwttfSgkET1q2xeWGfkJgfA
@@ -117,7 +117,7 @@ _(With salt of '123456')_
 
 ### multisig
 **`> artimonist derive --m23 xprv9s21ZrQH143K4NhZJaqTRwAaQztwHG3fUbLur3MBRiVJhEg1ZVQPGzStfYaBJnVtrdsJUGhPCEdYnh9e4K8XLuDP3XhPtMFypV3ujRtgRY4`**  
-``` shell
+``` blank
 Account xpubs: [m/49'/0'/0'] ~ [m/49'/0'/2']
   xpub6BjjJvci8YJwRTSJaWkPezV4qKoTVWtm77jgFG6k6rT137tMht1929iVCZHGKfgQXo865wuswijs7vMqzV9s4hGPK6u8pj8ckeipS9ULPxm
   xpub6BjjJvci8YJwUHa9yfYaF3NWg55RsTTkVNywZibPUPn6wiyZ57f5By7RqBhzCY8uL5GQfYatikaVLqyK8DUgi5ZrcGfLJaKraG8uXme82uq

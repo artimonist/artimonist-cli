@@ -47,18 +47,18 @@ pub enum DiagramType {
 #[group(required = false, multiple = true)]
 pub struct DiagramTarget {
     /// Generate bip39 mnemonic [default]
-    #[arg(long, visible_alias = "bip39")]
+    #[arg(long)]
     pub mnemonic: bool,
 
     /// Generate wallet address and private key
-    #[arg(long, visible_aliases = ["wallet", "address"])]
+    #[arg(long)]
     pub wif: bool,
 
     /// Generate master key for HD-Wallet
-    #[arg(long, visible_aliases = ["hd", "master", "root"])]
-    pub xpriv: bool,
+    #[arg(long)]
+    pub xprv: bool,
 
     /// Generate password
-    #[arg(long, visible_aliases = ["password", "passphrase"])]
+    #[arg(long)]
     pub pwd: bool,
 }

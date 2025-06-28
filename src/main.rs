@@ -67,7 +67,7 @@ const CMD_ABOUT: &str = "
 Artimonist
 A tool for generating mnemonics and wallets.
 
-Project location: <https://github.com/artimonist/artimonist-cli>
+Project location: <https://github.com/artimonist/cli>
 Web version: <https://www.artimonist.org>";
 
 #[cfg(test)]
