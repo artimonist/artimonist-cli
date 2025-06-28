@@ -88,7 +88,7 @@ impl DeriveToConsole for DiagramCommand {
             if artimonist::NETWORK.is_mainnet() {
                 wif.pk = wif.pk.encrypt_wif(&self.password).unwrap_or_default();
             }
-            writeln!(f, "({index}): {},\t{}", wif.addr, wif.pk)?;
+            writeln!(f, "({index}): {}, {}", wif.addr, wif.pk)?;
         }
         Ok(())
     }

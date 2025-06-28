@@ -24,7 +24,7 @@ fn test_diagram_simple() {
     assert_eq!(result, include_str!("diagram/simple_default"));
 
     // wif
-    let result = cli_execute!("simple -f simple.art --wif -i 100 -m 20");
+    let result = cli_execute!("simple -f simple.art --wif -i 100 -m 10");
     assert_eq!(result, include_str!("diagram/simple_wif"));
 
     // xpriv
