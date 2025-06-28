@@ -1,9 +1,9 @@
-mod cmd;
+mod arg;
 mod multisig;
 mod path;
 mod wallet;
 
-pub use cmd::DeriveCommand;
+pub use arg::DeriveCommand;
 
 use crate::utils::{CheckInputKey, InquirePassword};
 use crate::Execute;

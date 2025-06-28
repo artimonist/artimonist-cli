@@ -1,18 +1,18 @@
-mod cmd;
-mod console;
+mod arg;
 mod language;
 mod matrix;
+mod output;
 
-pub use cmd::{DiagramCommand, DiagramType};
+pub use arg::{DiagramCommand, DiagramType};
 
-use self::{console::ConsoleOutput, language::ChooseLanguage, matrix::LoadMatrix};
+use self::{language::ChooseLanguage, matrix::LoadMatrix, output::ConsoleOutput};
 use crate::utils::{unicode, InquirePassword};
 use crate::Execute;
 use artimonist::{ComplexDiagram, Matrix, SimpleDiagram};
 
 impl Execute for DiagramCommand {
     fn execute(&mut self) -> anyhow::Result<()> {
-        use cmd::DiagramType::*;
+        use arg::DiagramType::*;
         match self.diagram_type {
             Simple => self.execute_simple(),
             Complex => self.execute_complex(),
