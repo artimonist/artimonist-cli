@@ -3,7 +3,6 @@ use super::DiagramCommand;
 use anyhow::Ok;
 use artimonist::{ComplexDiagram, GenericDiagram, Matrix, SimpleDiagram, Xpriv, BIP85};
 use bip38::EncryptWif;
-use std::fs::File;
 use std::io::{BufWriter, Write};
 
 pub trait FileOutput<T: ToString + Transformer<20>>
@@ -12,8 +11,8 @@ where
 {
     fn matrix(&self) -> &Matrix<T, 7, 7>;
 
-    fn to_file(&self, cmd: &DiagramCommand, path: &str) -> anyhow::Result<()> {
-        let f = &mut BufWriter::new(File::create(path)?);
+    fn to_file(&self, cmd: &DiagramCommand) -> anyhow::Result<()> {
+        let f = &mut BufWriter::new(std::io::stdout());
         let mx = self.matrix();
 
         // diagram view
