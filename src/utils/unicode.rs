@@ -81,7 +81,7 @@ mod unicode_test {
         for s in NORMAL_DATA {
             let escape: String = s.escape_default().collect();
             println!("{s} -> {escape}");
-            assert_eq!((&escape[..]).unicode_decode(), s.to_owned());
+            assert_eq!(escape[..].unicode_decode(), s.to_owned());
         }
 
         const KEEP_DATA: &[&str] = &[
