@@ -61,7 +61,7 @@ impl DeriveToConsole for DiagramCommand {
             writeln!(f)?;
             self.wif(master, f)?;
         }
-        if self.target.xpriv {
+        if self.target.xprv {
             writeln!(f)?;
             self.xpriv(master, f)?;
         }

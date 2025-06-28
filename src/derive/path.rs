@@ -1,4 +1,4 @@
-use super::cmd::DerivePath;
+use super::arg::DerivePath;
 use artimonist::{Xpriv, BIP44, BIP49, BIP84};
 
 enum DeriveMethod {
