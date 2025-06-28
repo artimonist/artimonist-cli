@@ -33,22 +33,12 @@ impl Wallet for DeriveCommand {
             }
         }
 
-        // // output
-        // if let Some(path) = &self.output {
-        //     let mut f = BufWriter::new(File::create(path)?);
-        //     let path = self.derive.path(self.account);
-        //     for (i, (addr, pk)) in wallets.into_iter().enumerate() {
-        //         let index = self.index + i as u32;
-        //         writeln!(f, "[{path}/0/{index}']: {addr},\t{pk}",)?;
-        //     }
-        // } else {
         let mut f = BufWriter::new(std::io::stdout());
         let path = self.derive.path(self.account);
         for (i, (addr, pk)) in wallets.into_iter().enumerate() {
             let index = self.index + i as u32;
-            writeln!(f, "[{path}/0/{index}']: {addr},\t{pk}")?;
+            writeln!(f, "[{path}/0/{index}']: {addr}, {pk}")?;
         }
-        // }
         Ok(())
     }
 }

@@ -1,14 +1,11 @@
 mod cmd;
 mod console;
-mod file;
 mod language;
 mod matrix;
 
 pub use cmd::{DiagramCommand, DiagramType};
 
-use self::{
-    console::ConsoleOutput, file::FileOutput, language::ChooseLanguage, matrix::LoadMatrix,
-};
+use self::{console::ConsoleOutput, language::ChooseLanguage, matrix::LoadMatrix};
 use crate::utils::{unicode, InquirePassword};
 use crate::Execute;
 use artimonist::{ComplexDiagram, Matrix, SimpleDiagram};

@@ -1,27 +1,44 @@
--------------------- <Account xpubs> ------------------------------
+
+Account xpubs: [m/49'/0'/0'] ~ [m/49'/0'/4']
 [m/49'/0'/0']: xpub6C64R6ykTRzrZoPdGRHR3pHU1YBMTxidFqifpA5RZHac6YvUrFTnBAn6aC7SPSpveETv2CV7Kxw1QUqcneyp5komNfLjhZSVaQPzGNxbwZo
 [m/49'/0'/1']: xpub6C64R6ykTRzrdYGCy2kSW1FnJS4NdfzeXDkCzFTaTmRfHfaBWGryAbp45EiNRoq39tWRkxJh7xa6fjNoDmrPFCMiHpYR9BrbVWEHs8WLcur
 [m/49'/0'/2']: xpub6C64R6ykTRzreYVyfrf4LmpwQhrVcDi92HBvCKaB5LjorHMaXogimCe76jjFKLXd6kMJZKXaTrWuuKUMB9ks3ZzNLsY6xzmJNjvaTZYkHaA
 [m/49'/0'/3']: xpub6C64R6ykTRzriG9XWbRApi5dzdU5CyJgyHqsEjXRbhz13MftYU9nrM9DvJwJmVg7KpiqBavQZ6PxjA44XrdZuEPhdJWft6zu1vFgwKxMERd
 [m/49'/0'/4']: xpub6C64R6ykTRzrkGfwz41w9zYXJHGSAvsCA6aV9XtyojVBiQ2TdbAjukykJbxD54EZKasZpr89WmSF4hPQ39w7ziqXM5LsPJVXWkkSNsDEb4R
--------------------- <Account xprivs> ------------------------------
+
+Account xprivs: [m/49'/0'/0'] ~ [m/49'/0'/4']
 [m/49'/0'/0']: xprv9y6i1bSrd4SZMKKAAPkQggLjTWLs4Vzmtco51mfozx3dDkbLJi9XdNTcix2CVDWmQoymbjEtih7vHjcUtoEKwoPvnWNvp3988VwV8g3BCq5
 [m/49'/0'/1']: xprv9y6i1bSrd4SZR4Bjs1DS8sK3kQDtEDGo9zpcBs3xuRtgQsF2xjYicoVaDzMBb7urN19SCXFxxEfASsN3Zj23iUdrVxUBrSTG4mBPkwrBGTZ
 [m/49'/0'/2']: xprv9y6i1bSrd4SZS4RWZq83ydtCrg21CkzHf4GKPwAZX1CpyV2RzGNUDQKdFVD943Mt9fQVCtEBqTSMq3Dk6Q6qknTbACxukVq42pAXrL8AnnH
 [m/49'/0'/3']: xprv9y6i1bSrd4SZVn54QZtATa8uSbdaoWaqc4vGSM7p3NT2AZLjzvqYJYpk4zweAtn8YFLbkdrauDVvGn2N6GEM5UGc67Ekdan1wjUbjqrisur
 [m/49'/0'/4']: xprv9y6i1bSrd4SZXnbUt2UvnrbnkFRwmU9LnsetM9VNFPxCqbhK63rVMxfGTKZyqxM7UXNHZBiqQQaVxU82xRbYi2GpdyGrRXJoV2yrqf9zRYR
-========== <Multiple signature addresses> ====================
-[m/0/0]: 34FjA2ZkFcgcUoFUtivHRNkNhpmQ6fTy8E
-[m/0/1]: 37A2RZueAhREy3eycW5y4HaQivi3PZWzGJ
-[m/0/2]: 36w79k3xhoYAd9YN9Qpeg25o7ktNTV6YcE
-[m/0/3]: 36RJBQ3iJ2xMEF1YuDac2PS2ZnGXnFGREK
-[m/0/4]: 3LbJ6iSzjoWS1r42yevW79L8wkJMW6K7u9
-[m/0/5]: 3Ng1R27uetpY2nATGr5TvuXSoGE4LDdTsV
-[m/0/6]: 33xFvRPgxKe85u3uRof7BnZFT1LDLbV8rg
-[m/0/7]: 32u1mQwanSu3H2SzuExAPZHtcJsy2cddrP
-[m/0/8]: 3GPQ14cMRpkACtnPofDDkpTaCWkpdTJQZZ
-[m/0/9]: 3EfPD5B1HsMFPpjumtybfgpBonAEn4Xrc9
--------------------- <Redeem scripts> ------------------------------
+
+Addresses: 
+┌───────┬────────────────────────────────────┐
+│ Path  │ Address                            │
+╞═══════╪════════════════════════════════════╡
+│ m/0/0 │ 34FjA2ZkFcgcUoFUtivHRNkNhpmQ6fTy8E │
+├───────┼────────────────────────────────────┤
+│ m/0/1 │ 37A2RZueAhREy3eycW5y4HaQivi3PZWzGJ │
+├───────┼────────────────────────────────────┤
+│ m/0/2 │ 36w79k3xhoYAd9YN9Qpeg25o7ktNTV6YcE │
+├───────┼────────────────────────────────────┤
+│ m/0/3 │ 36RJBQ3iJ2xMEF1YuDac2PS2ZnGXnFGREK │
+├───────┼────────────────────────────────────┤
+│ m/0/4 │ 3LbJ6iSzjoWS1r42yevW79L8wkJMW6K7u9 │
+├───────┼────────────────────────────────────┤
+│ m/0/5 │ 3Ng1R27uetpY2nATGr5TvuXSoGE4LDdTsV │
+├───────┼────────────────────────────────────┤
+│ m/0/6 │ 33xFvRPgxKe85u3uRof7BnZFT1LDLbV8rg │
+├───────┼────────────────────────────────────┤
+│ m/0/7 │ 32u1mQwanSu3H2SzuExAPZHtcJsy2cddrP │
+├───────┼────────────────────────────────────┤
+│ m/0/8 │ 3GPQ14cMRpkACtnPofDDkpTaCWkpdTJQZZ │
+├───────┼────────────────────────────────────┤
+│ m/0/9 │ 3EfPD5B1HsMFPpjumtybfgpBonAEn4Xrc9 │
+└───────┴────────────────────────────────────┘
+
+Redeem scripts:
 [m/0/0]: 5321021286d10786c8679c848288baf94b370c831251be3cb1ad5408bfb84b369e681521025e8d29f2c88825369acd99f153ad57f997f505501b503797a79f84f3dc76eea8210260c3b1e46e959bb2b560894ee6e71343def6da7a77981cf40f08dc78391107f02102caa9ae0be2bda23579d2b93621e45060658e55a9c31299a4befab5bc2ba238242103cc599c5c4ed0bd4acdc29b96689ef0f93fd147268b2926cc774c1cccdc0ea3a755ae
 [m/0/1]: 53210207e8258b12dc57b5f7815d2ea078ada1175ecb1812ab082069faf4bf758bb68d2102290b1ece61ec797b7d8e5cd11bdc9642d45c17af341eb6737d59783a36902c3621023b1f40206d491408389b24d4d9597ff9aefbacd8e71aecb3899d734e1491ca62210322168be485e3986ada4c55b06803d2397ed77f18afcd07cd44511b02843cd23c21037879c8d0cf42afc2690969512f3ce2a087f0fb875909b391d1de0105dc85775655ae
 [m/0/2]: 532102460c86f27425fb731a6456654026f8c7c5cd48ee416fb8a2f8d5ba7cebc5e44521025bf63acd44ef829055a7d80c872cf1b071aad3b6820a3cf07c0ab6b3bda6dc9421030a02f0498f429c8e3a05dd3b6458a07f88f685a3d7ea23f091f551734be35f922103becbba123012eec2f4ba5974deb576127a7012ab4aae077cf846b6d4fa5ff8732103dfa43ff7aa7499030d7146a10d9532f9b0c880570d69797d24b307937182f27955ae

@@ -40,45 +40,11 @@ impl MultiSig for DeriveCommand {
             .collect::<Result<Vec<_>, _>>()?;
 
         // output
-        // if let Some(path) = &self.output {
-        // let mut f = BufWriter::new(File::create(path)?);
-        let mut f = BufWriter::new(std::io::stdout());
-        writeln!(f, "{} <Account xpubs> {}", "-".repeat(20), "-".repeat(30))?;
-        for (i, (xpub, _)) in accounts.iter().enumerate() {
-            let path = self.derive.path(self.account + i as u32);
-            writeln!(f, "[{path}]: {xpub}")?;
-        }
+        self.multisig_accounts(&accounts)?;
+        self.multisig_wallets(&wallets);
         if self.private {
-            writeln!(f, "{} <Account xprivs> {}", "-".repeat(20), "-".repeat(30))?;
-            for (i, (_, xpriv)) in accounts.iter().enumerate() {
-                let path = self.derive.path(self.account + i as u32);
-                writeln!(f, "[{path}]: {xpriv}")?;
-            }
+            self.multisig_scripts(&wallets)?;
         }
-        writeln!(
-            f,
-            "{} <Multiple signature addresses> {}",
-            "=".repeat(10),
-            "=".repeat(20)
-        )?;
-        for (i, (addr, _)) in wallets.iter().enumerate() {
-            let index = self.index + i as u32;
-            writeln!(f, "[m/0/{index}]: {addr}")?;
-        }
-        if self.private {
-            writeln!(f, "{} <Redeem scripts> {}", "-".repeat(20), "-".repeat(30))?;
-            for (i, (_, script)) in wallets.iter().enumerate() {
-                let index = self.index + i as u32;
-                writeln!(f, "[m/0/{index}]: {script}")?;
-            }
-        }
-        // } else {
-        // self.multisig_accounts(&accounts)?;
-        // self.multisig_wallets(&wallets);
-        // if self.private {
-        //     self.multisig_scripts(&wallets)?;
-        // }
-        // }
         Ok(())
     }
 
@@ -90,14 +56,18 @@ impl MultiSig for DeriveCommand {
             .path(self.account + if self.multisig.m23 { 3 } else { 5 } - 1);
         writeln!(f)?;
         writeln!(f, "Account xpubs: [{}] ~ [{}]", path_first, path_last)?;
-        for (xpub, _) in accounts {
-            writeln!(f, "  {xpub}")?;
+        for (i, (xpub, _)) in accounts.iter().enumerate() {
+            let path = self.derive.path(self.account + i as u32);
+            writeln!(f, "[{path}]: {xpub}")?;
+            // writeln!(f, "  {xpub}")?;
         }
         if self.private {
             writeln!(f)?;
             writeln!(f, "Account xprivs: [{}] ~ [{}]", path_first, path_last)?;
-            for (_, xpriv) in accounts {
-                writeln!(f, "  {xpriv}")?;
+            for (i, (_, xpriv)) in accounts.iter().enumerate() {
+                let path = self.derive.path(self.account + i as u32);
+                writeln!(f, "[{path}]: {xpriv}")?;
+                // writeln!(f, "  {xpriv}")?;
             }
         }
         Ok(())
