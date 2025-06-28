@@ -1,4 +1,3 @@
-mod common;
 use assert_cmd::Command;
 
 macro_rules! cli_derive {
