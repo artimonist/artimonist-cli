@@ -76,7 +76,7 @@ impl DeriveToConsole for DiagramCommand {
         writeln!(f, "Mnemonics: ")?;
         for index in self.index..self.index + self.amount {
             let mnemonic = master.bip85_mnemonic(self.language, 24, index)?;
-            writeln!(f, "({index}): {}", mnemonic)?;
+            writeln!(f, "({index}): {mnemonic}")?;
         }
         Ok(())
     }
@@ -97,7 +97,7 @@ impl DeriveToConsole for DiagramCommand {
         writeln!(f, "Xprivs: ")?;
         for index in self.index..self.index + self.amount {
             let xpriv = master.bip85_xpriv(index)?;
-            writeln!(f, "({index}): {}", xpriv)?;
+            writeln!(f, "({index}): {xpriv}")?;
         }
         Ok(())
     }
@@ -106,7 +106,7 @@ impl DeriveToConsole for DiagramCommand {
         writeln!(f, "Passwords: ")?;
         for index in self.index..self.index + self.amount {
             let pwd = master.bip85_pwd(Default::default(), 20, index)?;
-            writeln!(f, "({index}): {}", pwd)?;
+            writeln!(f, "({index}): {pwd}")?;
         }
         Ok(())
     }
