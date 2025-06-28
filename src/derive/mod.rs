@@ -5,7 +5,7 @@ mod wallet;
 
 pub use cmd::DeriveCommand;
 
-use crate::utils::{CheckInputKey, ConfirmOverwrite, InquirePassword};
+use crate::utils::{CheckInputKey, InquirePassword};
 use crate::Execute;
 use artimonist::{Xpriv, BIP39};
 use multisig::MultiSig;
@@ -17,11 +17,6 @@ impl Execute for DeriveCommand {
         // check input key
         if !self.key.is_master() && !self.key.is_mnemonic() {
             println!("Invalid master key or mnemonic phrase.");
-            return Ok(());
-        }
-
-        // check output file
-        if !self.output.confirm_overwrite() {
             return Ok(());
         }
 
