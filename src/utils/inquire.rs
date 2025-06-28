@@ -81,9 +81,9 @@ impl InquirePassword for String {
             .with_validator(validator)
             .with_formatter(&|_| "Input received".into())
             .with_help_message(if as_salt {
-                "Program use encryption key as salt."
+                "Program use encryption key as salt. (Toggle display by CTRL+R)"
             } else {
-                "Input encryption key"
+                "Input encryption key. (Toggle display by CTRL+R)"
             })
             .prompt()?
             .unicode_decode();
