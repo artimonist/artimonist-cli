@@ -1,12 +1,22 @@
-""  ""  ""  ""  ""  ""  "0"
-""  ""  ""  ""  ""  ""  ""
-""  ""  ""  ""  ""  ""  ""
-""  ""  ""  ""  ""  ""  ""
-""  ""  ""  ""  ""  ""  ""
-""  ""  ""  ""  ""  ""  ""
-""  ""  ""  ""  ""  ""  ""
-==================================================
--------------------- <Mnemonics> ------------------------------
+
+Diagram: 
++---+---+---+---+---+---+---+
+|   |   |   |   |   |   | 0 |
+|---+---+---+---+---+---+---|
+|   |   |   |   |   |   |   |
+|---+---+---+---+---+---+---|
+|   |   |   |   |   |   |   |
+|---+---+---+---+---+---+---|
+|   |   |   |   |   |   |   |
+|---+---+---+---+---+---+---|
+|   |   |   |   |   |   |   |
+|---+---+---+---+---+---+---|
+|   |   |   |   |   |   |   |
+|---+---+---+---+---+---+---|
+|   |   |   |   |   |   |   |
++---+---+---+---+---+---+---+
+
+Mnemonics: 
 (1000): dutch cake receive prison possible just soon rapid critic waste market distance disagree victory delay agree dust food remind analyst doctor view walk truth
 (1001): cave cement tomorrow neither iron bind clarify arrow copy grocery connect bitter try utility cool panel draft heavy because arena birth wait tiger evil
 (1002): course tortoise trust neglect mind chuckle vendor few cream chest scorpion burger visa artwork pigeon gold puppy ask napkin round insane drastic shine test

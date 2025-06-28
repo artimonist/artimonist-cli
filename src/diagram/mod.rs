@@ -47,11 +47,7 @@ impl DiagramCommand {
         self.password.inquire_password(true)?;
 
         // output the diagram's result
-        // if let Some(path) = &self.output {
-        SimpleDiagram(mx).to_file(self)?;
-        // } else {
-        //     SimpleDiagram(mx).display(self)?;
-        // }
+        SimpleDiagram(mx).display(self)?;
         Ok(())
     }
 
@@ -73,11 +69,7 @@ impl DiagramCommand {
         self.password.inquire_password(true)?;
 
         // output the diagram's result
-        // if let Some(path) = &self.output {
-        ComplexDiagram(mx).to_file(self)?;
-        // } else {
-        //     ComplexDiagram(mx).display(self)?;
-        // }
+        ComplexDiagram(mx).display(self)?;
         Ok(())
     }
 }

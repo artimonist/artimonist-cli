@@ -1,12 +1,22 @@
-""  ""  ""  "BTC"  ""  ""  ""
-""  ""  ""  "bitcoin"  ""  ""  ""
-""  ""  "Satoshi"  ""  "Nakamoto"  ""  ""
-""  ""  ""  ""  ""  ""  ""
-""  "18:15:05"  "UTC"  "Jan"  "3"  "2009"  ""
-"The"  "Times"  "03/Jan/2009"  "Chancellor"  "on"  "brink"  "of"
-"second"  "bailout"  "for"  "banks"  ""  ""  ""
-==================================================
--------------------- <Mnemonics> ------------------------------
+
+Diagram: 
++--------+----------+-------------+------------+----------+-------+----+
+|        |          |             | BTC        |          |       |    |
+|--------+----------+-------------+------------+----------+-------+----|
+|        |          |             | bitcoin    |          |       |    |
+|--------+----------+-------------+------------+----------+-------+----|
+|        |          | Satoshi     |            | Nakamoto |       |    |
+|--------+----------+-------------+------------+----------+-------+----|
+|        |          |             |            |          |       |    |
+|--------+----------+-------------+------------+----------+-------+----|
+|        | 18:15:05 | UTC         | Jan        | 3        | 2009  |    |
+|--------+----------+-------------+------------+----------+-------+----|
+| The    | Times    | 03/Jan/2009 | Chancellor | on       | brink | of |
+|--------+----------+-------------+------------+----------+-------+----|
+| second | bailout  | for         | banks      |          |       |    |
++--------+----------+-------------+------------+----------+-------+----+
+
+Mnemonics: 
 (500): dismiss gospel just usual gain roof voyage kingdom connect tent comfort dial virus keep document face fetch water cigar program hidden virtual post shoot
 (501): burger record insane stable census liar night glass across devote broccoli intact divert voyage gym local bring fork chat tone slot grunt seminar genuine
 (502): picnic lizard permit public ceiling clean habit gas already december element gather fame grab rocket benefit license roof silly outside orbit pitch sniff attitude

@@ -1,12 +1,22 @@
-""  ""  ""  "BTC"  ""  ""  ""
-""  ""  ""  "bitcoin"  ""  ""  ""
-""  ""  "Satoshi"  ""  "Nakamoto"  ""  ""
-""  ""  ""  ""  ""  ""  ""
-""  "18:15:05"  "UTC"  "Jan"  "3"  "2009"  ""
-"The"  "Times"  "03/Jan/2009"  "Chancellor"  "on"  "brink"  "of"
-"second"  "bailout"  "for"  "banks"  ""  ""  ""
-==================================================
--------------------- <Xprivs> ------------------------------
+
+Diagram: 
++--------+----------+-------------+------------+----------+-------+----+
+|        |          |             | BTC        |          |       |    |
+|--------+----------+-------------+------------+----------+-------+----|
+|        |          |             | bitcoin    |          |       |    |
+|--------+----------+-------------+------------+----------+-------+----|
+|        |          | Satoshi     |            | Nakamoto |       |    |
+|--------+----------+-------------+------------+----------+-------+----|
+|        |          |             |            |          |       |    |
+|--------+----------+-------------+------------+----------+-------+----|
+|        | 18:15:05 | UTC         | Jan        | 3        | 2009  |    |
+|--------+----------+-------------+------------+----------+-------+----|
+| The    | Times    | 03/Jan/2009 | Chancellor | on       | brink | of |
+|--------+----------+-------------+------------+----------+-------+----|
+| second | bailout  | for         | banks      |          |       |    |
++--------+----------+-------------+------------+----------+-------+----+
+
+Xprivs: 
 (2048): xprv9s21ZrQH143K4UoTfggaDMmCkfpe9UoALJsg38fDuE5aEmiP9eub61MJmkMfKVjRdM38StnFGo3nb4tGgXZ91LeZZFsG11u7paJzCk9memZ
 (2049): xprv9s21ZrQH143K2EJ6FBuTwN9QjUMfXN2JkXrw2ESCZvG5MmPf9X1Zau5grfj7Q1vJcmqmcAq3aCWzoqZny5AKugviWGLsqzZi1YNMqkLksGg
 (2050): xprv9s21ZrQH143K3bDcFEUcCvVFsd3uFmPheN9jYDreQ29D46GjzX87ZbUqT7hbf5kV9x2C5GE3B668WCJR8EqffBWHyYRntkywNSsfmWxEFdW
