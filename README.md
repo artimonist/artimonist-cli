@@ -2,6 +2,10 @@
 A tool for generating mnemonics based on diagrams.  
 Web version: **<https://www.artimonist.org>**
 
+### Test automatic
+**`> cargo test --release --features automatic`**
+
+### Help infomation
 **`> artimonist --help`**
 ``` shell
 Usage: artimonist <COMMAND>

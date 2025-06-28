@@ -1,12 +1,22 @@
-""  ""  ""  ""  ""  ""  "0"
-""  ""  ""  ""  ""  ""  ""
-""  ""  ""  ""  ""  ""  ""
-""  ""  ""  ""  ""  ""  ""
-""  ""  ""  ""  ""  ""  ""
-""  ""  ""  ""  ""  ""  ""
-""  ""  ""  ""  ""  ""  ""
-==================================================
--------------------- <Xprivs> ------------------------------
+
+Diagram: 
++---+---+---+---+---+---+---+
+|   |   |   |   |   |   | 0 |
+|---+---+---+---+---+---+---|
+|   |   |   |   |   |   |   |
+|---+---+---+---+---+---+---|
+|   |   |   |   |   |   |   |
+|---+---+---+---+---+---+---|
+|   |   |   |   |   |   |   |
+|---+---+---+---+---+---+---|
+|   |   |   |   |   |   |   |
+|---+---+---+---+---+---+---|
+|   |   |   |   |   |   |   |
+|---+---+---+---+---+---+---|
+|   |   |   |   |   |   |   |
++---+---+---+---+---+---+---+
+
+Xprivs: 
 (0): xprv9s21ZrQH143K2e11sHded37jHumTRiKqGpauB1McmiBbxnf4ZZ4rgSRjyPWF4A8gbNFkzsPGZybFBKX7y3fRKgtgqeFdontXTtPRLoAygY5
 (1): xprv9s21ZrQH143K2qN5VAsRiDfKoZbntyuZ8xKr1jXACPKUCPxQSgsaKmMMGVC8PgGkiEc2o1b7rBQmXhdwpVHwrhNDBBzmfTXy5QKDS1rMr5F
 (2): xprv9s21ZrQH143K2dwE5izfkofjGDCLi43dLSdWt1LV6nTaLkTmvo8XjbejEshQaAxnSgS3M8pY7pEswrW5CQMCKAkqQ41uZT4nQWsGT2Vk4Ty

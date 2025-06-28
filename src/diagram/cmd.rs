@@ -12,10 +12,6 @@ pub struct DiagramCommand {
     #[arg(short, long)]
     pub file: Option<String>,
 
-    /// Output results to text file
-    #[arg(short, long)]
-    pub output: Option<String>,
-
     /// Show unicode view for non-displayable character
     #[arg(long)]
     pub unicode: bool,

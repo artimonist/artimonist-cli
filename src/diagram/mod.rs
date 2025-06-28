@@ -1,22 +1,17 @@
 mod cmd;
 mod console;
-mod file;
 mod language;
 mod matrix;
 
 pub use cmd::{DiagramCommand, DiagramType};
 
-use self::{
-    console::ConsoleOutput, file::FileOutput, language::ChooseLanguage, matrix::LoadMatrix,
-};
-use crate::utils::{unicode, ConfirmOverwrite, InquirePassword};
+use self::{console::ConsoleOutput, language::ChooseLanguage, matrix::LoadMatrix};
+use crate::utils::{unicode, InquirePassword};
 use crate::Execute;
 use artimonist::{ComplexDiagram, Matrix, SimpleDiagram};
 
 impl Execute for DiagramCommand {
     fn execute(&mut self) -> anyhow::Result<()> {
-        self.output.confirm_overwrite();
-
         use cmd::DiagramType::*;
         match self.diagram_type {
             Simple => self.execute_simple(),
@@ -49,11 +44,7 @@ impl DiagramCommand {
         self.password.inquire_password(true)?;
 
         // output the diagram's result
-        if let Some(path) = &self.output {
-            SimpleDiagram(mx).to_file(self, path)?;
-        } else {
-            SimpleDiagram(mx).display(self)?;
-        }
+        SimpleDiagram(mx).display(self)?;
         Ok(())
     }
 
@@ -75,11 +66,7 @@ impl DiagramCommand {
         self.password.inquire_password(true)?;
 
         // output the diagram's result
-        if let Some(path) = &self.output {
-            ComplexDiagram(mx).to_file(self, path)?;
-        } else {
-            ComplexDiagram(mx).display(self)?;
-        }
+        ComplexDiagram(mx).display(self)?;
         Ok(())
     }
 }

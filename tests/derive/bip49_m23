@@ -1,23 +1,40 @@
--------------------- <Account xpubs> ------------------------------
+
+Account xpubs: [m/49'/0'/0'] ~ [m/49'/0'/2']
 [m/49'/0'/0']: xpub6C64R6ykTRzrZoPdGRHR3pHU1YBMTxidFqifpA5RZHac6YvUrFTnBAn6aC7SPSpveETv2CV7Kxw1QUqcneyp5komNfLjhZSVaQPzGNxbwZo
 [m/49'/0'/1']: xpub6C64R6ykTRzrdYGCy2kSW1FnJS4NdfzeXDkCzFTaTmRfHfaBWGryAbp45EiNRoq39tWRkxJh7xa6fjNoDmrPFCMiHpYR9BrbVWEHs8WLcur
 [m/49'/0'/2']: xpub6C64R6ykTRzreYVyfrf4LmpwQhrVcDi92HBvCKaB5LjorHMaXogimCe76jjFKLXd6kMJZKXaTrWuuKUMB9ks3ZzNLsY6xzmJNjvaTZYkHaA
--------------------- <Account xprivs> ------------------------------
+
+Account xprivs: [m/49'/0'/0'] ~ [m/49'/0'/2']
 [m/49'/0'/0']: xprv9y6i1bSrd4SZMKKAAPkQggLjTWLs4Vzmtco51mfozx3dDkbLJi9XdNTcix2CVDWmQoymbjEtih7vHjcUtoEKwoPvnWNvp3988VwV8g3BCq5
 [m/49'/0'/1']: xprv9y6i1bSrd4SZR4Bjs1DS8sK3kQDtEDGo9zpcBs3xuRtgQsF2xjYicoVaDzMBb7urN19SCXFxxEfASsN3Zj23iUdrVxUBrSTG4mBPkwrBGTZ
 [m/49'/0'/2']: xprv9y6i1bSrd4SZS4RWZq83ydtCrg21CkzHf4GKPwAZX1CpyV2RzGNUDQKdFVD943Mt9fQVCtEBqTSMq3Dk6Q6qknTbACxukVq42pAXrL8AnnH
-========== <Multiple signature addresses> ====================
-[m/0/0]: 35u8oJt1brGqto96iuuXnhk5LtHGuYfRt6
-[m/0/1]: 3P7NoPSgeUZYgj2hWn49UjvjHpEtCbqhds
-[m/0/2]: 3Crc9JMnuXsB3qCD68V6p3d4WhJwaPpBF4
-[m/0/3]: 3KpcsCMv5jYuvSBf2JUrjvxDrLFiDpqaw9
-[m/0/4]: 3EADujCRbtB6E1KVd8gJQUuL2gKrgFiT27
-[m/0/5]: 3NssRPbiq7ewag4dKU2saa6HpBoPubQDyN
-[m/0/6]: 39yamEsAxMTQu21emBhSQxDGMJuHZiHuRD
-[m/0/7]: 38GqFko5bGExR1k739pkhNancY6jvfv9WA
-[m/0/8]: 3JVpzm6h3TAGfzg2v1vt9894gikC9yZDfL
-[m/0/9]: 3D2Hu2w357j5vLdWkuf9gM9kkERkcFktU9
--------------------- <Redeem scripts> ------------------------------
+
+Addresses: 
+┌───────┬────────────────────────────────────┐
+│ Path  │ Address                            │
+╞═══════╪════════════════════════════════════╡
+│ m/0/0 │ 35u8oJt1brGqto96iuuXnhk5LtHGuYfRt6 │
+├───────┼────────────────────────────────────┤
+│ m/0/1 │ 3P7NoPSgeUZYgj2hWn49UjvjHpEtCbqhds │
+├───────┼────────────────────────────────────┤
+│ m/0/2 │ 3Crc9JMnuXsB3qCD68V6p3d4WhJwaPpBF4 │
+├───────┼────────────────────────────────────┤
+│ m/0/3 │ 3KpcsCMv5jYuvSBf2JUrjvxDrLFiDpqaw9 │
+├───────┼────────────────────────────────────┤
+│ m/0/4 │ 3EADujCRbtB6E1KVd8gJQUuL2gKrgFiT27 │
+├───────┼────────────────────────────────────┤
+│ m/0/5 │ 3NssRPbiq7ewag4dKU2saa6HpBoPubQDyN │
+├───────┼────────────────────────────────────┤
+│ m/0/6 │ 39yamEsAxMTQu21emBhSQxDGMJuHZiHuRD │
+├───────┼────────────────────────────────────┤
+│ m/0/7 │ 38GqFko5bGExR1k739pkhNancY6jvfv9WA │
+├───────┼────────────────────────────────────┤
+│ m/0/8 │ 3JVpzm6h3TAGfzg2v1vt9894gikC9yZDfL │
+├───────┼────────────────────────────────────┤
+│ m/0/9 │ 3D2Hu2w357j5vLdWkuf9gM9kkERkcFktU9 │
+└───────┴────────────────────────────────────┘
+
+Redeem scripts:
 [m/0/0]: 5221021286d10786c8679c848288baf94b370c831251be3cb1ad5408bfb84b369e6815210260c3b1e46e959bb2b560894ee6e71343def6da7a77981cf40f08dc78391107f02103cc599c5c4ed0bd4acdc29b96689ef0f93fd147268b2926cc774c1cccdc0ea3a753ae
 [m/0/1]: 522102290b1ece61ec797b7d8e5cd11bdc9642d45c17af341eb6737d59783a36902c3621023b1f40206d491408389b24d4d9597ff9aefbacd8e71aecb3899d734e1491ca6221037879c8d0cf42afc2690969512f3ce2a087f0fb875909b391d1de0105dc85775653ae
 [m/0/2]: 5221030a02f0498f429c8e3a05dd3b6458a07f88f685a3d7ea23f091f551734be35f922103becbba123012eec2f4ba5974deb576127a7012ab4aae077cf846b6d4fa5ff8732103dfa43ff7aa7499030d7146a10d9532f9b0c880570d69797d24b307937182f27953ae
