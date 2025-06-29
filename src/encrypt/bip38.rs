@@ -1,4 +1,4 @@
-use crate::utils::{CheckInputKey, ConfirmOverwrite, InquirePassword};
+use crate::utils::{CheckInputKey, InquirePassword};
 use crate::{EncryptCommand, Execute};
 use anyhow::anyhow;
 use bip38::{Decrypt, EncryptWif};
@@ -25,10 +25,8 @@ impl Execute for EncryptCommand {
 
         // encrypt or decrypt private keys in bulk from a file
         if let Some(path) = &self.source.file {
-            if self.source.file.confirm_overwrite() {
-                self.password.inquire_password(false)?;
-                self.exec_bulk(path)?;
-            }
+            self.password.inquire_password(false)?;
+            self.exec_bulk(path)?;
         }
         Ok(())
     }
@@ -63,20 +61,21 @@ impl EncryptCommand {
         let mut vs = vec![];
         let lns = BufReader::new(File::open(file)?).lines();
         for ln in lns {
-            let key = ln?;
-            if self.is_encrypt && key.trim().is_private() {
-                vs.push(self.encrypt(key.trim())?);
-                continue;
+            for key in ln?.split_whitespace().filter(|s| !s.is_empty()) {
+                if self.is_encrypt && key.trim().is_private() {
+                    vs.push(self.encrypt(key.trim())?);
+                    continue;
+                }
+                if !self.is_encrypt && key.trim().is_encrypted() {
+                    vs.push(self.decrypt(key.trim())?);
+                    continue;
+                }
+                vs.push(key.to_string());
             }
-            if !self.is_encrypt && key.trim().is_encrypted() {
-                vs.push(self.decrypt(key.trim())?);
-                continue;
-            }
-            vs.push(key);
         }
 
         // write results to original file
-        let mut f = BufWriter::new(File::create(file)?);
+        let f = &mut BufWriter::new(std::io::stdout());
         for v in vs {
             writeln!(f, "{v}")?;
         }

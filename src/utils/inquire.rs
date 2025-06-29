@@ -5,10 +5,6 @@ pub trait CheckInputKey {
     fn is_mnemonic(&self) -> bool;
 }
 
-pub trait ConfirmOverwrite {
-    fn confirm_overwrite(&self) -> bool;
-}
-
 pub trait InquirePassword {
     fn inquire_password(&mut self, as_salt: bool) -> anyhow::Result<()>;
 }
@@ -32,26 +28,6 @@ impl CheckInputKey for str {
     #[inline]
     fn is_mnemonic(&self) -> bool {
         matches!(self.split_whitespace().count(), 12 | 15 | 18 | 21 | 24)
-    }
-}
-
-impl ConfirmOverwrite for Option<String> {
-    fn confirm_overwrite(&self) -> bool {
-        if crate::AUTOMATIC_MODE {
-            return true; // Skip confirmation in automatic mode
-        }
-
-        if let Some(path) = self {
-            if std::path::Path::new(path).exists() {
-                println!("File exists.");
-                return inquire::Confirm::new("Confirm overwrite file?")
-                    .with_default(false)
-                    .with_help_message("This operation will overwrite file.")
-                    .prompt()
-                    .unwrap_or(false);
-            }
-        }
-        true
     }
 }
 
