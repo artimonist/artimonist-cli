@@ -1,6 +1,4 @@
 pub trait CheckInputKey {
-    fn is_private(&self) -> bool;
-    fn is_encrypted(&self) -> bool;
     fn is_master(&self) -> bool;
     fn is_mnemonic(&self) -> bool;
 }
@@ -10,16 +8,6 @@ pub trait InquirePassword {
 }
 
 impl CheckInputKey for str {
-    #[inline]
-    fn is_private(&self) -> bool {
-        self.starts_with(['K', 'L', '5']) && self.len() == 52
-    }
-
-    #[inline]
-    fn is_encrypted(&self) -> bool {
-        self.starts_with("6P") && self.len() == 58
-    }
-
     #[inline]
     fn is_master(&self) -> bool {
         self.starts_with("xprv") && self.len() == 111

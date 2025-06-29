@@ -1,11 +1,9 @@
-use crate::utils::{CheckInputKey, InquirePassword};
+use crate::utils::InquirePassword;
 use crate::{EncryptCommand, Execute};
 use anyhow::anyhow;
 use bip38::{Decrypt, EncryptWif};
 use std::fs::File;
 use std::io::{BufRead, BufReader, BufWriter, Write};
-
-pub const FILE_MAX_LEN: u64 = 1024 * 1024;
 
 impl Execute for EncryptCommand {
     fn execute(&mut self) -> anyhow::Result<()> {
@@ -32,10 +30,45 @@ impl Execute for EncryptCommand {
     }
 }
 
+trait EncryptBulk {
+    fn exec_bulk(&self, file: &str) -> anyhow::Result<()>;
+}
+
+impl EncryptBulk for EncryptCommand {
+    fn exec_bulk(&self, file: &str) -> anyhow::Result<()> {
+        let f = &mut BufWriter::new(std::io::stdout());
+        for ln in BufReader::new(File::open(file)?).lines() {
+            let line = ln?;
+            if line.split_ascii_whitespace().any(|s| {
+                (self.is_encrypt && s.is_private()) || (!self.is_encrypt && s.is_encrypted())
+            }) {
+                let new_line = line
+                    .split_ascii_whitespace()
+                    .map(|s| {
+                        if self.is_encrypt && s.is_private() {
+                            s.wif_encrypt(&self.password).unwrap_or(s.to_string())
+                        } else if s.is_encrypted() {
+                            s.wif_decrypt(&self.password).unwrap_or(s.to_string())
+                        } else {
+                            s.to_string()
+                        }
+                    })
+                    .collect::<Vec<_>>()
+                    .join(" ");
+                writeln!(f, "{new_line}")?;
+                f.flush()?;
+            } else {
+                writeln!(f, "{line}")?;
+            }
+        }
+        Ok(())
+    }
+}
+
 impl EncryptCommand {
     fn exec_encrypt(&self, key: &str) -> anyhow::Result<()> {
         if self.is_encrypt && key.is_private() {
-            let result = self.encrypt(key)?;
+            let result = key.wif_encrypt(&self.password)?;
             println!("Encrypted private key: {result}");
             Ok(())
         } else {
@@ -45,50 +78,42 @@ impl EncryptCommand {
 
     fn exec_decrypt(&self, key: &str) -> anyhow::Result<()> {
         if !self.is_encrypt && key.is_encrypted() {
-            let result = self.decrypt(key)?;
+            let result = key.wif_decrypt(&self.password)?;
             println!("Decrypted private key: {result}");
             Ok(())
         } else {
             Err(anyhow!("invalid encrypted key"))
         }
     }
+}
 
-    fn exec_bulk(&self, file: &str) -> anyhow::Result<()> {
-        if std::fs::metadata(file)?.len() > FILE_MAX_LEN {
-            return Err(anyhow!("File too large."));
-        }
+trait Bip38 {
+    fn is_private(&self) -> bool;
+    fn is_encrypted(&self) -> bool;
+    fn wif_encrypt(&self, password: &str) -> anyhow::Result<String>;
+    fn wif_decrypt(&self, password: &str) -> anyhow::Result<String>;
+}
 
-        let mut vs = vec![];
-        let lns = BufReader::new(File::open(file)?).lines();
-        for ln in lns {
-            for key in ln?.split_whitespace().filter(|s| !s.is_empty()) {
-                if self.is_encrypt && key.trim().is_private() {
-                    vs.push(self.encrypt(key.trim())?);
-                    continue;
-                }
-                if !self.is_encrypt && key.trim().is_encrypted() {
-                    vs.push(self.decrypt(key.trim())?);
-                    continue;
-                }
-                vs.push(key.to_string());
-            }
-        }
-
-        // write results to original file
-        let f = &mut BufWriter::new(std::io::stdout());
-        for v in vs {
-            writeln!(f, "{v}")?;
-        }
-        Ok(())
+impl Bip38 for str {
+    #[inline(always)]
+    fn is_private(&self) -> bool {
+        self.starts_with(['K', 'L', '5']) && self.len() == 52
     }
 
-    fn encrypt(&self, key: &str) -> anyhow::Result<String> {
-        key.encrypt_wif(&self.password)
-            .map_err(|e| anyhow::anyhow!(e.to_string()))
+    #[inline(always)]
+    fn is_encrypted(&self) -> bool {
+        self.starts_with("6P") && self.len() == 58
     }
 
-    fn decrypt(&self, key: &str) -> anyhow::Result<String> {
-        key.decrypt_to_wif(&self.password)
-            .map_err(|e| anyhow::anyhow!(e.to_string()))
+    #[inline(always)]
+    fn wif_encrypt(&self, password: &str) -> anyhow::Result<String> {
+        self.encrypt_wif(password)
+            .map_err(|e| anyhow!(e.to_string()))
+    }
+
+    #[inline(always)]
+    fn wif_decrypt(&self, password: &str) -> anyhow::Result<String> {
+        self.decrypt_to_wif(password)
+            .map_err(|e| anyhow!(e.to_string()))
     }
 }
