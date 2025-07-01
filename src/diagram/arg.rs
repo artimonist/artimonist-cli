@@ -1,3 +1,5 @@
+use clap::builder::TypedValueParser;
+
 #[derive(clap::Parser, Debug)]
 pub struct DiagramCommand {
     /// Start index
@@ -47,8 +49,10 @@ pub enum DiagramType {
 #[group(required = false, multiple = true)]
 pub struct DiagramTarget {
     /// Generate bip39 mnemonic [default]
-    #[arg(long)]
-    pub mnemonic: bool,
+    #[arg(long, name = "length",
+      value_parser = clap::builder::PossibleValuesParser::new(["12", "15", "18", "21", "24"])
+        .map(|s| s.parse::<u8>().unwrap()) )]
+    pub mnemonic: Option<u8>,
 
     /// Generate wallet address and private key
     #[arg(long)]
