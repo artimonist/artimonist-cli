@@ -1,4 +1,4 @@
 mod bip38;
-mod cmd;
+mod arg;
 
-pub use cmd::EncryptCommand;
+pub use arg::EncryptCommand;

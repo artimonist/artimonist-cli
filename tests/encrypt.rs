@@ -1,41 +1,40 @@
 use assert_cmd::Command;
 use predicates::str::contains;
 
-macro_rules! cli_test_content {
-    ($content:expr, $($arg:literal),+) => {
+macro_rules! cli_execute {
+    ($args:literal) => {{
+        let args = $args.split_whitespace().collect::<Vec<_>>();
         let mut cmd = Command::cargo_bin("artimonist").unwrap();
-        cmd.current_dir("tests/encrypt")
-        .args(&[$($arg),+])
-        .args(&["-p", "123456"])
-        .assert()
-        .success()
-        .stdout(contains($content));
-    };
+        let output = cmd
+            .current_dir("tests/encrypt")
+            .args(&args)
+            .args(&["-p", "123456"])
+            .assert()
+            .success()
+            .get_output()
+            .clone();
+        String::from_utf8(output.stdout).unwrap()
+    }};
 }
 
 #[test]
 fn test_encrypt_key() {
-    cli_test_content!(
-        "6PYPVwvgux4mN96iwj1RGvbiGmmPWpkiQimpkP1fvFGGhT38XxZed6Kdth",
-        "encrypt",
-        "KyyXeMvCn36KuedmVX727NYQ35YEeF4z1ZjXGyqgFpmZM4AcY8ay"
-    );
-    cli_test_content!(
-        "KyyXeMvCn36KuedmVX727NYQ35YEeF4z1ZjXGyqgFpmZM4AcY8ay",
-        "decrypt",
-        "6PYPVwvgux4mN96iwj1RGvbiGmmPWpkiQimpkP1fvFGGhT38XxZed6Kdth"
-    );
+    let output = cli_execute!("encrypt KyyXeMvCn36KuedmVX727NYQ35YEeF4z1ZjXGyqgFpmZM4AcY8ay");
+    let output = output.trim();
+    assert!(output.ends_with("6PYPVwvgux4mN96iwj1RGvbiGmmPWpkiQimpkP1fvFGGhT38XxZed6Kdth"));
+
+    let output = cli_execute!("decrypt 6PYPVwvgux4mN96iwj1RGvbiGmmPWpkiQimpkP1fvFGGhT38XxZed6Kdth");
+    let output = output.trim();
+    assert!(output.ends_with("KyyXeMvCn36KuedmVX727NYQ35YEeF4z1ZjXGyqgFpmZM4AcY8ay"));
 }
 
 #[test]
 fn test_encrypt_file() {
-    cli_test_content!("", "encrypt", "-f", "wif");
-    let result = std::fs::read_to_string("tests/encrypt/wif").unwrap();
-    assert_eq!(result.trim(), include_str!("encrypt/wif_encrypted").trim());
+    let output = cli_execute!("encrypt -f wifs");
+    assert_eq!(output, include_str!("encrypt/wifx"));
 
-    cli_test_content!("", "decrypt", "-f", "wif");
-    let result = std::fs::read_to_string("tests/encrypt/wif").unwrap();
-    assert_eq!(result.trim(), include_str!("encrypt/wif_decrypted").trim());
+    let output = cli_execute!("decrypt -f wifx");
+    assert_eq!(output, include_str!("encrypt/wifs"));
 }
 
 macro_rules! cli_test_error {
