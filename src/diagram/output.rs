@@ -74,8 +74,9 @@ impl DeriveToConsole for DiagramCommand {
     #[inline]
     fn mnemonic(&self, master: &Xpriv, f: &mut impl Write) -> anyhow::Result<()> {
         writeln!(f, "Mnemonics: ")?;
+        let length = self.target.mnemonic.unwrap_or(24) as u32;
         for index in self.index..self.index + self.amount {
-            let mnemonic = master.bip85_mnemonic(self.language, 24, index)?;
+            let mnemonic = master.bip85_mnemonic(self.language, length, index)?;
             writeln!(f, "({index}): {mnemonic}")?;
         }
         Ok(())
