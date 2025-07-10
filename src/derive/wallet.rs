@@ -37,7 +37,7 @@ impl Wallet for DeriveCommand {
         let path = self.derive.path(self.account);
         for (i, (addr, pk)) in wallets.into_iter().enumerate() {
             let index = self.index + i as u32;
-            writeln!(f, "[{path}/0/{index}']: {addr}, {pk}")?;
+            writeln!(f, "[{path}/0/{index}]: {addr}, {pk}")?;
         }
         Ok(())
     }
