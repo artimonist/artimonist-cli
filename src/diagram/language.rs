@@ -13,28 +13,15 @@ impl ChooseLanguage for Language {
             return Ok(());
         }
 
-        let options = LANGUAGES.map(|v| format!("{v:?}")).to_vec();
+        let options = Language::all().map(|v| format!("{v:?}")).to_vec();
         let choice = inquire::Select::new("Which mnemonic language do you want?", options)
-            .with_page_size(LANGUAGES.len())
+            .with_page_size(Language::all().len())
             .prompt()?;
         let wrap: LanguageWrap = choice.into();
         *self = wrap.0;
         Ok(())
     }
 }
-
-const LANGUAGES: [Language; 10] = [
-    English,
-    Japanese,
-    Korean,
-    Spanish,
-    SimplifiedChinese,
-    TraditionalChinese,
-    French,
-    Italian,
-    Czech,
-    Portuguese,
-];
 
 struct LanguageWrap(pub Language);
 
@@ -45,8 +32,8 @@ impl From<String> for LanguageWrap {
             "japanese" => Japanese,
             "korean" => Korean,
             "spanish" => Spanish,
-            "simplifiedchinese" => SimplifiedChinese,
-            "traditionalchinese" => TraditionalChinese,
+            "simplifiedchinese" => ChineseSimplified,
+            "traditionalchinese" => ChineseTraditional,
             "french" => French,
             "italian" => Italian,
             "czech" => Czech,
