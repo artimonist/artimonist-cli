@@ -24,9 +24,9 @@ pub enum Commands {
     /// Use complex diagram of 7 * 7 strings
     Complex(DiagramCommand<ComplexDiagram>),
     /// Encrypt private key by bip38
-    Encrypt(EncryptCommand),
+    Encrypt(EncryptCommand<true>),
     /// Decrypt private key by bip38
-    Decrypt(EncryptCommand),
+    Decrypt(EncryptCommand<false>),
     /// Derive from master key or mnemonic
     Derive(DeriveCommand),
 }
@@ -38,20 +38,10 @@ pub trait Execute {
 fn main() -> anyhow::Result<()> {
     let args = Cli::parse();
     match args.command {
-        Commands::Simple(mut cmd) => {
-            cmd.execute()?;
-        }
-        Commands::Complex(mut cmd) => {
-            cmd.execute()?;
-        }
-        Commands::Encrypt(mut cmd) => {
-            cmd.is_encrypt = true;
-            cmd.execute()?
-        }
-        Commands::Decrypt(mut cmd) => {
-            cmd.is_encrypt = false;
-            cmd.execute()?
-        }
+        Commands::Simple(mut cmd) => cmd.execute()?,
+        Commands::Complex(mut cmd) => cmd.execute()?,
+        Commands::Encrypt(mut cmd) => cmd.execute()?,
+        Commands::Decrypt(mut cmd) => cmd.execute()?,
         Commands::Derive(mut cmd) => cmd.execute()?,
     }
     Ok(())

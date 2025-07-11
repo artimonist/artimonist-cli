@@ -1,5 +1,5 @@
 #[derive(clap::Parser)]
-pub struct EncryptCommand {
+pub struct EncryptCommand<const ENCRYPT: bool> {
     /// encrypt/decrypt source
     #[clap(flatten)]
     pub source: EncryptSource,
@@ -7,10 +7,6 @@ pub struct EncryptCommand {
     /// Password
     #[arg(hide = true)]
     pub password: String,
-
-    // encrypt or decrypt
-    #[arg(skip)]
-    pub is_encrypt: bool,
 }
 
 #[derive(clap::Args, Debug)]
