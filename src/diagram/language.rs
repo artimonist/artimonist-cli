@@ -17,29 +17,7 @@ impl ChooseLanguage for Language {
         let choice = inquire::Select::new("Which mnemonic language do you want?", options)
             .with_page_size(Language::all().len())
             .prompt()?;
-        let wrap: LanguageWrap = choice.into();
-        *self = wrap.0;
+        *self = choice.parse()?;
         Ok(())
-    }
-}
-
-struct LanguageWrap(pub Language);
-
-impl From<String> for LanguageWrap {
-    fn from(value: String) -> Self {
-        let lang = match value.to_lowercase().as_str() {
-            "english" => English,
-            "japanese" => Japanese,
-            "korean" => Korean,
-            "spanish" => Spanish,
-            "simplifiedchinese" => ChineseSimplified,
-            "traditionalchinese" => ChineseTraditional,
-            "french" => French,
-            "italian" => Italian,
-            "czech" => Czech,
-            "portuguese" => Portuguese,
-            _ => English,
-        };
-        LanguageWrap(lang)
     }
 }
