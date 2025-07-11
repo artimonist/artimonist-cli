@@ -41,9 +41,9 @@ impl DerivePath {
     #[inline]
     pub fn wallet(&self, root: &Xpriv, account: u32, index: u32) -> DeriveResult {
         Ok(match self.method() {
-            Bip44 => root.bip44_wallet(account, index)?,
-            Bip49 => root.bip49_wallet(account, index)?,
-            Bip84 => root.bip84_wallet(account, index)?,
+            Bip44 => root.bip44_wallet(account, index, false)?,
+            Bip49 => root.bip49_wallet(account, index, false)?,
+            Bip84 => root.bip84_wallet(account, index, false)?,
         })
     }
 

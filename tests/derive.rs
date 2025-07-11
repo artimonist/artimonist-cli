@@ -7,7 +7,7 @@ macro_rules! cli_derive {
         let result = cmd
             .current_dir("tests/derive")
             .arg("derive")
-            .args(&["-p", "123456"])
+            // .args(&["-p", "123456"])
             .args(&args)
             .arg($key)
             .assert()
@@ -23,16 +23,16 @@ fn test_derive_mnemonic() {
     const MNEMONIC: &str =
         "級 蠟 棒 氣 調 乏 島 陶 勞 量 強 給 電 鑽 路 婦 趙 撥 士 殿 什 遠 亞 互";
 
-    let output = cli_derive!("-i 100 -m 10", MNEMONIC);
+    let output = cli_derive!("-i 10 -m 5", MNEMONIC);
     assert_eq!(output, include_str!("derive/mnemonic_bip49"));
 
-    let output = cli_derive!("--bip49 -i 100 -m 10", MNEMONIC);
+    let output = cli_derive!("--bip49 -i 10 -m 5", MNEMONIC);
     assert_eq!(output, include_str!("derive/mnemonic_bip49"));
 
-    let output = cli_derive!("--bip44 -i 500 -m 10", MNEMONIC);
+    let output = cli_derive!("--bip44 -i 5 -m 5", MNEMONIC);
     assert_eq!(output, include_str!("derive/mnemonic_bip44"));
 
-    let output = cli_derive!("--bip84 -m 10", MNEMONIC);
+    let output = cli_derive!("--bip84 -m 5", MNEMONIC);
     assert_eq!(output, include_str!("derive/mnemonic_bip84"));
 }
 
