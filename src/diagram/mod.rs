@@ -40,7 +40,9 @@ impl DiagramCommand {
         }
 
         // inquire the encryption password as salt
-        self.password = inquire_password(true)?;
+        if self.password.is_empty() {
+            self.password = inquire_password(true)?;
+        }
 
         // output the diagram's result
         SimpleDiagram(mx).display(self)?;
@@ -62,7 +64,9 @@ impl DiagramCommand {
         }
 
         // inquire the encryption password as salt
-        self.password = inquire_password(true)?;
+        if self.password.is_empty() {
+            self.password = inquire_password(true)?;
+        }
 
         // output the diagram's result
         ComplexDiagram(mx).display(self)?;

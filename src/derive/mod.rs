@@ -21,10 +21,12 @@ impl Execute for DeriveCommand {
         }
 
         // inquire password
-        if self.key.is_mnemonic() {
-            self.password = inquire_password(true)?;
-        } else if self.is_wallet() {
-            self.password = inquire_password(false)?;
+        if self.password.is_empty() {
+            if self.key.is_mnemonic() {
+                self.password = inquire_password(true)?;
+            } else if self.is_wallet() {
+                self.password = inquire_password(false)?;
+            }
         }
 
         // generate master key
