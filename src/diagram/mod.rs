@@ -1,14 +1,13 @@
 mod arg;
-mod language;
 mod matrix;
 mod output;
 
 pub use arg::{DiagramCommand, DiagramType};
 
-use self::{language::ChooseLanguage, matrix::LoadMatrix, output::ConsoleOutput};
-use crate::utils::{unicode, InquirePassword};
+use self::{matrix::LoadMatrix, output::ConsoleOutput};
 use crate::Execute;
-use artimonist::{ComplexDiagram, Matrix, SimpleDiagram};
+use crate::utils::{inquire_password, select_language, unicode};
+use artimonist::{ComplexDiagram, Language, Matrix, SimpleDiagram};
 
 impl Execute for DiagramCommand {
     fn execute(&mut self) -> anyhow::Result<()> {
@@ -37,11 +36,11 @@ impl DiagramCommand {
 
         // choose a mnemonic language if needed
         if self.has_mnemonic() {
-            self.language.choose_language()?;
+            self.language = select_language(&Language::all())?;
         }
 
         // inquire the encryption password as salt
-        self.password.inquire_password(true)?;
+        self.password = inquire_password(true)?;
 
         // output the diagram's result
         SimpleDiagram(mx).display(self)?;
@@ -59,11 +58,11 @@ impl DiagramCommand {
 
         // choose a mnemonic language if needed
         if self.has_mnemonic() {
-            self.language.choose_language()?;
+            self.language = select_language(&Language::all())?;
         }
 
         // inquire the encryption password as salt
-        self.password.inquire_password(true)?;
+        self.password = inquire_password(true)?;
 
         // output the diagram's result
         ComplexDiagram(mx).display(self)?;

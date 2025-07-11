@@ -5,9 +5,9 @@ mod wallet;
 
 pub use arg::DeriveCommand;
 
-use crate::utils::{CheckInputKey, InquirePassword};
 use crate::Execute;
-use artimonist::{Xpriv, BIP39};
+use crate::utils::{CheckInputKey, inquire_password};
+use artimonist::{BIP39, Xpriv};
 use multisig::MultiSig;
 use std::str::FromStr;
 use wallet::Wallet;
@@ -22,9 +22,9 @@ impl Execute for DeriveCommand {
 
         // inquire password
         if self.key.is_mnemonic() {
-            self.password.inquire_password(true)?;
+            self.password = inquire_password(true)?;
         } else if self.is_wallet() {
-            self.password.inquire_password(false)?;
+            self.password = inquire_password(false)?;
         }
 
         // generate master key
