@@ -1,64 +1,66 @@
+use artimonist::{GenericDiagram, Language};
 use clap::builder::TypedValueParser;
 
 #[derive(clap::Parser, Debug)]
-pub struct DiagramCommand {
+pub struct DiagramCommand<T: GenericDiagram> {
+    /// Diagram type
+    #[clap(skip)]
+    phantom: std::marker::PhantomData<T>,
+
     /// Start index
-    #[arg(short, long, default_value_t = 0, value_parser = clap::value_parser!(u32).range(0..65536))]
+    #[clap(short, long, default_value_t = 0, value_parser = clap::value_parser!(u32).range(0..65536))]
     pub index: u32,
 
     /// Amount to generate
-    #[arg(short = 'm', long, default_value_t = 1, value_parser = clap::value_parser!(u32).range(0..65536))]
+    #[clap(short = 'm', long, default_value_t = 1, value_parser = clap::value_parser!(u32).range(0..65536))]
     pub amount: u32,
 
     /// Input diagram from text file
-    #[arg(short, long)]
+    #[clap(short, long)]
     pub file: Option<String>,
 
     /// Show unicode view for non-displayable character
-    #[arg(long)]
+    #[clap(long)]
     pub unicode: bool,
 
     /// Generation target
     #[command(flatten)]
-    pub target: DiagramTarget,
+    pub target: GenerateTarget,
 
     /// Password as salt
-    #[arg(hide = true)]
-    pub password: String,
+    #[clap(hide = true, long)]
+    pub password: Option<String>,
 
     /// Mnemonic language
-    #[arg(hide = true)]
-    pub language: Option<artimonist::Language>,
-
-    #[arg(skip)]
-    pub diagram_type: DiagramType,
-}
-
-#[derive(Default, Debug, PartialEq)]
-pub enum DiagramType {
-    #[default]
-    Simple,
-    Complex,
+    #[clap(hide = true)]
+    pub language: Option<Language>,
 }
 
 #[derive(clap::Args, Debug)]
 #[group(required = false, multiple = true)]
-pub struct DiagramTarget {
+pub struct GenerateTarget {
     /// Generate bip39 mnemonic [default]
-    #[arg(long, name = "length",
+    #[clap(long, name = "length",
       value_parser = clap::builder::PossibleValuesParser::new(["12", "15", "18", "21", "24"])
         .map(|s| s.parse::<u8>().unwrap()) )]
     pub mnemonic: Option<u8>,
 
     /// Generate wallet address and private key
-    #[arg(long)]
+    #[clap(long)]
     pub wif: bool,
 
     /// Generate master key for HD-Wallet
-    #[arg(long)]
+    #[clap(long)]
     pub xprv: bool,
 
     /// Generate password
-    #[arg(long)]
+    #[clap(long)]
     pub pwd: bool,
+}
+
+impl<T: GenericDiagram> DiagramCommand<T> {
+    #[inline(always)]
+    pub fn has_mnemonic(&self) -> bool {
+        self.target.mnemonic.is_some() || !(self.target.wif || self.target.xprv || self.target.pwd)
+    }
 }

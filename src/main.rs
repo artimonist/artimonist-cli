@@ -3,9 +3,10 @@ mod diagram;
 mod encrypt;
 mod utils;
 
+use artimonist::{ComplexDiagram, SimpleDiagram};
 use clap::{Parser, Subcommand};
 use derive::DeriveCommand;
-use diagram::{DiagramCommand, DiagramType};
+use diagram::DiagramCommand;
 use encrypt::EncryptCommand;
 
 /// Artimonist - A tool for generating mnemonics and wallets.   
@@ -19,9 +20,9 @@ pub struct Cli {
 #[derive(Subcommand)]
 pub enum Commands {
     /// Use simple diagram of 7 * 7 chars
-    Simple(DiagramCommand),
+    Simple(DiagramCommand<SimpleDiagram>),
     /// Use complex diagram of 7 * 7 strings
-    Complex(DiagramCommand),
+    Complex(DiagramCommand<ComplexDiagram>),
     /// Encrypt private key by bip38
     Encrypt(EncryptCommand),
     /// Decrypt private key by bip38
@@ -38,11 +39,9 @@ fn main() -> anyhow::Result<()> {
     let args = Cli::parse();
     match args.command {
         Commands::Simple(mut cmd) => {
-            cmd.diagram_type = DiagramType::Simple;
             cmd.execute()?;
         }
         Commands::Complex(mut cmd) => {
-            cmd.diagram_type = DiagramType::Complex;
             cmd.execute()?;
         }
         Commands::Encrypt(mut cmd) => {
