@@ -1,6 +1,6 @@
-use super::unicode::Transformer;
 use super::DiagramCommand;
-use artimonist::{ComplexDiagram, GenericDiagram, Matrix, SimpleDiagram, Xpriv, BIP85};
+use super::unicode::Transformer;
+use artimonist::{BIP85, ComplexDiagram, GenericDiagram, Matrix, SimpleDiagram, Xpriv};
 use bip38::EncryptWif;
 use std::io::{BufWriter, Write};
 
@@ -76,7 +76,8 @@ impl DeriveToConsole for DiagramCommand {
         writeln!(f, "Mnemonics: ")?;
         let length = self.target.mnemonic.unwrap_or(24) as u32;
         for index in self.index..self.index + self.amount {
-            let mnemonic = master.bip85_mnemonic(self.language, length, index)?;
+            let mnemonic =
+                master.bip85_mnemonic(self.language.unwrap_or_default(), length, index)?;
             writeln!(f, "({index}): {mnemonic}")?;
         }
         Ok(())

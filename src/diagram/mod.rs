@@ -35,8 +35,8 @@ impl DiagramCommand {
         };
 
         // choose a mnemonic language if needed
-        if self.has_mnemonic() {
-            self.language = select_language(&Language::all())?;
+        if self.has_mnemonic() && self.language.is_none() {
+            self.language = Some(select_language(&Language::all())?);
         }
 
         // inquire the encryption password as salt
@@ -59,8 +59,8 @@ impl DiagramCommand {
         };
 
         // choose a mnemonic language if needed
-        if self.has_mnemonic() {
-            self.language = select_language(&Language::all())?;
+        if self.has_mnemonic() && self.language.is_none() {
+            self.language = Some(select_language(&Language::all())?);
         }
 
         // inquire the encryption password as salt

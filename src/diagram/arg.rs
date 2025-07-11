@@ -27,8 +27,8 @@ pub struct DiagramCommand {
     pub password: String,
 
     /// Mnemonic language
-    #[arg(skip)]
-    pub language: artimonist::Language,
+    #[arg(hide = true)]
+    pub language: Option<artimonist::Language>,
 
     #[arg(skip)]
     pub diagram_type: DiagramType,
