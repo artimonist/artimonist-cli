@@ -5,7 +5,6 @@ use std::io::{BufWriter, Write};
 type DeriveResult<T = ()> = anyhow::Result<T>;
 
 pub trait MultiSig {
-    fn is_multisig(&self) -> bool;
     fn derive_multisig(&self, master: &Xpriv) -> DeriveResult;
 
     fn multisig_accounts(&self, accounts: &[(String, String)]) -> DeriveResult;
@@ -14,11 +13,6 @@ pub trait MultiSig {
 }
 
 impl MultiSig for DeriveCommand {
-    #[inline]
-    fn is_multisig(&self) -> bool {
-        self.multisig.m23 || self.multisig.m35
-    }
-
     fn derive_multisig(&self, master: &Xpriv) -> DeriveResult {
         assert!(self.is_multisig());
         let (_, n) = if self.multisig.m23 { (2, 3) } else { (3, 5) };
@@ -74,7 +68,7 @@ impl MultiSig for DeriveCommand {
     }
 
     fn multisig_wallets(&self, wallets: &[(String, String)]) {
-        use comfy_table::{modifiers::*, presets::*, ContentArrangement, Table};
+        use comfy_table::{ContentArrangement, Table, modifiers::*, presets::*};
         let mut table = Table::new();
         table
             .load_preset(UTF8_FULL)

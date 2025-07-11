@@ -1,5 +1,5 @@
 use super::arg::DerivePath;
-use artimonist::{Xpriv, BIP44, BIP49, BIP84};
+use artimonist::{BIP44, BIP49, BIP84, Xpriv};
 
 enum DeriveMethod {
     Bip44 = 44,

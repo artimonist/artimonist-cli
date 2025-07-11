@@ -1,4 +1,4 @@
-use crate::DeriveCommand;
+use crate::{DeriveCommand, utils::inquire_password};
 use artimonist::Xpriv;
 use bip38::EncryptWif;
 use std::io::{BufWriter, Write};
@@ -6,29 +6,28 @@ use std::io::{BufWriter, Write};
 type DeriveResult<T = ()> = Result<T, anyhow::Error>;
 
 pub trait Wallet {
-    fn is_wallet(&self) -> bool;
     fn derive_wallets(&self, master: &Xpriv) -> DeriveResult;
 }
 
 impl Wallet for DeriveCommand {
-    #[inline]
-    fn is_wallet(&self) -> bool {
-        !(self.multisig.m23 || self.multisig.m35)
-    }
-
     fn derive_wallets(&self, master: &Xpriv) -> DeriveResult {
-        assert!(self.is_wallet(), "Not a wallet derivation command");
+        assert!(
+            !self.is_multisig(),
+            "Cannot derive wallets for multisig command. Use `derive_multisig` instead."
+        );
 
         // derive wallets
         let mut wallets = (self.index..self.index + self.amount)
             .map(|index| self.derive.wallet(master, self.account, index))
             .collect::<Result<Vec<_>, _>>()?;
 
-        // encrypt wif
+        // encrypt wif, bip38 only for mainnet
         if artimonist::NETWORK.is_mainnet() {
+            let password = "123456";
+
             for (_, pk) in wallets.iter_mut() {
                 *pk = pk
-                    .encrypt_wif(&self.password)
+                    .encrypt_wif(&password)
                     .map_err(|e| anyhow::anyhow!(e.to_string()))?;
             }
         }

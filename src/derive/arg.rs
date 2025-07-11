@@ -1,7 +1,10 @@
+use anyhow::Ok;
+use artimonist::{Mnemonic, Xpriv};
+
 #[derive(clap::Parser, Debug)]
 pub struct DeriveCommand {
     /// Master key or Mnemonic string
-    pub key: String,
+    pub key: MasterKey,
 
     /// Account start index
     #[arg(short, long, default_value_t = 0, value_parser = clap::value_parser!(u32).range(0..65536))]
@@ -21,34 +24,58 @@ pub struct DeriveCommand {
 
     /// Multi sign address
     #[clap(flatten)]
-    pub multisig: DeriveMultisig,
+    pub multisig: MultiSig,
 
     /// Show account xprivs and redeem scripts of multisig
     #[arg(long, visible_alias = "redeem", requires = "m23", requires = "m35")]
     pub private: bool,
 
     /// Password as salt
-    #[arg(hide = true)]
-    pub password: String,
+    #[arg(hide = true, long)]
+    pub password: Option<String>,
+}
+
+/// Master key or Mnemonic string
+#[derive(Debug, Clone)]
+pub enum MasterKey {
+    /// Master key in xprv format
+    Xpriv(Xpriv),
+    /// Mnemonic phrase
+    Mnemonic(Mnemonic),
+}
+
+impl std::str::FromStr for MasterKey {
+    type Err = anyhow::Error;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        if s.starts_with("xprv") || s.starts_with("xpub") {
+            Ok(MasterKey::Xpriv(Xpriv::from_str(s)?))
+        } else {
+            Ok(MasterKey::Mnemonic(Mnemonic::from_str(s)?))
+        }
+    }
 }
 
 #[derive(clap::Args, Debug)]
 #[group(required = false, multiple = false)]
 pub struct DerivePath {
-    /// Use derive path: m/44'/0'/account'/0/index' [p2pkh]
+    /// Use BIP32 derivation path: m/0/{index} [Electrum]
+    // #[arg(long)]
+    // pub bip32: bool,
+    /// Use derive path: m/44'/0'/account'/0/index [p2pkh]
     #[arg(long)]
     pub bip44: bool,
-    /// Use derive path: m/49'/0'/account'/0/index' [p2shwpkh, default]
+    /// Use derive path: m/49'/0'/account'/0/index [p2shwpkh, default]
     #[arg(long)]
     pub bip49: bool,
-    /// Use derive path: m/84'/0'/account'/0/index' [p2wpkh]
+    /// Use derive path: m/84'/0'/account'/0/index [p2wpkh]
     #[arg(long)]
     pub bip84: bool,
 }
 
 #[derive(clap::Args, Debug)]
 #[group(required = false, multiple = false)]
-pub struct DeriveMultisig {
+pub struct MultiSig {
     /// Multiple signatures address of 2-3 [derive path: account'/0/index]
     #[arg(long)]
     pub m23: bool,
@@ -56,4 +83,10 @@ pub struct DeriveMultisig {
     /// Multiple signatures address of 3-5 [derive path: account'/0/index]
     #[arg(long)]
     pub m35: bool,
+}
+
+impl DeriveCommand {
+    pub fn is_multisig(&self) -> bool {
+        self.multisig.m23 || self.multisig.m35
+    }
 }

@@ -1,20 +1,3 @@
-pub trait CheckInputKey {
-    fn is_master(&self) -> bool;
-    fn is_mnemonic(&self) -> bool;
-}
-
-impl CheckInputKey for str {
-    #[inline]
-    fn is_master(&self) -> bool {
-        self.starts_with("xprv") && self.len() == 111
-    }
-
-    #[inline]
-    fn is_mnemonic(&self) -> bool {
-        matches!(self.split_whitespace().count(), 12 | 15 | 18 | 21 | 24)
-    }
-}
-
 pub fn inquire_password(as_salt: bool) -> anyhow::Result<String> {
     use super::unicode::UnicodeUtils;
     use inquire::validator::Validation;
