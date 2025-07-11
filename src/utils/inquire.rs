@@ -19,10 +19,6 @@ pub fn inquire_password(as_salt: bool) -> anyhow::Result<String> {
     use super::unicode::UnicodeUtils;
     use inquire::validator::Validation;
 
-    if crate::AUTOMATIC_MODE {
-        return Ok(String::from("123456")); // Skip if already set
-    }
-
     const INVALID_MSG: &str = "Encryption key must have at least 5 characters.";
     let validator = |v: &str| {
         if v.unicode_decode().chars().count() < 5 {

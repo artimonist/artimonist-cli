@@ -22,17 +22,13 @@ pub struct DiagramCommand {
     #[command(flatten)]
     pub target: DiagramTarget,
 
+    /// Password as salt
+    #[arg(hide = true)]
+    pub password: String,
+
     /// Mnemonic language
     #[arg(skip)]
     pub language: artimonist::Language,
-
-    /// Password as salt
-    #[cfg(not(feature = "automatic"))]
-    #[arg(skip)]
-    pub password: String,
-    #[cfg(feature = "automatic")]
-    #[arg(short, long, default_value = "123456")]
-    pub password: String,
 
     #[arg(skip)]
     pub diagram_type: DiagramType,

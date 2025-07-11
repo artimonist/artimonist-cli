@@ -28,11 +28,7 @@ pub struct DeriveCommand {
     pub private: bool,
 
     /// Password as salt
-    #[cfg(not(feature = "automatic"))]
-    #[arg(skip)]
-    pub password: String,
-    #[cfg(feature = "automatic")]
-    #[arg(short, long, default_value = "123456")]
+    #[arg(hide = true)]
     pub password: String,
 }
 

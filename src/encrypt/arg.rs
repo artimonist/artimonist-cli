@@ -5,11 +5,7 @@ pub struct EncryptCommand {
     pub source: EncryptSource,
 
     /// Password
-    #[cfg(not(feature = "automatic"))]
-    #[arg(skip)]
-    pub password: String,
-    #[cfg(feature = "automatic")]
-    #[arg(short, long, default_value = "123456")]
+    #[arg(hide = true)]
     pub password: String,
 
     // encrypt or decrypt

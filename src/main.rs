@@ -30,11 +30,6 @@ pub enum Commands {
     Derive(DeriveCommand),
 }
 
-#[cfg(feature = "automatic")]
-pub const AUTOMATIC_MODE: bool = true;
-#[cfg(not(feature = "automatic"))]
-pub const AUTOMATIC_MODE: bool = false;
-
 pub trait Execute {
     fn execute(&mut self) -> anyhow::Result<()>;
 }
@@ -72,7 +67,7 @@ Web version: <https://www.artimonist.org>";
 
 #[cfg(test)]
 mod diagram_test {
-    use artimonist::{GenericDiagram, SimpleDiagram, Wif, BIP85};
+    use artimonist::{BIP85, GenericDiagram, SimpleDiagram, Wif};
 
     /// Test compatible with old version data
     #[test]

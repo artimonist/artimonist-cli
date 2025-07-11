@@ -17,7 +17,6 @@ path = "src/main.rs"
 
 [features]
 default = []
-automatic = []  # none inquire
 
 [dependencies]
 artimonist = { version = "1.2.0" }
