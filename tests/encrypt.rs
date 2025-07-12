@@ -8,7 +8,7 @@ macro_rules! cli_execute {
         let output = cmd
             .current_dir("tests/encrypt")
             .args(&args)
-            .args(&["-p", "123456"])
+            .args(&["--password", "123456"])
             .assert()
             .success()
             .get_output()

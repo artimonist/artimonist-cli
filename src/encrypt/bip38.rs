@@ -11,85 +11,60 @@ impl<const ENCRYPT: bool> Execute for EncryptCommand<ENCRYPT> {
             return Err(anyhow!("encrypt/decrypt is only available on mainnet"));
         }
 
+        // if no password is provided, prompt for it
+        let password = match &self.password {
+            Some(p) => p.to_string(),
+            None => inquire_password(false)?,
+        };
+
         // encrypt or decrypt single private key
         if let Some(key) = &self.source.key {
-            if self.password.is_empty() {
-                self.password = inquire_password(false)?;
-            }
-            match ENCRYPT {
-                true => self.exec_encrypt(key)?,
-                false => self.exec_decrypt(key)?,
+            if ENCRYPT {
+                let result = key.wif_encrypt(&password)?;
+                println!("Encrypted private key: {result}");
+            } else {
+                let result = key.wif_decrypt(&password)?;
+                println!("Decrypted private key: {result}");
             }
             return Ok(());
         }
 
         // encrypt or decrypt private keys in bulk from a file
         if let Some(path) = &self.source.file {
-            if self.password.is_empty() {
-                self.password = inquire_password(false)?;
-            }
-            self.exec_bulk(path)?;
+            execute_bulk::<ENCRYPT>(path, &password)?;
         }
         Ok(())
     }
 }
 
-trait EncryptBulk {
-    fn exec_bulk(&self, file: &str) -> anyhow::Result<()>;
-}
-
-impl<const ENCRYPT: bool> EncryptBulk for EncryptCommand<ENCRYPT> {
-    fn exec_bulk(&self, file: &str) -> anyhow::Result<()> {
-        let f = &mut BufWriter::new(std::io::stdout());
-        for ln in BufReader::new(File::open(file)?).lines() {
-            let line = ln?;
-            if line
+fn execute_bulk<const ENCRYPT: bool>(file: &str, password: &str) -> anyhow::Result<()> {
+    let f = &mut BufWriter::new(std::io::stdout());
+    for ln in BufReader::new(File::open(file)?).lines() {
+        let line = ln?;
+        if line
+            .split_ascii_whitespace()
+            .any(|s| (ENCRYPT && s.is_private()) || (!ENCRYPT && s.is_encrypted()))
+        {
+            let new_line = line
                 .split_ascii_whitespace()
-                .any(|s| (ENCRYPT && s.is_private()) || (!ENCRYPT && s.is_encrypted()))
-            {
-                let new_line = line
-                    .split_ascii_whitespace()
-                    .map(|s| {
-                        if ENCRYPT && s.is_private() {
-                            s.wif_encrypt(&self.password).unwrap_or(s.to_string())
-                        } else if s.is_encrypted() {
-                            s.wif_decrypt(&self.password).unwrap_or(s.to_string())
-                        } else {
-                            s.to_string()
-                        }
-                    })
-                    .collect::<Vec<_>>()
-                    .join(" ");
-                writeln!(f, "{new_line}")?;
-                f.flush()?;
-            } else {
-                writeln!(f, "{line}")?;
-            }
-        }
-        Ok(())
-    }
-}
-
-impl<const ENCRYPT: bool> EncryptCommand<ENCRYPT> {
-    fn exec_encrypt(&self, key: &str) -> anyhow::Result<()> {
-        if ENCRYPT && key.is_private() {
-            let result = key.wif_encrypt(&self.password)?;
-            println!("Encrypted private key: {result}");
-            Ok(())
+                .map(|s| {
+                    if ENCRYPT && s.is_private() {
+                        s.wif_encrypt(password).unwrap_or(s.to_string())
+                    } else if s.is_encrypted() {
+                        s.wif_decrypt(password).unwrap_or(s.to_string())
+                    } else {
+                        s.to_string()
+                    }
+                })
+                .collect::<Vec<_>>()
+                .join(" ");
+            writeln!(f, "{new_line}")?;
+            f.flush()?;
         } else {
-            Err(anyhow!("invalid private key"))
+            writeln!(f, "{line}")?;
         }
     }
-
-    fn exec_decrypt(&self, key: &str) -> anyhow::Result<()> {
-        if !ENCRYPT && key.is_encrypted() {
-            let result = key.wif_decrypt(&self.password)?;
-            println!("Decrypted private key: {result}");
-            Ok(())
-        } else {
-            Err(anyhow!("invalid encrypted key"))
-        }
-    }
+    Ok(())
 }
 
 trait Bip38 {

@@ -32,7 +32,7 @@ pub struct DiagramCommand<T: GenericDiagram> {
     pub password: Option<String>,
 
     /// Mnemonic language
-    #[clap(hide = true)]
+    #[clap(hide = true, long)]
     pub language: Option<Language>,
 }
 
