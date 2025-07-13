@@ -1,5 +1,5 @@
-use crate::utils::inquire_password;
-use crate::{EncryptCommand, Execute};
+use super::{EncryptCommand, arg::EncryptSource};
+use crate::{Execute, utils::inquire_password};
 use anyhow::anyhow;
 use bip38::{Decrypt, EncryptWif};
 use std::fs::File;
@@ -17,21 +17,19 @@ impl<const ENCRYPT: bool> Execute for EncryptCommand<ENCRYPT> {
             None => inquire_password(false)?,
         };
 
-        // encrypt or decrypt single private key
-        if let Some(key) = &self.source.key {
-            if ENCRYPT {
-                let result = key.wif_encrypt(&password)?;
-                println!("Encrypted private key: {result}");
-            } else {
-                let result = key.wif_decrypt(&password)?;
-                println!("Decrypted private key: {result}");
+        match &self.source {
+            EncryptSource::Key(key) => {
+                if ENCRYPT {
+                    let result = key.wif_encrypt(&password)?;
+                    println!("Encrypted private key: {result}");
+                } else {
+                    let result = key.wif_decrypt(&password)?;
+                    println!("Decrypted private key: {result}");
+                }
             }
-            return Ok(());
-        }
-
-        // encrypt or decrypt private keys in bulk from a file
-        if let Some(path) = &self.source.file {
-            execute_bulk::<ENCRYPT>(path, &password)?;
+            EncryptSource::File(file) => {
+                execute_bulk::<ENCRYPT>(file, &password)?;
+            }
         }
         Ok(())
     }

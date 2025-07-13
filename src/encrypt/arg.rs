@@ -2,8 +2,8 @@ use artimonist::bitcoin;
 
 #[derive(clap::Parser)]
 pub struct EncryptCommand<const ENCRYPT: bool> {
-    /// encrypt/decrypt source
-    #[clap(flatten)]
+    /// Private key or text file containing private keys
+    #[clap(name = "KEY|FILE")]
     pub source: EncryptSource,
 
     /// Password
@@ -11,31 +11,23 @@ pub struct EncryptCommand<const ENCRYPT: bool> {
     pub password: Option<String>,
 }
 
-#[derive(clap::Args, Debug)]
-#[group(required = true, multiple = false)]
-pub struct EncryptSource {
-    /// Private key (Wif) or encrypted key
-    #[clap(value_parser = parse_key)]
-    pub key: Option<String>,
-
-    /// Text filename containing private keys or encrypted keys
-    #[clap(short, long, value_parser = parse_file)]
-    pub file: Option<String>,
+#[derive(Clone, Debug)]
+pub enum EncryptSource {
+    Key(String),  // Private key or encrypted key
+    File(String), // Text file containing private keys or encrypted keys
 }
 
-fn parse_key(s: &str) -> Result<String, String> {
-    if is_private_key(s) || is_encrypted_key(s) {
-        Ok(s.to_string())
-    } else {
-        Err(format!("Invalid key format: {s}"))
-    }
-}
+impl std::str::FromStr for EncryptSource {
+    type Err = String;
 
-fn parse_file(s: &str) -> Result<String, String> {
-    if std::path::Path::new(s).exists() {
-        Ok(s.to_string())
-    } else {
-        Err(format!("File does not exist: {s}"))
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        if is_private_key(s) || is_encrypted_key(s) {
+            Ok(EncryptSource::Key(s.to_string()))
+        } else if std::path::Path::new(s).exists() {
+            Ok(EncryptSource::File(s.to_string()))
+        } else {
+            Err(format!("Invalid input: {s}"))
+        }
     }
 }
 
