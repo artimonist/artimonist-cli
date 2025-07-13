@@ -30,10 +30,10 @@ fn test_encrypt_key() {
 
 #[test]
 fn test_encrypt_file() {
-    let output = cli_execute!("encrypt -f wifs");
+    let output = cli_execute!("encrypt wifs");
     assert_eq!(output, include_str!("encrypt/wifx"));
 
-    let output = cli_execute!("decrypt -f wifx");
+    let output = cli_execute!("decrypt wifx");
     assert_eq!(output, include_str!("encrypt/wifs"));
 }
 
