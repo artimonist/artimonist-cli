@@ -36,7 +36,7 @@ impl MultiSig for DeriveCommand {
         // output
         self.multisig_accounts(&accounts)?;
         self.multisig_wallets(&wallets);
-        if self.private {
+        if self.detail {
             self.multisig_scripts(&wallets)?;
         }
         Ok(())
@@ -55,7 +55,7 @@ impl MultiSig for DeriveCommand {
             writeln!(f, "[{path}]: {xpub}")?;
             // writeln!(f, "  {xpub}")?;
         }
-        if self.private {
+        if self.detail {
             writeln!(f)?;
             writeln!(f, "Account xprivs: [{path_first}] ~ [{path_last}]")?;
             for (i, (_, xpriv)) in accounts.iter().enumerate() {

@@ -43,6 +43,18 @@ impl Wallet for DeriveCommand {
     fn derive_wallets(&self, master: &Xpriv, password: &str) -> anyhow::Result<()> {
         assert!(!self.is_multisig());
 
+        if self.detail {
+            // derive account
+            let (xpub, xprv) = self.derive.account(master, self.account)?;
+            let path = self.derive.path(self.account);
+
+            // output account
+            let mut f = BufWriter::new(std::io::stdout());
+            writeln!(f, "account:")?;
+            writeln!(f, "[{path}]: {xpub}")?;
+            writeln!(f, "[{path}]: {xprv}")?;
+        }
+
         // derive wallets
         let mut wallets = (self.index..self.index + self.amount)
             .map(|index| self.derive.wallet(master, self.account, index))
@@ -59,6 +71,7 @@ impl Wallet for DeriveCommand {
 
         // output
         let mut f = BufWriter::new(std::io::stdout());
+        writeln!(f, "wallets:")?;
         let path = self.derive.path(self.account);
         for (i, (addr, pk)) in wallets.into_iter().enumerate() {
             let index = self.index + i as u32;
