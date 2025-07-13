@@ -27,7 +27,7 @@ pub struct DeriveCommand {
     #[clap(flatten)]
     pub multisig: MultiSig,
 
-    /// Show account xprv, xpub and redeem scripts of multisig
+    /// Export account xprv, xpub and redeem scripts of multisig
     #[clap(long)]
     pub detail: bool,
 
@@ -60,6 +60,7 @@ impl std::str::FromStr for MasterKey {
 #[derive(clap::Args, Debug)]
 #[group(required = false, multiple = false)]
 pub struct DerivePath {
+    /// Use BIP32 path: m/0/index [p2pkh]
     #[clap(long)]
     pub bip32: bool,
     /// Use derive path: m/44'/0'/account'/0/index [p2pkh]
