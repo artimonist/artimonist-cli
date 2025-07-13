@@ -3,9 +3,10 @@ mod diagram;
 mod encrypt;
 mod utils;
 
+use artimonist::{ComplexDiagram, SimpleDiagram};
 use clap::{Parser, Subcommand};
 use derive::DeriveCommand;
-use diagram::{DiagramCommand, DiagramType};
+use diagram::DiagramCommand;
 use encrypt::EncryptCommand;
 
 /// Artimonist - A tool for generating mnemonics and wallets.   
@@ -19,21 +20,16 @@ pub struct Cli {
 #[derive(Subcommand)]
 pub enum Commands {
     /// Use simple diagram of 7 * 7 chars
-    Simple(DiagramCommand),
+    Simple(DiagramCommand<SimpleDiagram>),
     /// Use complex diagram of 7 * 7 strings
-    Complex(DiagramCommand),
+    Complex(DiagramCommand<ComplexDiagram>),
     /// Encrypt private key by bip38
-    Encrypt(EncryptCommand),
+    Encrypt(EncryptCommand<true>),
     /// Decrypt private key by bip38
-    Decrypt(EncryptCommand),
+    Decrypt(EncryptCommand<false>),
     /// Derive from master key or mnemonic
     Derive(DeriveCommand),
 }
-
-#[cfg(feature = "automatic")]
-pub const AUTOMATIC_MODE: bool = true;
-#[cfg(not(feature = "automatic"))]
-pub const AUTOMATIC_MODE: bool = false;
 
 pub trait Execute {
     fn execute(&mut self) -> anyhow::Result<()>;
@@ -42,22 +38,10 @@ pub trait Execute {
 fn main() -> anyhow::Result<()> {
     let args = Cli::parse();
     match args.command {
-        Commands::Simple(mut cmd) => {
-            cmd.diagram_type = DiagramType::Simple;
-            cmd.execute()?;
-        }
-        Commands::Complex(mut cmd) => {
-            cmd.diagram_type = DiagramType::Complex;
-            cmd.execute()?;
-        }
-        Commands::Encrypt(mut cmd) => {
-            cmd.is_encrypt = true;
-            cmd.execute()?
-        }
-        Commands::Decrypt(mut cmd) => {
-            cmd.is_encrypt = false;
-            cmd.execute()?
-        }
+        Commands::Simple(mut cmd) => cmd.execute()?,
+        Commands::Complex(mut cmd) => cmd.execute()?,
+        Commands::Encrypt(mut cmd) => cmd.execute()?,
+        Commands::Decrypt(mut cmd) => cmd.execute()?,
         Commands::Derive(mut cmd) => cmd.execute()?,
     }
     Ok(())
@@ -72,7 +56,7 @@ Web version: <https://www.artimonist.org>";
 
 #[cfg(test)]
 mod diagram_test {
-    use artimonist::{GenericDiagram, SimpleDiagram, Wif, BIP85};
+    use artimonist::{BIP85, GenericDiagram, SimpleDiagram, Wif};
 
     /// Test compatible with old version data
     #[test]

@@ -8,7 +8,7 @@ macro_rules! cli_execute {
         let output = cmd
             .current_dir("tests/encrypt")
             .args(&args)
-            .args(&["-p", "123456"])
+            .args(&["--password", "123456"])
             .assert()
             .success()
             .get_output()
@@ -42,6 +42,7 @@ macro_rules! cli_test_error {
         let mut cmd = Command::cargo_bin("artimonist").unwrap();
         cmd
         .args(&[$($arg),+])
+        .args(&["--password", "123456"])
         .assert()
         .failure()
         .stderr(contains($content));
@@ -51,12 +52,12 @@ macro_rules! cli_test_error {
 #[test]
 fn test_encrypt_error() {
     cli_test_error!(
-        "Error: invalid private key",
+        "Error: invalid wif private key",
         "encrypt",
         "6PYPVwvgux4mN96iwj1RGvbiGmmPWpkiQimpkP1fvFGGhT38XxZed6Kdth"
     );
     cli_test_error!(
-        "Error: invalid encrypted key",
+        "Error: invalid encrypted private key",
         "decrypt",
         "KyyXeMvCn36KuedmVX727NYQ35YEeF4z1ZjXGyqgFpmZM4AcY8ay"
     );

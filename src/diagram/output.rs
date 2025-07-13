@@ -1,13 +1,14 @@
-use super::unicode::Transformer;
 use super::DiagramCommand;
-use artimonist::{ComplexDiagram, GenericDiagram, Matrix, SimpleDiagram, Xpriv, BIP85};
+use crate::utils::unicode::Transformer;
+use anyhow::anyhow;
+use artimonist::{BIP85, ComplexDiagram, GenericDiagram, Matrix, SimpleDiagram, Xpriv};
 use bip38::EncryptWif;
 use std::io::{BufWriter, Write};
 
 pub trait ConsoleOutput<T: ToString + Transformer<20>>: GenericDiagram {
     fn matrix(&self) -> &Matrix<T, 7, 7>;
 
-    fn display(&self, cmd: &DiagramCommand) -> anyhow::Result<()> {
+    fn display<D: GenericDiagram>(&self, cmd: &DiagramCommand<D>) -> anyhow::Result<()> {
         let f = &mut BufWriter::new(std::io::stdout());
         let mx = self.matrix();
 
@@ -24,7 +25,8 @@ pub trait ConsoleOutput<T: ToString + Transformer<20>>: GenericDiagram {
         }
 
         // generation results
-        let master = self.bip32_master(cmd.password.as_bytes())?;
+        let password = cmd.password.as_ref().ok_or(anyhow!("empty password"))?;
+        let master = self.bip32_master(password.as_bytes())?;
         cmd.derive_all(&master, f)?;
 
         Ok(())
@@ -50,7 +52,7 @@ trait DeriveToConsole {
     fn pwd(&self, master: &Xpriv, f: &mut impl Write) -> anyhow::Result<()>;
 }
 
-impl DeriveToConsole for DiagramCommand {
+impl<D: GenericDiagram> DeriveToConsole for DiagramCommand<D> {
     #[inline]
     fn derive_all(&self, master: &Xpriv, f: &mut impl Write) -> anyhow::Result<()> {
         if self.has_mnemonic() {
@@ -76,18 +78,20 @@ impl DeriveToConsole for DiagramCommand {
         writeln!(f, "Mnemonics: ")?;
         let length = self.target.mnemonic.unwrap_or(24) as u32;
         for index in self.index..self.index + self.amount {
-            let mnemonic = master.bip85_mnemonic(self.language, length, index)?;
+            let language = self.language.ok_or(anyhow::anyhow!("unkown language"))?;
+            let mnemonic = master.bip85_mnemonic(language, length, index)?;
             writeln!(f, "({index}): {mnemonic}")?;
         }
         Ok(())
     }
     #[inline]
     fn wif(&self, master: &Xpriv, f: &mut impl Write) -> anyhow::Result<()> {
+        let password = self.password.as_ref().ok_or(anyhow!("empty password"))?;
         writeln!(f, "Wifs: ")?;
         for index in self.index..self.index + self.amount {
             let mut wif = master.bip85_wif(index)?;
             if artimonist::NETWORK.is_mainnet() {
-                wif.pk = wif.pk.encrypt_wif(&self.password).unwrap_or_default();
+                wif.pk = wif.pk.encrypt_wif(password).unwrap_or_default();
             }
             writeln!(f, "({index}): {}, {}", wif.addr, wif.pk)?;
         }

@@ -7,7 +7,7 @@ macro_rules! cli_derive {
         let result = cmd
             .current_dir("tests/derive")
             .arg("derive")
-            // .args(&["-p", "123456"])
+            .args(&["--password", "123456"])
             .args(&args)
             .arg($key)
             .assert()
