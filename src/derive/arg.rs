@@ -2,7 +2,8 @@ use artimonist::{Mnemonic, Xpriv};
 
 #[derive(clap::Parser, Debug)]
 pub struct DeriveCommand {
-    /// Master key or Mnemonic string
+    /// Master key or Mnemonic phrase
+    #[clap(name = "MASTER_KEY|MNEMONIC")]
     pub key: MasterKey,
 
     /// Account start index
@@ -25,9 +26,9 @@ pub struct DeriveCommand {
     #[clap(flatten)]
     pub multisig: MultiSig,
 
-    /// Show account xprivs and redeem scripts of multisig
-    #[clap(long, visible_alias = "redeem", requires = "m23", requires = "m35")]
-    pub private: bool,
+    /// Show account xprv, xpub and redeem scripts of multisig
+    #[clap(long)]
+    pub detail: bool,
 
     /// Password as salt
     #[clap(hide = true, long)]
@@ -58,9 +59,6 @@ impl std::str::FromStr for MasterKey {
 #[derive(clap::Args, Debug)]
 #[group(required = false, multiple = false)]
 pub struct DerivePath {
-    ///// Use BIP32 derivation path: m/0/{index} [Electrum]
-    // #[clap(long)]
-    // pub bip32: bool,
     /// Use derive path: m/44'/0'/account'/0/index [p2pkh]
     #[clap(long)]
     pub bip44: bool,

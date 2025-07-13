@@ -1,3 +1,7 @@
+account:
+[m/84'/0'/0']: xpub6Ci7ezF68Smujf9D2YnX6jLysbucxjaCEB4VxkZtg1QjbaZNAQUm4AQzcD6PEwCVM36nPL1MUenuRQUgHa4PGXxeqVRJusXrB1FpDWjsBfz
+[m/84'/0'/0']: xprv9yimFUiCJ5DcXB4jvXFWjbQFKa58ZGrLrx8uANAH7fskinEDcsAWWN6Wkv1624b1aRkvMhTLaVYo9uwxTRy7nVxvmu9h2T5TSRHn8YYF3Lw
+wallets:
 [m/84'/0'/0'/0/2048]: bc1qndlphkk5xvvh7a9cw9js4heyvw00rq4vcrcf7a, 6PYSG3LYUdnkkHWagGVFkvHq4s6Qck1NkCV6msBwR9a5XHxayN8rubQcJW
 [m/84'/0'/0'/0/2049]: bc1qexr37gk3n4pek4w9tjhm37d6363ep3z2hcnq8e, 6PYQBA1vdpBjh39iKQSBmTR1VFjsCJgCoe5Z5rLDYRypTGhq6yVz6U9h75
 [m/84'/0'/0'/0/2050]: bc1qc45e98kgcl53aa7m3hlh05cgex9ede7h5vhpyh, 6PYUg8WyAmc4RN6HtgPVatrUVY2r8d4bq3pRxafAHEWgaPy1J7UwmSiKA8
