@@ -41,22 +41,22 @@ fn test_derive_multisig() {
     const MNEMONIC: &str =
         "級 蠟 棒 氣 調 乏 島 陶 勞 量 強 給 電 鑽 路 婦 趙 撥 士 殿 什 遠 亞 互";
 
-    let result = cli_derive!("--bip44 --m23 --private -m 10", MNEMONIC);
+    let result = cli_derive!("--bip44 --m23 --detail -m 10", MNEMONIC);
     assert_eq!(result, include_str!("derive/bip44_m23"));
 
-    let result = cli_derive!("--bip44 --m35 --private -m 10", MNEMONIC);
+    let result = cli_derive!("--bip44 --m35 --detail -m 10", MNEMONIC);
     assert_eq!(result, include_str!("derive/bip44_m35"));
 
-    let result = cli_derive!("--bip49 --m23 --private -m 10", MNEMONIC);
+    let result = cli_derive!("--bip49 --m23 --detail -m 10", MNEMONIC);
     assert_eq!(result, include_str!("derive/bip49_m23"));
 
-    let result = cli_derive!("--bip49 --m35 --private -m 10", MNEMONIC);
+    let result = cli_derive!("--bip49 --m35 --detail -m 10", MNEMONIC);
     assert_eq!(result, include_str!("derive/bip49_m35"));
 
-    let result = cli_derive!("--bip84 --m23 --private -m 10", MNEMONIC);
+    let result = cli_derive!("--bip84 --m23 --detail -m 10", MNEMONIC);
     assert_eq!(result, include_str!("derive/bip84_m23"));
 
-    let result = cli_derive!("--bip84 --m35 --private -m 10", MNEMONIC);
+    let result = cli_derive!("--bip84 --m35 --detail -m 10", MNEMONIC);
     assert_eq!(result, include_str!("derive/bip84_m35"));
 }
 
@@ -70,12 +70,12 @@ fn test_derive_master() {
     let result = cli_derive!("--bip49 -i 2048 -m 10", MASTER);
     assert_eq!(result, include_str!("derive/master_bip49"));
 
-    let result = cli_derive!("--bip84 -i 2048 -m 10", MASTER);
+    let result = cli_derive!("--bip84 -i 2048 -m 10 --detail", MASTER);
     assert_eq!(result, include_str!("derive/master_bip84"));
 
-    let result = cli_derive!("-a 1111 -i 100 -m 5 --m23 --private", MASTER);
+    let result = cli_derive!("-a 1111 -i 100 -m 5 --m23 --detail", MASTER);
     assert_eq!(result, include_str!("derive/master_m23"));
 
-    let result = cli_derive!("-a 1111 -i 100 -m 5 --m35 --private", MASTER);
+    let result = cli_derive!("-a 1111 -i 100 -m 5 --m35 --detail", MASTER);
     assert_eq!(result, include_str!("derive/master_m35"));
 }
