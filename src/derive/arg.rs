@@ -7,7 +7,8 @@ pub struct DeriveCommand {
     pub key: MasterKey,
 
     /// Account start index
-    #[clap(short, long, default_value_t = 0, value_parser = clap::value_parser!(u32).range(0..65536))]
+    #[clap(short, long, default_value_t = 0, value_parser = clap::value_parser!(u32).range(0..65536),
+      conflicts_with = "bip32")]
     pub account: u32,
 
     /// Address start index
@@ -59,6 +60,8 @@ impl std::str::FromStr for MasterKey {
 #[derive(clap::Args, Debug)]
 #[group(required = false, multiple = false)]
 pub struct DerivePath {
+    #[clap(long)]
+    pub bip32: bool,
     /// Use derive path: m/44'/0'/account'/0/index [p2pkh]
     #[clap(long)]
     pub bip44: bool,
@@ -74,11 +77,11 @@ pub struct DerivePath {
 #[group(required = false, multiple = false)]
 pub struct MultiSig {
     /// Multiple signatures address of 2-3 [derive path: account'/0/index]
-    #[clap(long)]
+    #[clap(long, conflicts_with = "bip32")]
     pub m23: bool,
 
     /// Multiple signatures address of 3-5 [derive path: account'/0/index]
-    #[clap(long)]
+    #[clap(long, conflicts_with = "bip32")]
     pub m35: bool,
 }
 
