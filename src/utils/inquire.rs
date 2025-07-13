@@ -1,10 +1,11 @@
+use super::unicode::unicode_decode;
+
 pub fn inquire_password(as_salt: bool) -> anyhow::Result<String> {
-    use super::unicode::UnicodeUtils;
     use inquire::validator::Validation;
 
     const INVALID_MSG: &str = "Encryption key must have at least 5 characters.";
     let validator = |v: &str| {
-        if v.unicode_decode().chars().count() < 5 {
+        if unicode_decode(v).chars().count() < 5 {
             Ok(Validation::Invalid(INVALID_MSG.into()))
         } else {
             Ok(Validation::Valid)
@@ -23,9 +24,8 @@ pub fn inquire_password(as_salt: bool) -> anyhow::Result<String> {
         } else {
             "Input encryption key. (Toggle display by CTRL+R)"
         })
-        .prompt()?
-        .unicode_decode();
-    Ok(pwd)
+        .prompt()?;
+    Ok(unicode_decode(&pwd))
 }
 
 use artimonist::Language;

@@ -1,44 +1,50 @@
-/// parse unicode characters of \u{...} format.
-pub trait UnicodeUtils {
-    fn unicode_decode(&self) -> String;
-    fn unicode_encode(&self) -> String;
+use std::{iter::Peekable, str::Chars};
+
+pub fn unicode_encode(s: &str) -> String {
+    s.chars()
+        .flat_map(|c| match c as u32 {
+            32..127 => vec![c], // skip ascii visible characters
+            _ => format!("\\u{{{:x}}}", c as u32)
+                .chars()
+                .collect::<Vec<char>>(),
+        })
+        .collect()
 }
 
-impl UnicodeUtils for str {
-    fn unicode_decode(&self) -> String {
-        let mut decoded = String::new();
-        let mut chars = self.chars().peekable();
-        while let Some(c) = chars.next() {
-            if c == '\\' && chars.peek() == Some(&'u') {
-                let mut cs = chars.clone();
-                cs.next(); // consume Some('u')
-                if cs.next() == Some('{') && cs.clone().take(8).any(|c| c == '}') {
-                    // char::MAX = '\u{10ffff}'
-                    let hex: String = cs.take_while(|&c| c != '}').collect();
-                    if let Ok(val) = u32::from_str_radix(&hex, 16) {
-                        if let Some(ch) = std::char::from_u32(val) {
-                            decoded.push(ch);
-                            chars.find(|&c| c == '}'); // move to unicode end
-                            continue;
-                        }
-                    }
-                }
-            }
-            decoded.push(c);
+pub fn unicode_decode(s: &str) -> String {
+    let mut decoded = String::new();
+    let mut chars = s.chars().peekable();
+    while let Some(ch) = chars.next() {
+        if ch == '\\'
+            && chars.peek() == Some(&'u')
+            && let Some(unicode_char) = decode_char(&mut chars)
+        {
+            decoded.push(unicode_char);
+        } else {
+            decoded.push(ch);
         }
-        decoded
     }
+    decoded
+}
 
-    fn unicode_encode(&self) -> String {
-        self.chars()
-            .flat_map(|c| match c as u32 {
-                32..127 => vec![c], // ascii characters
-                _ => format!("\\u{{{:x}}}", c as u32)
-                    .chars()
-                    .collect::<Vec<char>>(),
-            })
-            .collect()
+fn decode_char(chars: &mut Peekable<Chars>) -> Option<char> {
+    let restore = chars.clone();
+    {
+        const UNICODE_MAX_LEN: usize = 8; // char::MAX = '\u{10ffff}'
+        if let Some('u') = chars.next()
+            && Some('{') == chars.next()
+            && chars.clone().take(UNICODE_MAX_LEN - 1).any(|c| c == '}')
+        {
+            let hex: String = chars.take_while(|&c| c != '}').collect();
+            if let Ok(val) = u32::from_str_radix(&hex, 16)
+                && let Some(ch) = std::char::from_u32(val)
+            {
+                return Some(ch);
+            }
+        }
     }
+    *chars = restore;
+    None
 }
 
 pub trait Transformer<const N: usize>
@@ -52,22 +58,22 @@ where
 impl<const N: usize> Transformer<N> for char {
     #[inline]
     fn decode(v: &str) -> Option<Self> {
-        v.unicode_decode().chars().next()
+        unicode_decode(v).chars().next()
     }
     #[inline]
     fn encode(v: &Self) -> String {
-        format!("{v}").unicode_encode()
+        unicode_encode(&v.to_string())
     }
 }
 
 impl<const N: usize> Transformer<N> for String {
     #[inline]
     fn decode(v: &str) -> Option<Self> {
-        Some(v.unicode_decode().chars().take(N).collect())
+        Some(unicode_decode(v).chars().take(N).collect())
     }
     #[inline]
     fn encode(v: &Self) -> String {
-        v.unicode_encode()
+        unicode_encode(v)
     }
 }
 
@@ -81,28 +87,29 @@ mod unicode_test {
         for s in NORMAL_DATA {
             let escape: String = s.escape_default().collect();
             println!("{s} -> {escape}");
-            assert_eq!(escape[..].unicode_decode(), s.to_owned());
+            assert_eq!(unicode_decode(&escape), s.to_owned());
         }
-
-        const KEEP_DATA: &[&str] = &[
-            r"a\u{1f6AM}123",
-            r"a\u{FFFFFFFF}xxx",
-            r"a\u0F0F",
-            r"a\u{1F001133",
-            r"a\u{MASK}123",
-        ];
         for s in KEEP_DATA {
-            assert_eq!(s.unicode_decode(), s.to_owned());
+            assert_eq!(unicode_decode(&s), s.to_owned());
         }
-
-        const SPECIAL_DATA: &[(&str, &str)] = &[
-            (r"a\u{266b}}", r"a♫}"),
-            (r"a\u{\u{266b}}", r"a\u{♫}"),
-            (r"a\u{\u\u{266b}}", r"a\u{\u♫}"),
-        ];
         for (r, s) in SPECIAL_DATA {
-            println!("parse: {}", r.unicode_decode());
-            assert_eq!(r.unicode_decode(), s.to_owned());
+            assert_eq!(unicode_decode(&r), s.to_owned());
         }
+        assert_ne!(unicode_decode(r"\u{10ffff}"), r"\u{10ffff}");
     }
+    const KEEP_DATA: &[&str] = &[
+        r"a\u{1f6AM}123",
+        r"a\u{FFFFFFFF}xxx",
+        r"a\u0F0F",
+        r"a\u{1F001133",
+        r"a\u{MASK}123",
+        r"\u{11ffff}",
+    ];
+    const SPECIAL_DATA: &[(&str, &str)] = &[
+        (r"a\u{266b}}", r"a♫}"),
+        (r"a\u{\u{266b}}", r"a\u{♫}"),
+        (r"a\u{\u\u{266b}}", r"a\u{\u♫}"),
+        (r" \u{a}", " \n"),
+        (r"\u{10ffff}_", "\u{10ffff}_"),
+    ];
 }
