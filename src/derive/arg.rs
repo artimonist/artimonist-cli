@@ -58,7 +58,7 @@ impl std::str::FromStr for MasterKey {
 #[derive(clap::Args, Debug)]
 #[group(required = false, multiple = false)]
 pub struct DerivePath {
-    /// Use BIP32 derivation path: m/0/{index} [Electrum]
+    ///// Use BIP32 derivation path: m/0/{index} [Electrum]
     // #[clap(long)]
     // pub bip32: bool,
     /// Use derive path: m/44'/0'/account'/0/index [p2pkh]
