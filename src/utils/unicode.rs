@@ -1,5 +1,16 @@
 use std::{iter::Peekable, str::Chars};
 
+pub fn unicode_encode(s: &str) -> String {
+    s.chars()
+        .flat_map(|c| match c as u32 {
+            32..127 => vec![c], // skip ascii visible characters
+            _ => format!("\\u{{{:x}}}", c as u32)
+                .chars()
+                .collect::<Vec<char>>(),
+        })
+        .collect()
+}
+
 pub fn unicode_decode(s: &str) -> String {
     let mut decoded = String::new();
     let mut chars = s.chars().peekable();
@@ -16,17 +27,6 @@ pub fn unicode_decode(s: &str) -> String {
     decoded
 }
 
-pub fn unicode_encode(s: &str) -> String {
-    s.chars()
-        .flat_map(|c| match c as u32 {
-            32..127 => vec![c], // skip ascii visible characters
-            _ => format!("\\u{{{:x}}}", c as u32)
-                .chars()
-                .collect::<Vec<char>>(),
-        })
-        .collect()
-}
-
 fn decode_char(chars: &mut Peekable<Chars>) -> Option<char> {
     let restore = chars.clone();
     {
@@ -36,9 +36,6 @@ fn decode_char(chars: &mut Peekable<Chars>) -> Option<char> {
             && chars.clone().take(UNICODE_MAX_LEN - 1).any(|c| c == '}')
         {
             let hex: String = chars.take_while(|&c| c != '}').collect();
-            println!("hex: {hex}");
-            println!("val: {:?}", u32::from_str_radix(&hex, 16));
-            println!("ch: {:?}", std::char::from_u32(0x10fffe));
             if let Ok(val) = u32::from_str_radix(&hex, 16)
                 && let Some(ch) = std::char::from_u32(val)
             {
