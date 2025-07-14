@@ -1,6 +1,6 @@
 use super::{DeriveCommand, arg::MasterKey, multisig::MultiSig};
 use crate::{Execute, utils::inquire_password};
-use artimonist::{BIP39, Xpriv};
+use artimonist::{BIP32, BIP39, Xpriv};
 use bip38::EncryptWif;
 use std::io::{BufWriter, Write};
 
@@ -15,7 +15,11 @@ impl Execute for DeriveCommand {
                         Some(p) => p.to_string(),
                         None => inquire_password(true)?,
                     };
-                    self.derive_wallets(master, &password)?
+                    if self.derive.bip32 {
+                        self.derive_bip32(master, &password)?
+                    } else {
+                        self.derive_wallets(master, &password)?
+                    }
                 }
             }
             MasterKey::Mnemonic(mnemonic) => {
@@ -26,6 +30,8 @@ impl Execute for DeriveCommand {
                 let master = Xpriv::from_mnemonic(&mnemonic.to_string(), &password)?;
                 if self.is_multisig() {
                     self.derive_multisig(&master)?
+                } else if self.derive.bip32 {
+                    self.derive_bip32(&master, &password)?
                 } else {
                     self.derive_wallets(&master, &password)?
                 }
@@ -37,9 +43,37 @@ impl Execute for DeriveCommand {
 
 pub trait Wallet {
     fn derive_wallets(&self, master: &Xpriv, password: &str) -> anyhow::Result<()>;
+    fn derive_bip32(&self, master: &Xpriv, password: &str) -> anyhow::Result<()>;
 }
 
 impl Wallet for DeriveCommand {
+    fn derive_bip32(&self, master: &Xpriv, password: &str) -> anyhow::Result<()> {
+        assert!(!self.is_multisig());
+
+        let mut f = BufWriter::new(std::io::stdout());
+        if self.detail {
+            use artimonist::bitcoin::bip32::Xpub;
+            use artimonist::bitcoin::secp256k1::Secp256k1;
+            let xpub = Xpub::from_priv(&Secp256k1::default(), master);
+
+            writeln!(f, "master key: ")?;
+            writeln!(f, "{master}")?;
+            writeln!(f, "{xpub}")?;
+            writeln!(f, "wallets: ")?;
+        }
+        for i in self.index..self.index + self.amount {
+            let path = format!("m/0/{i}");
+            let (addr, mut pk) = master.bip32_wallet(path.clone())?;
+            if artimonist::NETWORK.is_mainnet() {
+                pk = pk
+                    .encrypt_wif(password)
+                    .map_err(|e| anyhow::anyhow!(e.to_string()))?;
+            }
+            writeln!(f, "[{path}]: {addr}, {pk}")?;
+        }
+        Ok(())
+    }
+
     fn derive_wallets(&self, master: &Xpriv, password: &str) -> anyhow::Result<()> {
         assert!(!self.is_multisig());
 
