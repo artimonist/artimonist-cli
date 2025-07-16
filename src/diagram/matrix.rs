@@ -1,4 +1,4 @@
-use crate::utils::unicode::Transformer;
+use crate::utils::unicode::unicode_decode;
 use artimonist::{Matrix, ToMatrix};
 use std::fs::File;
 use std::io::{BufRead, BufReader};
@@ -17,7 +17,7 @@ where
 
 impl<T> LoadMatrix<T> for Matrix<T, 7, 7>
 where
-    T: Transformer<20> + std::fmt::Debug,
+    T: Transformer + std::fmt::Debug,
 {
     fn from_file(path: &str) -> anyhow::Result<Self> {
         let mvs = BufReader::new(File::open(path)?)
@@ -60,5 +60,26 @@ where
             .take(7)
             .map(Transformer::decode)
             .collect::<Vec<_>>()
+    }
+}
+
+pub trait Transformer
+where
+    Self: Sized,
+{
+    fn decode(v: &str) -> Option<Self>;
+}
+
+impl Transformer for char {
+    #[inline(always)]
+    fn decode(v: &str) -> Option<Self> {
+        unicode_decode(v).chars().next()
+    }
+}
+
+impl Transformer for String {
+    #[inline(always)]
+    fn decode(v: &str) -> Option<Self> {
+        Some(unicode_decode(v).chars().take(20).collect())
     }
 }

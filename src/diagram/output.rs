@@ -1,11 +1,11 @@
 use super::DiagramCommand;
-use crate::utils::unicode::Transformer;
+use crate::utils::unicode::unicode_encode;
 use anyhow::anyhow;
 use artimonist::{BIP85, ComplexDiagram, GenericDiagram, Matrix, SimpleDiagram, Xpriv};
 use bip38::EncryptWif;
 use std::io::{BufWriter, Write};
 
-pub trait ConsoleOutput<T: ToString + Transformer<20>>: GenericDiagram {
+pub trait ConsoleOutput<T: ToString>: GenericDiagram {
     fn matrix(&self) -> &Matrix<T, 7, 7>;
 
     fn display<D: GenericDiagram>(&self, cmd: &DiagramCommand<D>) -> anyhow::Result<()> {
@@ -44,7 +44,7 @@ impl ConsoleOutput<String> for ComplexDiagram {
     }
 }
 
-trait DeriveToConsole {
+trait DeriveTargets {
     fn derive_all(&self, master: &Xpriv, f: &mut impl Write) -> anyhow::Result<()>;
     fn mnemonic(&self, master: &Xpriv, f: &mut impl Write) -> anyhow::Result<()>;
     fn wif(&self, master: &Xpriv, f: &mut impl Write) -> anyhow::Result<()>;
@@ -52,7 +52,7 @@ trait DeriveToConsole {
     fn pwd(&self, master: &Xpriv, f: &mut impl Write) -> anyhow::Result<()>;
 }
 
-impl<D: GenericDiagram> DeriveToConsole for DiagramCommand<D> {
+impl<D: GenericDiagram> DeriveTargets for DiagramCommand<D> {
     #[inline]
     fn derive_all(&self, master: &Xpriv, f: &mut impl Write) -> anyhow::Result<()> {
         if self.has_mnemonic() {
@@ -73,6 +73,7 @@ impl<D: GenericDiagram> DeriveToConsole for DiagramCommand<D> {
         }
         Ok(())
     }
+
     #[inline]
     fn mnemonic(&self, master: &Xpriv, f: &mut impl Write) -> anyhow::Result<()> {
         writeln!(f, "Mnemonics: ")?;
@@ -84,6 +85,7 @@ impl<D: GenericDiagram> DeriveToConsole for DiagramCommand<D> {
         }
         Ok(())
     }
+
     #[inline]
     fn wif(&self, master: &Xpriv, f: &mut impl Write) -> anyhow::Result<()> {
         let password = self.password.as_ref().ok_or(anyhow!("empty password"))?;
@@ -97,6 +99,7 @@ impl<D: GenericDiagram> DeriveToConsole for DiagramCommand<D> {
         }
         Ok(())
     }
+
     #[inline]
     fn xpriv(&self, master: &Xpriv, f: &mut impl Write) -> anyhow::Result<()> {
         writeln!(f, "Xprivs: ")?;
@@ -106,6 +109,7 @@ impl<D: GenericDiagram> DeriveToConsole for DiagramCommand<D> {
         }
         Ok(())
     }
+
     #[inline]
     fn pwd(&self, master: &Xpriv, f: &mut impl Write) -> anyhow::Result<()> {
         writeln!(f, "Passwords: ")?;
@@ -123,13 +127,13 @@ trait ComfyTable<T> {
 
 impl<const H: usize, const W: usize, T> ComfyTable<T> for artimonist::Matrix<T, H, W>
 where
-    T: Transformer<20> + ToString,
+    T: ToString,
 {
     fn fmt_table(&self, unicode: bool) -> comfy_table::Table {
         let mx = self.iter().map(|r| {
             r.iter().map(|v| match v {
                 Some(x) => match unicode {
-                    true => Transformer::encode(x),
+                    true => unicode_encode(&x.to_string()),
                     false => x.to_string(),
                 },
                 None => "".to_owned(),

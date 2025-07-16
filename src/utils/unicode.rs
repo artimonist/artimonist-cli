@@ -41,7 +41,7 @@ fn decode_char(chars: &mut Peekable<Chars>) -> Option<char> {
             {
                 // decode as decimal number
                 let decimal: String = chars.take_while(|&c| c != '}').collect();
-                if let Ok(n) = u32::from_str_radix(&decimal, 10)
+                if let Ok(n) = decimal.parse::<u32>()
                     && let Some(ch) = std::char::from_u32(n)
                 {
                     return Some(ch);
@@ -59,36 +59,6 @@ fn decode_char(chars: &mut Peekable<Chars>) -> Option<char> {
     }
     *chars = restore;
     None
-}
-
-pub trait Transformer<const N: usize>
-where
-    Self: Sized,
-{
-    fn decode(v: &str) -> Option<Self>;
-    fn encode(v: &Self) -> String;
-}
-
-impl<const N: usize> Transformer<N> for char {
-    #[inline]
-    fn decode(v: &str) -> Option<Self> {
-        unicode_decode(v).chars().next()
-    }
-    #[inline]
-    fn encode(v: &Self) -> String {
-        unicode_encode(&v.to_string())
-    }
-}
-
-impl<const N: usize> Transformer<N> for String {
-    #[inline]
-    fn decode(v: &str) -> Option<Self> {
-        Some(unicode_decode(v).chars().take(N).collect())
-    }
-    #[inline]
-    fn encode(v: &Self) -> String {
-        unicode_encode(v)
-    }
 }
 
 #[cfg(test)]
