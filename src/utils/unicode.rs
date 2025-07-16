@@ -28,18 +28,32 @@ pub fn unicode_decode(s: &str) -> String {
 }
 
 fn decode_char(chars: &mut Peekable<Chars>) -> Option<char> {
+    const DECIMAL_MAX_LEN: usize = 8; // char::MAX = '\u{01114111}'
+    const HEX_MAX_LEN: usize = 6; // char::MAX = '\u{10ffff}'
+
     let restore = chars.clone();
     {
-        const UNICODE_MAX_LEN: usize = 8; // char::MAX = '\u{10ffff}'
         if let Some('u') = chars.next()
             && Some('{') == chars.next()
-            && chars.clone().take(UNICODE_MAX_LEN - 1).any(|c| c == '}')
         {
-            let hex: String = chars.take_while(|&c| c != '}').collect();
-            if let Ok(val) = u32::from_str_radix(&hex, 16)
-                && let Some(ch) = std::char::from_u32(val)
+            if chars.peek() == Some(&'0')
+                && chars.clone().take(DECIMAL_MAX_LEN + 1).any(|c| c == '}')
             {
-                return Some(ch);
+                // decode as decimal number
+                let decimal: String = chars.take_while(|&c| c != '}').collect();
+                if let Ok(n) = u32::from_str_radix(&decimal, 10)
+                    && let Some(ch) = std::char::from_u32(n)
+                {
+                    return Some(ch);
+                }
+            } else if chars.clone().take(HEX_MAX_LEN + 1).any(|c| c == '}') {
+                // decode as hex number
+                let hex: String = chars.take_while(|&c| c != '}').collect();
+                if let Ok(val) = u32::from_str_radix(&hex, 16)
+                    && let Some(ch) = std::char::from_u32(val)
+                {
+                    return Some(ch);
+                }
             }
         }
     }
@@ -90,10 +104,10 @@ mod unicode_test {
             assert_eq!(unicode_decode(&escape), s.to_owned());
         }
         for s in KEEP_DATA {
-            assert_eq!(unicode_decode(&s), s.to_owned());
+            assert_eq!(unicode_decode(&s), s.to_owned(), "{s}");
         }
         for (r, s) in SPECIAL_DATA {
-            assert_eq!(unicode_decode(&r), s.to_owned());
+            assert_eq!(unicode_decode(&r), s.to_owned(), "{r}");
         }
         assert_ne!(unicode_decode(r"\u{10ffff}"), r"\u{10ffff}");
     }
@@ -104,6 +118,9 @@ mod unicode_test {
         r"a\u{1F001133",
         r"a\u{MASK}123",
         r"\u{11ffff}",
+        r"\u{1011110}",
+        r"\u{011101110}",
+        r"\u{0111f}",
     ];
     const SPECIAL_DATA: &[(&str, &str)] = &[
         (r"a\u{266b}}", r"a♫}"),
@@ -111,5 +128,8 @@ mod unicode_test {
         (r"a\u{\u\u{266b}}", r"a\u{\u♫}"),
         (r" \u{a}", " \n"),
         (r"\u{10ffff}_", "\u{10ffff}_"),
+        (r"\u{01114111}", "\u{10ffff}"),
+        (r"a\u{01111111}\u{a}", "a\u{10f447}\n"),
+        (r"0\u{01234}0", "0\u{4d2}0"),
     ];
 }
