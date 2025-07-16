@@ -86,9 +86,9 @@ checksum = "7c02d123df017efcdfbd739ef81735b36c5ba83ec3c59c80a9d7ecc718f92e50"
 
 [[package]]
 name = "artimonist"
-version = "1.2.3"
+version = "1.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "64f7614f2545b9f3f34f97dee6d07d90376bdf4d113bcb21d5297e0d144ff3bf"
+checksum = "9b0e6688ed5289a83e9b90d7f04da2434ba90a18f449df867d75b1562fa1bf87"
 dependencies = [
  "bitcoin",
  "pbkdf2",
@@ -100,10 +100,10 @@ dependencies = [
 
 [[package]]
 name = "artimonist"
-version = "1.5.0"
+version = "1.5.1"
 dependencies = [
  "anyhow",
- "artimonist 1.2.3",
+ "artimonist 1.3.0",
  "assert_cmd",
  "bip38",
  "clap",

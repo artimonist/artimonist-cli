@@ -63,7 +63,7 @@ impl Wallet for DeriveCommand {
         }
         for i in self.index..self.index + self.amount {
             let path = format!("m/0/{i}");
-            let (addr, mut pk) = master.bip32_wallet(path.clone())?;
+            let (addr, mut pk) = master.bip32_wallet(&path)?;
             if artimonist::NETWORK.is_mainnet() {
                 pk = pk
                     .encrypt_wif(password)
