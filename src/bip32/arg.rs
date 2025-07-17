@@ -3,7 +3,7 @@ use artimonist::{Mnemonic, Xpriv, Xpub};
 
 #[derive(clap::Parser, Debug)]
 pub struct Bip32Command {
-    /// Master key or Mnemonic phrase
+    /// Mnemonic phrase or Master key
     #[clap(name = "MNEMONIC|MASTER_KEY")]
     pub key: MasterKey,
 

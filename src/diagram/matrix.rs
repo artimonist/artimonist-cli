@@ -57,7 +57,8 @@ where
     fn decode(s: &str) -> Option<Self>;
 
     fn parse_values(line: &str) -> Vec<Option<Self>> {
-        line.strip_prefix('"')
+        line.trim()
+            .strip_prefix('"')
             .unwrap_or(line)
             .strip_suffix('"')
             .unwrap_or(line)

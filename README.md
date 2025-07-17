@@ -1,5 +1,5 @@
 # Artimonist
-A tool for generating mnemonics based on diagrams.  
+A tool for generating mnemonics and wallets.  
 Web version: **<https://www.artimonist.org>**
 
 ### Help infomation
@@ -8,11 +8,12 @@ Web version: **<https://www.artimonist.org>**
 Usage: artimonist <COMMAND>
 
 Commands:
-  simple   Use simple diagram of 7 * 7 chars
-  complex  Use complex diagram of 7 * 7 strings
+  simple   Use simple diagram of 7 * 7 unicode chars
+  complex  Use complex diagram of 7 * 7 unicode strings
   encrypt  Encrypt private key by bip38
   decrypt  Decrypt private key by bip38
   derive   Derive from master key or mnemonic
+  bip32    Derive by custom bip32 path
   help     Print this message or the help of the given subcommand(s)
 ```
 **`> artimonist simple --help`**
@@ -20,35 +21,33 @@ Commands:
 Usage: artimonist simple [OPTIONS]
 
 Options:
-  -i, --index <INDEX>    Start index [default: 0]
-  -m, --amount <AMOUNT>  Amount to generate [default: 1]
-  -f, --file <FILE>      Input diagram from text file
-  -o, --output <OUTPUT>  Output results to text file
-      --unicode          Show unicode view for non-displayable character
-      --mnemonic         Generate bip39 mnemonic [default] [aliases: bip39]
-      --wif              Generate wallet address and private key [aliases: wallet, address]
-      --xprv            Generate master key for HD-Wallet [aliases: hd, master, root]
-      --pwd              Generate password [aliases: password, passphrase]
-  -h, --help             Print help
+  -i, --index <INDEX>      Start index [default: 0]
+  -m, --amount <AMOUNT>    Amount to generate [default: 1]
+  -f, --file <FILE>        Input diagram from text file
+      --unicode            Export unicode view for non-displayable character
+      --mnemonic <LENGTH>  Generate bip39 mnemonic [default] [possible values: 12, 15, 18, 21, 24]
+      --wif                Generate wallet address and private key [aliases: --wallet]
+      --xprv               Generate master key for HD-Wallet [aliases: --master]
+      --pwd                Generate password
+  -h, --help               Print help
 ```
 **`> artimonist derive --help`**
 ``` blank
-Usage: artimonist derive [OPTIONS] <KEY>
+Usage: artimonist derive [OPTIONS] <MNEMONIC|MASTER_KEY>
 
 Arguments:
-  <KEY>  Master key or Mnemonic string
+  <MNEMONIC|MASTER_KEY>  Mnemonic phrase or Master key
 
 Options:
   -a, --account <ACCOUNT>  Account start index [default: 0]
   -i, --index <INDEX>      Address start index [default: 0]
   -m, --amount <AMOUNT>    Amount of address [default: 5]
-  -o, --output <OUTPUT>    Output results to text file
-      --bip44              Use derive path: m/44'/0'/account'/0/index' [p2pkh]
-      --bip49              Use derive path: m/49'/0'/account'/0/index' [p2shwpkh, default]
-      --bip84              Use derive path: m/84'/0'/account'/0/index' [p2wpkh]
+      --bip44              Use derive path: m/44'/0'/account'/0/index [p2pkh]
+      --bip49              Use derive path: m/49'/0'/account'/0/index [p2shwpkh, default]
+      --bip84              Use derive path: m/84'/0'/account'/0/index [p2wpkh]
       --m23                Multiple signatures address of 2-3 [derive path: account'/0/index]
       --m35                Multiple signatures address of 3-5 [derive path: account'/0/index]
-      --private            Show account xprivs and redeem scripts of multisig [aliases: redeem]
+      --detail             Export account xprv, xpub and redeem scripts of multisig
   -h, --help               Print help
 ```
 
@@ -70,7 +69,7 @@ Let's draw a diagram like the one below, and generate multi target by it.
 |    |   |   |   |   |   | 】 |
 +----+---+---+---+---+---+----+
 ```
-_(Some terminal fonts display different characters width, using standard font maybe display correctly.)_
+_(Some terminal fonts display different characters width, using monospaced font maybe display correctly.)_
 
 ### mnemonic
 **`> artimonist simple`**  
@@ -105,11 +104,11 @@ _(With salt of '123456')_
 ### derive
 **`> artimonist derive "tattoo slide more city sample ask tell unfold category spoil mother bottom assume session rib humble school usage ensure game bottom able mind exile"`**  
 ``` blank
-[m/49'/0'/0'/0/0']: 3Q1bUyxjBK61mxprWQcC7nPrcXHyRMmVfp, 6PYSSLeanSzKBeAbxZDEBLmuSQYmcvKjcWNGFfzW7BnKeMrgN8Zw86fyDX
-[m/49'/0'/0'/0/1']: 35mva48ekvWgt9UoG9VR1549VFjQdvX1sM, 6PYTH3CF8Q2rBr6SWqUPeCQbDBFdELvfcqxDtmBwT8U5YS9ACura1QXwq5
-[m/49'/0'/0'/0/2']: 3879yFnks2bBNjWhkDmzjfWLdebXcuYv8i, 6PYRwqmMCpsuWCZ5nLFStsibdweLGzgrDGVFwttfSgkET1q2xeWGfkJgfA
-[m/49'/0'/0'/0/3']: 3FP4EZo7Rq2ZzWryWb6vjwgky4WcfBkezS, 6PYKLodxsF8fNUrtsLyEQ2vzDbKYQ4QsHh3drEJPRXDW6Dh39JnwENvXcZ
-[m/49'/0'/0'/0/4']: 3MkPDQviCAfv4KSZiLmeoBUjDtmTHF8WZF, 6PYLUj25r6KBfKQs4tpJY5ei5KBEYbMja6p3za8WLGfj2phoUEWGC6aZbb
+[m/49'/0'/0'/0/0]: 3HpzFSi3vDpP4LEMphC1rpiArzAQARuhCz, 6PYS49dBhWXYUGYoJRs1BjiwWP9xFtMvTSUrz3LH25pgkx7vHLRjWhPh77
+[m/49'/0'/0'/0/1]: 3LNibRvHXCAfFNtAxsGTdgc4QK6zfux1Xh, 6PYWdYWUHEUWbrpZfsqyqDqLEdKciPU4z2CUP5dTAZUgAA5P3kRpdJfssd
+[m/49'/0'/0'/0/2]: 38CJzvL1JTEP4hsotKSeXwWycGSzaadMY4, 6PYQsKHKd5t98dejwB4mPtztciPbdBpMvEYEW7RfgdbkirU9dQgD9R4fzR
+[m/49'/0'/0'/0/3]: 35EMZ6LJ7FSqDkUUbrHBzoWrbxvCuAC5iW, 6PYS77m41stXJrnUSjkQDjTKofNxseKw7nisnrwJFb5qiZv45ZfrMXJNAD
+[m/49'/0'/0'/0/4]: 36wWQaePbom8zvRFeNcjpr2Jwq99RY88os, 6PYT6LyxaPpmN3CY3DhgdSN1YTFBySN5tYomMuj5AS9i4bD8hGNSGvEhiC
 ```
 
 ### multisig
