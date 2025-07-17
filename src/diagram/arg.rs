@@ -40,17 +40,17 @@ pub struct DiagramCommand<T: GenericDiagram> {
 #[group(required = false, multiple = true)]
 pub struct GenerateTarget {
     /// Generate bip39 mnemonic [default]
-    #[clap(long, name = "length",
+    #[clap(long, name = "LENGTH",
       value_parser = clap::builder::PossibleValuesParser::new(["12", "15", "18", "21", "24"])
         .map(|s| s.parse::<u8>().unwrap()) )]
     pub mnemonic: Option<u8>,
 
     /// Generate wallet address and private key
-    #[clap(long)]
+    #[clap(long, visible_alias = "wallet")]
     pub wif: bool,
 
     /// Generate master key for HD-Wallet
-    #[clap(long)]
+    #[clap(long, visible_alias = "master")]
     pub xprv: bool,
 
     /// Generate password

@@ -2,7 +2,7 @@ use artimonist::{Mnemonic, Xpriv};
 
 #[derive(clap::Parser, Debug)]
 pub struct DeriveCommand {
-    /// Master key or Mnemonic phrase
+    /// Mnemonic phrase or Master key
     #[clap(name = "MNEMONIC|MASTER_KEY")]
     pub key: MasterKey,
 
