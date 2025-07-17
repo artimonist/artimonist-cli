@@ -1,4 +1,4 @@
-use super::arg::{MasterKey, inquire_derivation_path};
+use super::arg::{MasterKey, inquire_derive_path};
 use crate::Execute;
 use crate::utils::{bip38_encrypt, inquire_password};
 use artimonist::bitcoin;
@@ -10,11 +10,13 @@ impl Execute for super::arg::Bip32Command {
     fn execute(&mut self) -> anyhow::Result<()> {
         let path = match &self.path {
             Some(p) => p.clone(),
-            None => inquire_derivation_path()?,
+            None => inquire_derive_path(self.is_xpub())?,
         };
-        let password = match &self.password {
-            Some(p) => p.clone(),
-            None => inquire_password(self.is_mnemonic())?,
+
+        let password = match (self.is_xpub(), &self.password) {
+            (false, Some(p)) => p.clone(),
+            (false, None) => inquire_password(self.is_mnemonic())?,
+            (true, _) => String::new(), // Xpub does not require a password
         };
 
         match &self.key {

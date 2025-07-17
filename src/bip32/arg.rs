@@ -49,14 +49,20 @@ impl Bip32Command {
     }
 }
 
-pub fn inquire_derivation_path() -> anyhow::Result<DerivationPath> {
+pub fn inquire_derive_path(is_xpub: bool) -> anyhow::Result<DerivationPath> {
     use inquire::Text;
     use std::str::FromStr;
 
-    let path = Text::new("Enter derivation path")
-        .with_initial_value("m/0'/0'")
-        .with_help_message("e.g. m/44'/0'/0'/0/0")
-        .prompt()?;
-
+    let path = if is_xpub {
+        Text::new("Enter derivation path: ")
+            .with_initial_value("m/0/0")
+            .with_help_message("e.g. m/0/0 or m/0/2147483647 ")
+            .prompt()?
+    } else {
+        Text::new("Enter derivation path: ")
+            .with_initial_value("m/0'/0'")
+            .with_help_message("e.g. m/0'/0' or m/0'/2147483647' ")
+            .prompt()?
+    };
     Ok(DerivationPath::from_str(&path)?)
 }
