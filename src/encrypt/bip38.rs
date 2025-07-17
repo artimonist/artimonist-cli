@@ -1,7 +1,7 @@
 use super::{EncryptCommand, arg::EncryptSource};
+use crate::utils::{bip38_decrypt, bip38_encrypt};
 use crate::{Execute, utils::inquire_password};
 use anyhow::anyhow;
-use bip38::{Decrypt, EncryptWif};
 use std::fs::File;
 use std::io::{BufRead, BufReader, BufWriter, Write};
 
@@ -20,11 +20,9 @@ impl<const ENCRYPT: bool> Execute for EncryptCommand<ENCRYPT> {
         match &self.source {
             EncryptSource::Key(key) => {
                 if ENCRYPT {
-                    let result = key.wif_encrypt(&password)?;
-                    println!("Encrypted private key: {result}");
+                    println!("Encrypted private key: {}", bip38_encrypt(key, &password)?);
                 } else {
-                    let result = key.wif_decrypt(&password)?;
-                    println!("Decrypted private key: {result}");
+                    println!("Decrypted private key: {}", bip38_decrypt(key, &password)?);
                 }
             }
             EncryptSource::File(file) => {
@@ -47,9 +45,9 @@ fn execute_bulk<const ENCRYPT: bool>(file: &str, password: &str) -> anyhow::Resu
                 .split_ascii_whitespace()
                 .map(|s| {
                     if ENCRYPT && s.is_private() {
-                        s.wif_encrypt(password).unwrap_or(s.to_string())
+                        bip38_encrypt(s, password).unwrap_or(s.to_string())
                     } else if s.is_encrypted() {
-                        s.wif_decrypt(password).unwrap_or(s.to_string())
+                        bip38_decrypt(s, password).unwrap_or(s.to_string())
                     } else {
                         s.to_string()
                     }
@@ -68,8 +66,6 @@ fn execute_bulk<const ENCRYPT: bool>(file: &str, password: &str) -> anyhow::Resu
 trait Bip38 {
     fn is_private(&self) -> bool;
     fn is_encrypted(&self) -> bool;
-    fn wif_encrypt(&self, password: &str) -> anyhow::Result<String>;
-    fn wif_decrypt(&self, password: &str) -> anyhow::Result<String>;
 }
 
 impl Bip38 for str {
@@ -81,17 +77,5 @@ impl Bip38 for str {
     #[inline(always)]
     fn is_encrypted(&self) -> bool {
         self.starts_with("6P") && self.len() == 58
-    }
-
-    #[inline(always)]
-    fn wif_encrypt(&self, password: &str) -> anyhow::Result<String> {
-        self.encrypt_wif(password)
-            .map_err(|e| anyhow!(e.to_string()))
-    }
-
-    #[inline(always)]
-    fn wif_decrypt(&self, password: &str) -> anyhow::Result<String> {
-        self.decrypt_to_wif(password)
-            .map_err(|e| anyhow!(e.to_string()))
     }
 }

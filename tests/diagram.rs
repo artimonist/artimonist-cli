@@ -1,3 +1,5 @@
+#![cfg(not(feature = "testnet"))]
+
 use assert_cmd::Command;
 
 macro_rules! cli_execute {

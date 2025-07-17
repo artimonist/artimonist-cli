@@ -1,3 +1,5 @@
+#![cfg(not(feature = "testnet"))]
+
 use assert_cmd::Command;
 
 macro_rules! cli_derive {
@@ -78,14 +80,4 @@ fn test_derive_master() {
 
     let result = cli_derive!("-a 1111 -i 100 -m 5 --m35 --detail", MASTER);
     assert_eq!(result, include_str!("derive/master_m35"));
-}
-
-#[test]
-fn test_derive_bip32() {
-    let output = cli_derive!("--bip32 --detail", "播 画 紫 巴 云 样 垫 粗 鲁 爆 罩 酶");
-    assert_eq!(output, include_str!("derive/bip32_mnemonic"));
-
-    const MASTER: &str = "xprv9s21ZrQH143K2Z7ZyXha77A8JpqAwfEzRV7vGrxwiAmJnyGTmE4PCK7ULfVU9hhrB38bYVE4f1cQ6ZVe6pNAucfmZKMYofcRsb2FaxS8txA";
-    let output = cli_derive!("--bip32 -i 2 -m 3", MASTER);
-    assert_eq!(output, include_str!("derive/bip32_master"));
 }

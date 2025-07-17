@@ -19,7 +19,7 @@ pub struct DiagramCommand<T: GenericDiagram> {
     #[clap(short, long)]
     pub file: Option<String>,
 
-    /// Show unicode view for non-displayable character
+    /// Export unicode view for non-displayable character
     #[clap(long)]
     pub unicode: bool,
 

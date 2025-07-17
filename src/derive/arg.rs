@@ -3,12 +3,11 @@ use artimonist::{Mnemonic, Xpriv};
 #[derive(clap::Parser, Debug)]
 pub struct DeriveCommand {
     /// Master key or Mnemonic phrase
-    #[clap(name = "MASTER_KEY|MNEMONIC")]
+    #[clap(name = "MNEMONIC|MASTER_KEY")]
     pub key: MasterKey,
 
     /// Account start index
-    #[clap(short, long, default_value_t = 0, value_parser = clap::value_parser!(u32).range(0..65536),
-      conflicts_with = "bip32")]
+    #[clap(short, long, default_value_t = 0, value_parser = clap::value_parser!(u32).range(0..65536))]
     pub account: u32,
 
     /// Address start index
@@ -49,7 +48,7 @@ impl std::str::FromStr for MasterKey {
     type Err = anyhow::Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        if s.starts_with("xprv") || s.starts_with("xpub") {
+        if s.starts_with("xprv") {
             Ok(MasterKey::Xpriv(Xpriv::from_str(s)?))
         } else {
             Ok(MasterKey::Mnemonic(Mnemonic::from_str(s)?))
@@ -60,9 +59,6 @@ impl std::str::FromStr for MasterKey {
 #[derive(clap::Args, Debug)]
 #[group(required = false, multiple = false)]
 pub struct DerivePath {
-    /// Use BIP32 path: m/0/index [p2pkh]
-    #[clap(long)]
-    pub bip32: bool,
     /// Use derive path: m/44'/0'/account'/0/index [p2pkh]
     #[clap(long)]
     pub bip44: bool,
@@ -78,15 +74,20 @@ pub struct DerivePath {
 #[group(required = false, multiple = false)]
 pub struct MultiSig {
     /// Multiple signatures address of 2-3 [derive path: account'/0/index]
-    #[clap(long, conflicts_with = "bip32")]
+    #[clap(long)]
     pub m23: bool,
 
     /// Multiple signatures address of 3-5 [derive path: account'/0/index]
-    #[clap(long, conflicts_with = "bip32")]
+    #[clap(long)]
     pub m35: bool,
 }
 
 impl DeriveCommand {
+    #[inline(always)]
+    pub fn is_mnemonic(&self) -> bool {
+        matches!(self.key, MasterKey::Mnemonic(_))
+    }
+
     #[inline(always)]
     pub fn is_multisig(&self) -> bool {
         self.multisig.m23 || self.multisig.m35

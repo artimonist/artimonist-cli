@@ -1,8 +1,7 @@
 use super::DiagramCommand;
-use crate::utils::unicode::unicode_encode;
+use crate::utils::{bip38_encrypt, unicode_encode};
 use anyhow::anyhow;
 use artimonist::{BIP85, ComplexDiagram, GenericDiagram, Matrix, SimpleDiagram, Xpriv};
-use bip38::EncryptWif;
 use std::io::{BufWriter, Write};
 
 pub trait ConsoleOutput<T: ToString>: GenericDiagram {
@@ -91,11 +90,8 @@ impl<D: GenericDiagram> DeriveTargets for DiagramCommand<D> {
         let password = self.password.as_ref().ok_or(anyhow!("empty password"))?;
         writeln!(f, "Wifs: ")?;
         for index in self.index..self.index + self.amount {
-            let mut wif = master.bip85_wif(index)?;
-            if artimonist::NETWORK.is_mainnet() {
-                wif.pk = wif.pk.encrypt_wif(password).unwrap_or_default();
-            }
-            writeln!(f, "({index}): {}, {}", wif.addr, wif.pk)?;
+            let artimonist::Wif { addr, pk } = master.bip85_wif(index)?;
+            writeln!(f, "({index}): {addr}, {}", bip38_encrypt(&pk, password)?)?;
         }
         Ok(())
     }
