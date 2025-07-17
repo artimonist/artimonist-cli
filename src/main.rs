@@ -59,6 +59,7 @@ A tool for generating mnemonics and wallets.
 Project location: <https://github.com/artimonist/cli>
 Web version: <https://www.artimonist.org>";
 
+#[cfg(not(feature = "testnet"))]
 #[cfg(test)]
 mod diagram_test {
     use artimonist::{BIP85, GenericDiagram, SimpleDiagram, Wif};

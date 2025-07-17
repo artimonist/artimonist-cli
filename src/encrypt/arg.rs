@@ -2,8 +2,8 @@ use artimonist::bitcoin;
 
 #[derive(clap::Parser)]
 pub struct EncryptCommand<const ENCRYPT: bool> {
-    /// Private key or text file containing private keys
-    #[clap(name = "KEY|FILE")]
+    /// Private key in WIF format or encrypted key, or a file containing keys
+    #[clap(name = "KEY|FILE_NAME")]
     pub source: EncryptSource,
 
     /// Password
@@ -11,10 +11,13 @@ pub struct EncryptCommand<const ENCRYPT: bool> {
     pub password: Option<String>,
 }
 
+/// Source of encryption/decryption
 #[derive(Clone, Debug)]
 pub enum EncryptSource {
-    Key(String),  // Private key or encrypted key
-    File(String), // Text file containing private keys or encrypted keys
+    /// Private key in WIF format or encrypted key
+    Key(String),
+    /// Text file containing private keys or encrypted keys
+    File(String),
 }
 
 impl std::str::FromStr for EncryptSource {
