@@ -3,7 +3,7 @@ use artimonist::{Mnemonic, Xpriv};
 #[derive(clap::Parser, Debug)]
 pub struct DeriveCommand {
     /// Master key or Mnemonic phrase
-    #[clap(name = "MASTER_KEY|MNEMONIC")]
+    #[clap(name = "MNEMONIC|MASTER_KEY")]
     pub key: MasterKey,
 
     /// Account start index
@@ -49,7 +49,7 @@ impl std::str::FromStr for MasterKey {
     type Err = anyhow::Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        if s.starts_with("xprv") || s.starts_with("xpub") {
+        if s.starts_with("xprv") {
             Ok(MasterKey::Xpriv(Xpriv::from_str(s)?))
         } else {
             Ok(MasterKey::Mnemonic(Mnemonic::from_str(s)?))
@@ -87,6 +87,11 @@ pub struct MultiSig {
 }
 
 impl DeriveCommand {
+    #[inline(always)]
+    pub fn is_mnemonic(&self) -> bool {
+        matches!(self.key, MasterKey::Mnemonic(_))
+    }
+
     #[inline(always)]
     pub fn is_multisig(&self) -> bool {
         self.multisig.m23 || self.multisig.m35

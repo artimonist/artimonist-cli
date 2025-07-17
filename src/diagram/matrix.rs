@@ -1,4 +1,4 @@
-use crate::utils::unicode::unicode_decode;
+use crate::utils::unicode_decode;
 use artimonist::{Matrix, ToMatrix};
 use std::fs::File;
 use std::io::{BufRead, BufReader};

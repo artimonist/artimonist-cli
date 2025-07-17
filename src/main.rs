@@ -1,9 +1,11 @@
+mod bip32;
 mod derive;
 mod diagram;
 mod encrypt;
 mod utils;
 
 use artimonist::{ComplexDiagram, SimpleDiagram};
+use bip32::Bip32Command;
 use clap::{Parser, Subcommand};
 use derive::DeriveCommand;
 use diagram::DiagramCommand;
@@ -19,9 +21,9 @@ pub struct Cli {
 
 #[derive(Subcommand)]
 pub enum Commands {
-    /// Use simple diagram of 7 * 7 chars
+    /// Use simple diagram of 7 * 7 unicode chars
     Simple(DiagramCommand<SimpleDiagram>),
-    /// Use complex diagram of 7 * 7 strings
+    /// Use complex diagram of 7 * 7 unicode strings
     Complex(DiagramCommand<ComplexDiagram>),
     /// Encrypt private key by bip38
     Encrypt(EncryptCommand<true>),
@@ -29,6 +31,8 @@ pub enum Commands {
     Decrypt(EncryptCommand<false>),
     /// Derive from master key or mnemonic
     Derive(DeriveCommand),
+    /// Derive by custom bip32 path
+    Bip32(Bip32Command),
 }
 
 pub trait Execute {
@@ -43,6 +47,7 @@ fn main() -> anyhow::Result<()> {
         Commands::Encrypt(mut cmd) => cmd.execute()?,
         Commands::Decrypt(mut cmd) => cmd.execute()?,
         Commands::Derive(mut cmd) => cmd.execute()?,
+        Commands::Bip32(mut cmd) => cmd.execute()?,
     }
     Ok(())
 }
