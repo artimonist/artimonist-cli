@@ -3,6 +3,7 @@ use crate::utils::{bip38_encrypt, unicode_encode};
 use anyhow::anyhow;
 use artimonist::{BIP85, ComplexDiagram, GenericDiagram, Matrix, SimpleDiagram, Xpriv};
 use std::io::{BufWriter, Write};
+use unicode_normalization::UnicodeNormalization;
 
 pub trait ConsoleOutput<T: ToString>: GenericDiagram {
     fn matrix(&self) -> &Matrix<T, 7, 7>;
@@ -25,7 +26,8 @@ pub trait ConsoleOutput<T: ToString>: GenericDiagram {
 
         // generation results
         let password = cmd.password.as_ref().ok_or(anyhow!("empty password"))?;
-        let master = self.bip32_master(password.as_bytes())?;
+        let pass_nfc: String = password.nfc().collect();
+        let master = self.bip32_master(pass_nfc.as_bytes())?;
         cmd.derive_all(&master, f)?;
 
         Ok(())

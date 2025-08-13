@@ -1,7 +1,6 @@
 use super::{DiagramCommand, matrix::LoadMatrix, output::ConsoleOutput};
 use crate::utils::{inquire_password, select_language};
 use artimonist::{ComplexDiagram, Language, Matrix, SimpleDiagram};
-// use artimonist::{ComplexDiagram, Language, Matrix, SimpleDiagram};
 
 impl crate::Execute for DiagramCommand<SimpleDiagram> {
     fn execute(&mut self) -> anyhow::Result<()> {
