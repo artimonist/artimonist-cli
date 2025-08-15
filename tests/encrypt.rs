@@ -54,17 +54,17 @@ macro_rules! cli_test_error {
 #[test]
 fn test_encrypt_error() {
     cli_test_error!(
-        "Error: invalid wif private key",
+        "Error: Invalid WIF: decoded base58 data was an invalid length",
         "encrypt",
         "6PYPVwvgux4mN96iwj1RGvbiGmmPWpkiQimpkP1fvFGGhT38XxZed6Kdth"
     );
     cli_test_error!(
-        "Error: invalid encrypted private key",
+        "Error: Invalid BIP38 encrypted key",
         "decrypt",
         "KyyXeMvCn36KuedmVX727NYQ35YEeF4z1ZjXGyqgFpmZM4AcY8ay"
     );
     cli_test_error!(
-        "Error: invalid checksum",
+        "Error: Base58 error: incorrect checksum",
         "decrypt",
         "6PYPVwvgux4mN96iwj1RGvbiGmmPWpkiQimpkP1fvFGGhT38XxZed6Kdt1"
     );

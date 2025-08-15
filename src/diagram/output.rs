@@ -1,7 +1,7 @@
 use super::DiagramCommand;
-use crate::utils::{bip38_encrypt, unicode_encode};
+use crate::utils::unicode_encode;
 use anyhow::anyhow;
-use artimonist::{BIP85, ComplexDiagram, GenericDiagram, Matrix, SimpleDiagram, Xpriv};
+use artimonist::{BIP38, BIP85, ComplexDiagram, GenericDiagram, Matrix, SimpleDiagram, Xpriv};
 use std::io::{BufWriter, Write};
 use unicode_normalization::UnicodeNormalization;
 
@@ -93,7 +93,7 @@ impl<D: GenericDiagram> DeriveTargets for DiagramCommand<D> {
         writeln!(f, "Wifs: ")?;
         for index in self.index..self.index + self.amount {
             let artimonist::Wif { addr, pk } = master.bip85_wif(index)?;
-            writeln!(f, "({index}): {addr}, {}", bip38_encrypt(&pk, password)?)?;
+            writeln!(f, "({index}): {addr}, {}", pk.bip38_encrypt(password)?)?;
         }
         Ok(())
     }

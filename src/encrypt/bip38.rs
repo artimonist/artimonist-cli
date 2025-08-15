@@ -1,7 +1,7 @@
 use super::{EncryptCommand, arg::EncryptSource};
-use crate::utils::{bip38_decrypt, bip38_encrypt};
 use crate::{Execute, utils::inquire_password};
 use anyhow::anyhow;
+use artimonist::BIP38;
 use std::fs::File;
 use std::io::{BufRead, BufReader, BufWriter, Write};
 
@@ -20,9 +20,9 @@ impl<const ENCRYPT: bool> Execute for EncryptCommand<ENCRYPT> {
         match &self.source {
             EncryptSource::Key(key) => {
                 if ENCRYPT {
-                    println!("Encrypted private key: {}", bip38_encrypt(key, &password)?);
+                    println!("Encrypted private key: {}", key.bip38_encrypt(&password)?);
                 } else {
-                    println!("Decrypted private key: {}", bip38_decrypt(key, &password)?);
+                    println!("Decrypted private key: {}", key.bip38_decrypt(&password)?);
                 }
             }
             EncryptSource::File(file) => {
@@ -45,9 +45,9 @@ fn execute_bulk<const ENCRYPT: bool>(file: &str, password: &str) -> anyhow::Resu
                 .split_ascii_whitespace()
                 .map(|s| {
                     if ENCRYPT && s.is_private() {
-                        bip38_encrypt(s, password).unwrap_or(s.to_string())
+                        s.bip38_encrypt(password).unwrap_or(s.to_string())
                     } else if s.is_encrypted() {
-                        bip38_decrypt(s, password).unwrap_or(s.to_string())
+                        s.bip38_decrypt(password).unwrap_or(s.to_string())
                     } else {
                         s.to_string()
                     }
