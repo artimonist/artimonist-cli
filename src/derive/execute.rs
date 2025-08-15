@@ -1,7 +1,6 @@
 use super::{DeriveCommand, arg::MasterKey, multisig::MultiSig};
-use crate::Execute;
-use crate::utils::{bip38_encrypt, inquire_password};
-use artimonist::{BIP39, Xpriv};
+use crate::{Execute, utils::inquire_password};
+use artimonist::{BIP38, BIP39, Xpriv};
 use std::io::{BufWriter, Write};
 
 impl Execute for DeriveCommand {
@@ -58,7 +57,7 @@ impl Wallet for DeriveCommand {
         for index in self.index..self.index + self.amount {
             let (addr, pk) = self.derive.wallet(master, self.account, index)?;
             let path = format!("{}/0/{index}", self.derive.path(self.account));
-            writeln!(f, "[{path}]: {addr}, {}", bip38_encrypt(&pk, password)?)?;
+            writeln!(f, "[{path}]: {addr}, {}", pk.bip38_encrypt(password)?)?;
         }
         Ok(())
     }

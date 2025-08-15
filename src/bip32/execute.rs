@@ -1,9 +1,7 @@
 use super::arg::{MasterKey, inquire_derive_path};
-use crate::Execute;
-use crate::utils::{bip38_encrypt, inquire_password};
-use artimonist::bitcoin;
-use artimonist::bitcoin::bip32::DerivationPath;
-use artimonist::{BIP39, Xpriv, Xpub, bitcoin::Address};
+use crate::{Execute, utils::inquire_password};
+use artimonist::bitcoin::{self, Address, bip32::DerivationPath};
+use artimonist::{BIP38, BIP39, Xpriv, Xpub};
 use std::io::Write;
 
 impl Execute for super::arg::Bip32Command {
@@ -42,7 +40,7 @@ fn derive_xprv(master: &Xpriv, path: &DerivationPath, password: &str) -> anyhow:
     writeln!(f, "Extended public key: {xpub}")?;
 
     let (pub_key, priv_wif) = (xpub.to_pub(), xprv.to_priv().to_string());
-    writeln!(f, "Private key: {}", bip38_encrypt(&priv_wif, password)?)?;
+    writeln!(f, "Private key: {}", priv_wif.bip38_encrypt(password)?)?;
     writeln!(f, "Public key: {pub_key}")?;
 
     let network = artimonist::bitcoin::Network::Bitcoin;
