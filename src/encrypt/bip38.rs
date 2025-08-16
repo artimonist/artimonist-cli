@@ -1,7 +1,7 @@
 use super::{EncryptCommand, arg::EncryptSource};
 use crate::{Execute, utils::inquire_password};
 use anyhow::anyhow;
-use artimonist::BIP38;
+use artimonist::{BIP38, MnemonicEncryption};
 use std::fs::File;
 use std::io::{BufRead, BufReader, BufWriter, Write};
 
@@ -18,11 +18,20 @@ impl<const ENCRYPT: bool> Execute for EncryptCommand<ENCRYPT> {
         };
 
         match &self.source {
+            EncryptSource::Mnemonic(str) => {
+                if ENCRYPT {
+                    let mnemonic = str.mnemonic_encrypt(&password, 0)?;
+                    println!("Encrypted mnemonic: \"{mnemonic}\"");
+                } else {
+                    let original = str.mnemonic_decrypt(&password)?;
+                    println!("Original mnemonic: \"{original}\"");
+                }
+            }
             EncryptSource::Key(key) => {
                 if ENCRYPT {
                     println!("Encrypted private key: {}", key.bip38_encrypt(&password)?);
                 } else {
-                    println!("Decrypted private key: {}", key.bip38_decrypt(&password)?);
+                    println!("Original private key: {}", key.bip38_decrypt(&password)?);
                 }
             }
             EncryptSource::File(file) => {

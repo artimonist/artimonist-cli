@@ -12,7 +12,7 @@ impl crate::Execute for DiagramCommand<SimpleDiagram> {
 
         // choose a mnemonic language if needed
         if self.has_mnemonic() && self.language.is_none() {
-            self.language = Some(select_language(&Language::all())?);
+            self.language = Some(select_language(Language::all())?);
         }
 
         // inquire the encryption password as salt
@@ -36,7 +36,7 @@ impl crate::Execute for DiagramCommand<ComplexDiagram> {
 
         // choose a mnemonic language if needed
         if self.has_mnemonic() && self.language.is_none() {
-            self.language = Some(select_language(&Language::all())?);
+            self.language = Some(select_language(Language::all())?);
         }
 
         // inquire the encryption password as salt
