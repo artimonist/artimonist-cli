@@ -57,7 +57,7 @@ impl MultiSig for DeriveCommand {
         }
         if self.detail {
             writeln!(f)?;
-            writeln!(f, "Account xprivs: [{path_first}] ~ [{path_last}]")?;
+            writeln!(f, "Account xprvs: [{path_first}] ~ [{path_last}]")?;
             for (i, (_, xpriv)) in accounts.iter().enumerate() {
                 let path = self.derive.path(self.account + i as u32);
                 writeln!(f, "[{path}]: {xpriv}")?;

@@ -32,6 +32,7 @@ pub enum Commands {
     /// Derive from master key or mnemonic
     Derive(DeriveCommand),
     /// Derive by custom bip32 path
+    #[clap(hide = true)]
     Bip32(Bip32Command),
 }
 

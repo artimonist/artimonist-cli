@@ -4,7 +4,7 @@ Account xpubs: [m/49'/0'/0'] ~ [m/49'/0'/2']
 [m/49'/0'/1']: xpub6C64R6ykTRzrdYGCy2kSW1FnJS4NdfzeXDkCzFTaTmRfHfaBWGryAbp45EiNRoq39tWRkxJh7xa6fjNoDmrPFCMiHpYR9BrbVWEHs8WLcur
 [m/49'/0'/2']: xpub6C64R6ykTRzreYVyfrf4LmpwQhrVcDi92HBvCKaB5LjorHMaXogimCe76jjFKLXd6kMJZKXaTrWuuKUMB9ks3ZzNLsY6xzmJNjvaTZYkHaA
 
-Account xprivs: [m/49'/0'/0'] ~ [m/49'/0'/2']
+Account xprvs: [m/49'/0'/0'] ~ [m/49'/0'/2']
 [m/49'/0'/0']: xprv9y6i1bSrd4SZMKKAAPkQggLjTWLs4Vzmtco51mfozx3dDkbLJi9XdNTcix2CVDWmQoymbjEtih7vHjcUtoEKwoPvnWNvp3988VwV8g3BCq5
 [m/49'/0'/1']: xprv9y6i1bSrd4SZR4Bjs1DS8sK3kQDtEDGo9zpcBs3xuRtgQsF2xjYicoVaDzMBb7urN19SCXFxxEfASsN3Zj23iUdrVxUBrSTG4mBPkwrBGTZ
 [m/49'/0'/2']: xprv9y6i1bSrd4SZS4RWZq83ydtCrg21CkzHf4GKPwAZX1CpyV2RzGNUDQKdFVD943Mt9fQVCtEBqTSMq3Dk6Q6qknTbACxukVq42pAXrL8AnnH
