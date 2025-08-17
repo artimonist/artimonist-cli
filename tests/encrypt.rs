@@ -59,7 +59,7 @@ fn test_encrypt_error() {
         "6PYPVwvgux4mN96iwj1RGvbiGmmPWpkiQimpkP1fvFGGhT38XxZed6Kdth"
     );
     cli_test_error!(
-        "Error: Invalid BIP38 encrypted key",
+        "Error: Invalid encrypted key",
         "decrypt",
         "KyyXeMvCn36KuedmVX727NYQ35YEeF4z1ZjXGyqgFpmZM4AcY8ay"
     );

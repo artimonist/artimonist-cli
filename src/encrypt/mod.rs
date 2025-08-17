@@ -1,4 +1,4 @@
 mod arg;
-mod bip38;
+mod execute;
 
 pub use arg::EncryptCommand;

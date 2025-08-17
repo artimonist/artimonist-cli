@@ -3,7 +3,7 @@ use artimonist::{Mnemonic, Xpriv};
 #[derive(clap::Parser, Debug)]
 pub struct DeriveCommand {
     /// Mnemonic phrase or Master key
-    #[clap(name = "MNEMONIC|MASTER_KEY")]
+    #[clap(name = "MNEMONIC|MASTER KEY")]
     pub key: MasterKey,
 
     /// Account start index
