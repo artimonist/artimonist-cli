@@ -20,7 +20,7 @@ impl<const ENCRYPT: bool> Execute for EncryptCommand<ENCRYPT> {
         match &self.source {
             EncryptSource::Mnemonic(str) => {
                 if ENCRYPT {
-                    let mnemonic = str.mnemonic_encrypt(&password, 0)?;
+                    let mnemonic = str.mnemonic_encrypt(&password)?;
                     println!("Encrypted mnemonic: \"{mnemonic}\"");
                 } else {
                     let original = str.mnemonic_decrypt(&password)?;
