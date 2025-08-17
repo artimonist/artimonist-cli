@@ -100,7 +100,7 @@ impl<D: GenericDiagram> DeriveTargets for DiagramCommand<D> {
 
     #[inline]
     fn xpriv(&self, master: &Xpriv, f: &mut impl Write) -> anyhow::Result<()> {
-        writeln!(f, "Xprivs: ")?;
+        writeln!(f, "Xprvs: ")?;
         for index in self.index..self.index + self.amount {
             let xpriv = master.bip85_xpriv(index)?;
             writeln!(f, "({index}): {xpriv}")?;
@@ -137,8 +137,17 @@ where
                 None => "".to_owned(),
             })
         });
+
+        use comfy_table::modifiers::UTF8_ROUND_CORNERS;
+        use comfy_table::modifiers::UTF8_SOLID_INNER_BORDERS;
+        use comfy_table::presets::UTF8_FULL;
+
         let mut table = comfy_table::Table::new();
-        table.add_rows(mx);
+        table
+            .load_preset(UTF8_FULL)
+            .apply_modifier(UTF8_ROUND_CORNERS)
+            .apply_modifier(UTF8_SOLID_INNER_BORDERS)
+            .add_rows(mx);
         table
     }
 }
