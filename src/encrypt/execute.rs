@@ -20,18 +20,16 @@ impl<const ENCRYPT: bool> Execute for EncryptCommand<ENCRYPT> {
         match &self.source {
             EncryptSource::Mnemonic(str) => {
                 if ENCRYPT {
-                    let mnemonic = str.mnemonic_encrypt(&password)?;
-                    println!("Encrypted mnemonic: \"{mnemonic}\"");
+                    println!("{}", str.mnemonic_encrypt(&password)?);
                 } else {
-                    let original = str.mnemonic_decrypt(&password)?;
-                    println!("Original mnemonic: \"{original}\"");
+                    println!("{}", str.mnemonic_decrypt(&password)?);
                 }
             }
             EncryptSource::Key(key) => {
                 if ENCRYPT {
-                    println!("Encrypted private key: {}", key.bip38_encrypt(&password)?);
+                    println!("{}", key.bip38_encrypt(&password)?);
                 } else {
-                    println!("Original private key: {}", key.bip38_decrypt(&password)?);
+                    println!("{}", key.bip38_decrypt(&password)?);
                 }
             }
             EncryptSource::File(file) => {
