@@ -81,7 +81,7 @@ impl<D: GenericDiagram> DeriveTargets for DiagramCommand<D> {
         let length = self.target.mnemonic.unwrap_or(24) as u32;
         for index in self.index..self.index + self.amount {
             let language = self.language.ok_or(anyhow::anyhow!("unkown language"))?;
-            let mnemonic = master.bip85_mnemonic(language, length, index)?;
+            let mnemonic = master.bip85_mnemonic(index, length, language)?;
             writeln!(f, "({index}): {mnemonic}")?;
         }
         Ok(())
@@ -112,7 +112,7 @@ impl<D: GenericDiagram> DeriveTargets for DiagramCommand<D> {
     fn pwd(&self, master: &Xpriv, f: &mut impl Write) -> anyhow::Result<()> {
         writeln!(f, "Passwords: ")?;
         for index in self.index..self.index + self.amount {
-            let pwd = master.bip85_pwd(Default::default(), 20, index)?;
+            let pwd = master.bip85_pwd(index, 20, Default::default())?;
             writeln!(f, "({index}): {pwd}")?;
         }
         Ok(())

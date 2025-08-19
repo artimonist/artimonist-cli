@@ -69,8 +69,8 @@ mod diagram_test {
     #[test]
     fn test_simple() {
         const CHARS: &str = "【1$≈⅞£】";
-        static INDICES: [(usize, usize); 7] =
-            [(0, 0), (1, 1), (2, 2), (3, 3), (4, 4), (5, 5), (6, 6)];
+        // static INDICES: [(usize, usize); 7] =
+        //     [(0, 0), (1, 1), (2, 2), (3, 3), (4, 4), (5, 5), (6, 6)];
         const MNEMONIC: &str = "face shoot relax patch verify six lion proud income copy strategy primary person sign hint mango bargain soldier lobster change follow vehicle material harvest";
         const WIFS: [&str; 5] = [
             "3Cp9s5u2e2Y4mWEDQKnjn7XidkFqwCAR16, Kxnp8CMBWth5yBZHURj4qiHoQZbiu2vsppbFMGAWv6c3hajtmMor",
@@ -95,13 +95,13 @@ mod diagram_test {
 
         // Simple diagram compatible with older serializations
         // Matrix use generic serializations
-        let diagram = SimpleDiagram::from_values(&CHARS.chars().collect::<Vec<_>>(), &INDICES);
-        // let mx = &diagram.0;
-        // assert_ne!(diagram.to_bytes().unwrap(), mx.to_bytes().unwrap());
+        let mut mx = [[None; 7]; 7];
+        (0..7).for_each(|i| mx[i][i] = Some(CHARS.chars().nth(i).unwrap()));
+        let diagram = SimpleDiagram(mx);
 
         // simple diagram compatible with older results
         let master = diagram.bip32_master(Default::default()).unwrap();
-        let mnemonic = master.bip85_mnemonic(Default::default(), 24, 0).unwrap();
+        let mnemonic = master.bip85_mnemonic(0, 24, Default::default()).unwrap();
         assert_eq!(mnemonic, MNEMONIC);
         WIFS.into_iter().enumerate().for_each(|(i, s)| {
             let Wif { addr, pk } = master.bip85_wif(i as u32).unwrap();
@@ -110,7 +110,7 @@ mod diagram_test {
         let salt_master = diagram.bip32_master("artimonist".as_bytes()).unwrap();
         assert_eq!(salt_master.bip85_xpriv(0).unwrap(), XPRIV);
         PWDS.into_iter().enumerate().for_each(|(i, s)| {
-            let pwd = master.bip85_pwd(Default::default(), 20, i as u32).unwrap();
+            let pwd = master.bip85_pwd(i as u32, 20, Default::default()).unwrap();
             assert_eq!(pwd, s);
         });
     }

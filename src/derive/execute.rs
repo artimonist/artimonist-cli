@@ -1,6 +1,6 @@
 use super::{DeriveCommand, arg::MasterKey, multisig::MultiSig};
 use crate::{Execute, utils::inquire_password};
-use artimonist::{BIP38, BIP39, Xpriv};
+use artimonist::{BIP38, Xpriv};
 use std::io::{BufWriter, Write};
 
 impl Execute for DeriveCommand {
@@ -19,7 +19,7 @@ impl Execute for DeriveCommand {
                 }
             }
             MasterKey::Mnemonic(mnemonic) => {
-                let master = Xpriv::from_mnemonic(&mnemonic.to_string(), &password)?;
+                let master = mnemonic.to_master(&password)?;
                 if self.is_multisig() {
                     self.derive_multisig(&master)?
                 } else {
