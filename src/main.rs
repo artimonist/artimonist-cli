@@ -104,13 +104,15 @@ mod diagram_test {
         let mnemonic = master.bip85_mnemonic(0, 24, Default::default()).unwrap();
         assert_eq!(mnemonic, MNEMONIC);
         WIFS.into_iter().enumerate().for_each(|(i, s)| {
-            let Wif { addr, pk } = master.bip85_wif(i as u32).unwrap();
+            let Wif { addr, pk } = master.bip85_wallet(i as u32).unwrap();
             assert_eq!(format!("{addr}, {pk}"), s);
         });
         let salt_master = diagram.bip32_master("artimonist".as_bytes()).unwrap();
-        assert_eq!(salt_master.bip85_xpriv(0).unwrap(), XPRIV);
+        assert_eq!(salt_master.bip85_master(0).unwrap(), XPRIV);
         PWDS.into_iter().enumerate().for_each(|(i, s)| {
-            let pwd = master.bip85_pwd(i as u32, 20, Default::default()).unwrap();
+            let pwd = master
+                .bip85_password(i as u32, 20, Default::default())
+                .unwrap();
             assert_eq!(pwd, s);
         });
     }
