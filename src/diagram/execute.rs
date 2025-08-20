@@ -187,7 +187,7 @@ impl<D: GenericDiagram> DisplayTargets for DiagramCommand<D> {
         let password = self.password.as_ref().ok_or(anyhow!("empty password"))?;
         writeln!(f, "Wifs: ")?;
         for index in self.index..self.index + self.amount {
-            let artimonist::Wif { addr, pk } = master.bip85_wif(index)?;
+            let artimonist::Wif { addr, pk } = master.bip85_wallet(index)?;
             writeln!(f, "({index}): {addr}, {}", pk.bip38_encrypt(password)?)?;
         }
         Ok(())
@@ -197,7 +197,7 @@ impl<D: GenericDiagram> DisplayTargets for DiagramCommand<D> {
     fn xpriv(&self, master: &Xpriv, f: &mut impl Write) -> anyhow::Result<()> {
         writeln!(f, "Xprvs: ")?;
         for index in self.index..self.index + self.amount {
-            let xpriv = master.bip85_xpriv(index)?;
+            let xpriv = master.bip85_master(index)?;
             writeln!(f, "({index}): {xpriv}")?;
         }
         Ok(())
@@ -207,7 +207,7 @@ impl<D: GenericDiagram> DisplayTargets for DiagramCommand<D> {
     fn pwd(&self, master: &Xpriv, f: &mut impl Write) -> anyhow::Result<()> {
         writeln!(f, "Passwords: ")?;
         for index in self.index..self.index + self.amount {
-            let pwd = master.bip85_pwd(index, 20, Default::default())?;
+            let pwd = master.bip85_password(index, 20, Default::default())?;
             writeln!(f, "({index}): {pwd}")?;
         }
         Ok(())

@@ -98,9 +98,24 @@ checksum = "7c02d123df017efcdfbd739ef81735b36c5ba83ec3c59c80a9d7ecc718f92e50"
 
 [[package]]
 name = "artimonist"
-version = "1.8.1"
+version = "1.8.4"
+dependencies = [
+ "anyhow",
+ "artimonist 1.9.0",
+ "assert_cmd",
+ "clap",
+ "comfy-table",
+ "inquire",
+ "predicates",
+ "thiserror",
+ "unicode-normalization",
+]
+
+[[package]]
+name = "artimonist"
+version = "1.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5c4ccfe5965f5cc9df4df8df95fa9b877b0451857926bdf2c7a5cddc852ca9f2"
+checksum = "0cf30bf6016bf556215cd2cb0f3c4a17241424b92525d164a08992fd2eca096c"
 dependencies = [
  "aes",
  "argon2",
@@ -112,21 +127,6 @@ dependencies = [
  "thiserror",
  "unicode-normalization",
  "xbits",
-]
-
-[[package]]
-name = "artimonist"
-version = "1.8.3"
-dependencies = [
- "anyhow",
- "artimonist 1.8.1",
- "assert_cmd",
- "clap",
- "comfy-table",
- "inquire",
- "predicates",
- "thiserror",
- "unicode-normalization",
 ]
 
 [[package]]
