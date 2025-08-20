@@ -145,7 +145,7 @@ impl<D: GenericDiagram> DisplayTargets for DiagramCommand<D> {
         }
 
         // generation results
-        self.derive_all(&master, f)?;
+        self.derive_all(master, f)?;
         Ok(())
     }
 
