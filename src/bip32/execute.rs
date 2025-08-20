@@ -1,7 +1,7 @@
 use super::arg::{MasterKey, inquire_derive_path};
 use crate::{Execute, utils::inquire_password};
 use artimonist::bitcoin::{self, Address, bip32::DerivationPath};
-use artimonist::{BIP38, BIP39, Xpriv, Xpub};
+use artimonist::{BIP38, Xpriv, Xpub};
 use std::io::Write;
 
 impl Execute for super::arg::Bip32Command {
@@ -19,7 +19,7 @@ impl Execute for super::arg::Bip32Command {
 
         match &self.key {
             MasterKey::Mnemonic(mnemonic) => {
-                let master = Xpriv::from_mnemonic(&mnemonic.to_string(), &password)?;
+                let master = mnemonic.to_master(&password)?;
                 derive_xprv(&master, &path, &password)
             }
             MasterKey::Xpriv(xprv) => derive_xprv(xprv, &path, &password),
