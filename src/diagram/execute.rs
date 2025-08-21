@@ -24,18 +24,27 @@ impl<T: GenericDiagram> crate::Execute for DiagramCommand<T> {
 
         // inquire the encryption password as salt
         let password = match &self.password {
-            Some(v) => v.to_string(),
-            None => inquire_password(true)?,
+            Some(v) => v,
+            None => {
+                self.password = Some(inquire_password(true)?);
+                self.password.as_ref().unwrap()
+            }
         };
 
         // output the diagram's result
         if type_name::<T>().contains("SimpleDiagram") {
             let diagram = items.art_simple_diagram()?;
-            let master = diagram.to_master_v1(password.as_bytes())?;
+            let master = match self.version_v1 {
+                true => diagram.to_master_v1(password.as_bytes())?,
+                false => diagram.to_master(password.as_bytes())?,
+            };
             self.display(diagram.0, &master)?;
         } else if type_name::<T>().contains("ComplexDiagram") {
             let diagram = items.art_complex_diagram()?;
-            let master = diagram.to_master_v1(password.as_bytes())?;
+            let master = match self.version_v1 {
+                true => diagram.to_master_v1(password.as_bytes())?,
+                false => diagram.to_master(password.as_bytes())?,
+            };
             self.display(diagram.0, &master)?;
         } else {
             return Err(anyhow::anyhow!("Unsupported diagram type"));
@@ -155,15 +164,15 @@ impl<D: GenericDiagram> DisplayTargets for DiagramCommand<D> {
             writeln!(f)?;
             self.mnemonic(master, f)?;
         }
-        if self.target.wif {
+        if self.target.wallet {
             writeln!(f)?;
             self.wif(master, f)?;
         }
-        if self.target.xprv {
+        if self.target.master {
             writeln!(f)?;
             self.xpriv(master, f)?;
         }
-        if self.target.pwd {
+        if self.target.passphrase {
             writeln!(f)?;
             self.pwd(master, f)?;
         }
