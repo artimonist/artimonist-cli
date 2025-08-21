@@ -100,14 +100,14 @@ mod diagram_test {
         let diagram = SimpleDiagram(mx);
 
         // simple diagram compatible with older results
-        let master = diagram.bip32_master(Default::default()).unwrap();
+        let master = diagram.to_master_v1(Default::default()).unwrap();
         let mnemonic = master.bip85_mnemonic(0, 24, Default::default()).unwrap();
         assert_eq!(mnemonic, MNEMONIC);
         WIFS.into_iter().enumerate().for_each(|(i, s)| {
             let Wif { addr, pk } = master.bip85_wallet(i as u32).unwrap();
             assert_eq!(format!("{addr}, {pk}"), s);
         });
-        let salt_master = diagram.bip32_master("artimonist".as_bytes()).unwrap();
+        let salt_master = diagram.to_master_v1("artimonist".as_bytes()).unwrap();
         assert_eq!(salt_master.bip85_master(0).unwrap(), XPRIV);
         PWDS.into_iter().enumerate().for_each(|(i, s)| {
             let pwd = master

@@ -98,10 +98,10 @@ checksum = "7c02d123df017efcdfbd739ef81735b36c5ba83ec3c59c80a9d7ecc718f92e50"
 
 [[package]]
 name = "artimonist"
-version = "1.8.4"
+version = "2.0.0"
 dependencies = [
  "anyhow",
- "artimonist 1.9.0",
+ "artimonist 2.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "assert_cmd",
  "clap",
  "comfy-table",
@@ -113,9 +113,9 @@ dependencies = [
 
 [[package]]
 name = "artimonist"
-version = "1.9.0"
+version = "2.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0cf30bf6016bf556215cd2cb0f3c4a17241424b92525d164a08992fd2eca096c"
+checksum = "af2055299f126d7f41219a6c1256a9fa3f5c2e39efae472ca20e63ca563b2423"
 dependencies = [
  "aes",
  "argon2",

@@ -31,11 +31,11 @@ impl<T: GenericDiagram> crate::Execute for DiagramCommand<T> {
         // output the diagram's result
         if type_name::<T>().contains("SimpleDiagram") {
             let diagram = items.art_simple_diagram()?;
-            let master = diagram.bip32_master(password.as_bytes())?;
+            let master = diagram.to_master_v1(password.as_bytes())?;
             self.display(diagram.0, &master)?;
         } else if type_name::<T>().contains("ComplexDiagram") {
             let diagram = items.art_complex_diagram()?;
-            let master = diagram.bip32_master(password.as_bytes())?;
+            let master = diagram.to_master_v1(password.as_bytes())?;
             self.display(diagram.0, &master)?;
         } else {
             return Err(anyhow::anyhow!("Unsupported diagram type"));
