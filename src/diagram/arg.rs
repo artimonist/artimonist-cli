@@ -34,6 +34,10 @@ pub struct DiagramCommand<T: GenericDiagram> {
     /// Mnemonic language
     #[clap(hide = true, long)]
     pub language: Option<Language>,
+
+    /// Use generate engine of version 1
+    #[clap(long = "v1")]
+    pub version_v1: bool,
 }
 
 #[derive(clap::Args, Debug)]
@@ -46,21 +50,22 @@ pub struct GenerateTarget {
     pub mnemonic: Option<u8>,
 
     /// Generate wallet address and private key
-    #[clap(long, visible_alias = "wallet")]
-    pub wif: bool,
+    #[clap(long, visible_alias = "wif")]
+    pub wallet: bool,
 
     /// Generate master key for HD-Wallet
-    #[clap(long, visible_alias = "master")]
-    pub xprv: bool,
+    #[clap(long, visible_alias = "xprv")]
+    pub master: bool,
 
-    /// Generate password
-    #[clap(long)]
-    pub pwd: bool,
+    /// Generate passphrase
+    #[clap(long, visible_alias = "pwd")]
+    pub passphrase: bool,
 }
 
 impl<T: GenericDiagram> DiagramCommand<T> {
     #[inline(always)]
     pub fn has_mnemonic(&self) -> bool {
-        self.target.mnemonic.is_some() || !(self.target.wif || self.target.xprv || self.target.pwd)
+        self.target.mnemonic.is_some()
+            || !(self.target.wallet || self.target.master || self.target.passphrase)
     }
 }
