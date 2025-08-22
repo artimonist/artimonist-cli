@@ -99,21 +99,6 @@ checksum = "7c02d123df017efcdfbd739ef81735b36c5ba83ec3c59c80a9d7ecc718f92e50"
 [[package]]
 name = "artimonist"
 version = "2.0.0"
-dependencies = [
- "anyhow",
- "artimonist 2.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "assert_cmd",
- "clap",
- "comfy-table",
- "inquire",
- "predicates",
- "thiserror",
- "unicode-normalization",
-]
-
-[[package]]
-name = "artimonist"
-version = "2.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "af2055299f126d7f41219a6c1256a9fa3f5c2e39efae472ca20e63ca563b2423"
 dependencies = [
@@ -127,6 +112,21 @@ dependencies = [
  "thiserror",
  "unicode-normalization",
  "xbits",
+]
+
+[[package]]
+name = "artimonist"
+version = "2.0.1"
+dependencies = [
+ "anyhow",
+ "artimonist 2.0.0",
+ "assert_cmd",
+ "clap",
+ "comfy-table",
+ "inquire",
+ "predicates",
+ "thiserror",
+ "unicode-normalization",
 ]
 
 [[package]]

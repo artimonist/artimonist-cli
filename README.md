@@ -24,7 +24,7 @@
 > row (7) ""  ""  ""  ""  ""  ""  "】"  
 
 Mnemonics: 
-(0): tattoo slide more city sample ask tell unfold category spoil mother bottom assume session rib humble school usage ensure game bottom able mind exile
+(0): spawn space syrup invest render grow liquid myth law blast artwork weapon disease decorate raise assist civil gentle recycle ozone universe menu holiday property
 ```
 > Accepts any Unicode character written as "\u{1234}"  
 > With Encryption Key of "123456"  
@@ -34,22 +34,22 @@ Mnemonics:
 ```blank
 > artimonist simple --wallet --amount 5
   
-Wifs:
-(0): 3QUo3a7XB8u9hQK8qjNpjbjy13NfNyFvBa, 6PYTgnyGxwze4uCPu159m6wDxcmng7P4zpJZXQCUT1c4ULf44U8YyDkGMn
-(1): 35doRbCyWPShWdmteEJ22WF5erBuodf36B, 6PYWhNEcMShynPayAaZzVgkQ1PdHtjoqgvpUP73NSJFKnvEuAmFdrUQ1ad
-(2): 39fwZPrpp7wrq5dBrXFYs8HnbnS5V8sgJL, 6PYQHCK2RJBYwTxGoth59ejdpMQpa71zjiU3A76EZdVJCo8ytDHZRyBtDf
-(3): 3DpJtFBEyXknqme54LpM3WrMncKDiZzRQx, 6PYXMCM7edE4yriik3PfSgRyV2wJVWF19SdPcNs9PReJCBP6Ljsr3yFrdy
-(4): 3AQU4ZCDBHK6QFBa9A47MpaCesiRSVvB5a, 6PYPZmdi6rG6dBrR5tyV2EPdDEQqd1WW7qLyVWtD66BQALA2tVnqrezUMc
+Wifs: 
+(0): 3E3xmmNRTXqCqJDjJ1nrwE1bixpyiHovnP, 6PYSGbu3f7aL5z84dMR7FES3EU4Yf6mejTnZcrenk9tKTF1z5ykC6RZ9Ky
+(1): 3Nv7Yr3E4PXzHFenFqbgMJXTM9yWw5Dxvt, 6PYUBkfXMD86t59nUJSAru7kESMt5rhwdvVTnVg2rPz3erHukDv3tyDqRF
+(2): 33YVjUKVEGpLwEgBB1CFkq57SkeLaZXMRT, 6PYWSqzf2ZJ5DoVpxqGMQCehFFiKEYV3YcHor6oiUpV72R9EKkCLyoGDW7
+(3): 31yWPtsZTLNb3BFQ1sTGjrUTksWqAk5ZFq, 6PYU3RSKrVaPKdLSgMp92CxF7ZBQGVGnLsPw27zpQraAdhH5R621nt2Dda
+(4): 3Jpv1UxHb85FybJ3PpHiiaHfLJvLu5rtPJ, 6PYUUi8i1Vdu5H1f3aJJkq2rTnyfM5fofDWpfBT2UGfedadAkjM6JjLjyu
 ```
 > address and encrypted private key
 
 
 #### Generate master key
 ```blank
-> artimonist simple --xprv
+> artimonist simple --master
 
 Xprvs:  
-(0): xprv9s21ZrQH143K4NhZJaqTRwAaQztwHG3fUbLur3MBRiVJhEg1ZVQPGzStfYaBJnVtrdsJUGhPCEdYnh9e4K8XLuDP3XhPtMFypV3ujRtgRY4
+(0): xprv9s21ZrQH143K48pQ9hLYYTwV9vD4nrFGJAah61BDipuJawdV6gz6k6sByYfX7bu6hrHAJdzCz1Ge1c7UYFm67EuWCRGCHoyHVZBMHmU3jnU
 ```
 
 
