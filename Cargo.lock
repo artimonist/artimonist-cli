@@ -116,7 +116,7 @@ dependencies = [
 
 [[package]]
 name = "artimonist"
-version = "2.0.1"
+version = "2.0.2"
 dependencies = [
  "anyhow",
  "artimonist 2.0.0",
