@@ -47,7 +47,11 @@ fn is_mnemonic(s: &str) -> bool {
 
 #[inline(always)]
 fn is_private_key(s: &str) -> bool {
-    s.starts_with(['K', 'L', '5']) && s.len() == 52 && bitcoin::base58::decode(s).is_ok()
+    (match s.len() {
+        51 if s.starts_with('5') => true,
+        52 if s.starts_with(['K', 'L']) => true,
+        _ => false,
+    }) && (bitcoin::base58::decode(s).is_ok())
 }
 
 /// # Reference:
@@ -56,10 +60,13 @@ fn is_private_key(s: &str) -> bool {
 ///   > non-EC-multiplied keys with compression (prefix 6PY)
 ///   > EC-multiplied keys without compression (prefix 6Pf)
 ///   > EC-multiplied keys with compression (prefix 6Pn)
+/// # Notice:
+///   Ignore the second prefix char for disguised key.
+///   So, disguised key can be decrypted.
 #[inline(always)]
 fn is_encrypted_key(s: &str) -> bool {
     s.starts_with("6P")
-        && matches!(s.as_bytes()[2], b'R' | b'Y' | b'f' | b'n')
+        // && matches!(s.as_bytes()[2], b'R' | b'Y' | b'f' | b'n')
         && s.len() == 58
         && bitcoin::base58::decode(s).is_ok()
 }
