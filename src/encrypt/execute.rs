@@ -78,7 +78,8 @@ trait Bip38 {
 impl Bip38 for str {
     #[inline(always)]
     fn is_private(&self) -> bool {
-        self.starts_with(['K', 'L', '5']) && self.len() == 52
+        (self.starts_with(['K', 'L']) && self.len() == 52)
+            || (self.starts_with('5') && self.len() == 51)
     }
 
     #[inline(always)]

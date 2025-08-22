@@ -62,13 +62,36 @@ fn test_encrypt_full() {
 
 #[test]
 fn test_encrypt_key() {
-    let output = cli_execute!("encrypt KyyXeMvCn36KuedmVX727NYQ35YEeF4z1ZjXGyqgFpmZM4AcY8ay");
-    let output = output.trim();
-    assert!(output.ends_with("6PYPVwvgux4mN96iwj1RGvbiGmmPWpkiQimpkP1fvFGGhT38XxZed6Kdth"));
+    const TEST_DATA: &[&str] = &[
+        // compression
+        "KyyXeMvCn36KuedmVX727NYQ35YEeF4z1ZjXGyqgFpmZM4AcY8ay",
+        "6PYPVwvgux4mN96iwj1RGvbiGmmPWpkiQimpkP1fvFGGhT38XxZed6Kdth",
+        // no compression
+        "5KN7MzqK5wt2TP1fQCYyHBtDrXdJuXbUzm4A9rKAteGu3Qi5CVR",
+        "6PRVWUbkztvBzJXKGDvQ6ZmJQ2BGEF4h1rs9BDfw4C52bE4tUeZWzZ6Qwp",
+    ];
 
-    let output = cli_execute!("decrypt 6PYPVwvgux4mN96iwj1RGvbiGmmPWpkiQimpkP1fvFGGhT38XxZed6Kdth");
-    let output = output.trim();
-    assert!(output.ends_with("KyyXeMvCn36KuedmVX727NYQ35YEeF4z1ZjXGyqgFpmZM4AcY8ay"));
+    for data in TEST_DATA.chunks(2) {
+        let output = cli_execute!("encrypt", data[0]);
+        assert!(output.trim().ends_with(data[1]));
+
+        let decrypted = cli_execute!("decrypt", data[1]);
+        assert!(decrypted.trim().ends_with(data[0]));
+    }
+
+    // disguised bip38 wif can be decrypted.
+    const DISGUISE_DATA: &[&str] = &[
+        // compression
+        "L44B5gGEpqEDRS9vVPz7QT35jcBG2r3CZwSwQ4fCewXAhAhqGVpP",
+        "6Pbf7wys4KxBfH7AAjh1LAuSXBC6qzcJuxenig8cJhiD7dQjDZwPUP3emh",
+        // no compression
+        "5KN7MzqK5wt2TP1fQCYyHBtDrXdJuXbUzm4A9rKAteGu3Qi5CVR",
+        "6PUnJsaPthDRfjZH2fAhsmxLiRevGjVN9RRrSLKqohtSAW4sBPaYoAzHk9",
+    ];
+    for data in DISGUISE_DATA.chunks(2) {
+        let decrypted = cli_execute!("decrypt", data[1]);
+        assert!(decrypted.trim().ends_with(data[0]));
+    }
 }
 
 #[test]
